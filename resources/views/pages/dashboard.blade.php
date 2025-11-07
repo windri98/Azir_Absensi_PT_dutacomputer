@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistem Absensi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            width: 393px;
+            height: 852px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-y: auto;
+        }
+        .header {
+            background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
+            color: white;
+            padding: 50px 20px 30px 20px;
+            position: relative;
+            border-radius: 0 0 50px 50px;
+            overflow: hidden;
+            height: auto;
+            min-height: 200px;
+        }
+        .status-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .status-right {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .logout-btn {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .dropdown-container {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            display: inline-block;
+        }
+        .dropdown-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .dropdown-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 10px;
+            z-index: 1000;
+            margin-top: 5px;
+        }
+        .dropdown-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-item {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.2s ease;
+            font-size: 14px;
+        }
+        .dropdown-item:first-child {
+            border-radius: 10px 10px 0 0;
+        }
+        .dropdown-item:last-child {
+            border-radius: 0 0 10px 10px;
+        }
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+        .dropdown-item .icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+        .dropdown-divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 5px 0;
+        }
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 40px;
+            padding: 0 20px;
+        }
+        .profile-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-image: url('assets/image/439605617_454358160308404_313339237371064683_n.png');
+            background-size: cover;
+            background-position: center;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+        .profile-info {
+            flex: 1;
+        }
+        .employee-status {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        .employee-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .welcome-card {
+            position: relative;
+            margin: -20px 20px 20px 20px;
+            background: white;
+            padding: 25px 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            z-index: 10;
+        }
+        .welcome-text {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .user-name {
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.2s ease;
+        }
+        .menu-item:hover {
+            transform: translateY(-2px);
+        }
+        .menu-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .menu-icon.profil {
+            background-color: #6366f1;
+            color: white;
+        }
+        .menu-icon.absen {
+            background-color: #06b6d4;
+            color: white;
+        }
+        .menu-icon.aktifitas {
+            background-color: #f59e0b;
+            color: white;
+        }
+        .menu-icon.riwayat {
+            background-color: #ef4444;
+            color: white;
+        }
+        .menu-label {
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+            font-weight: 500;
+        }
+        .main-content {
+            flex: 1;
+            padding: 0 0 80px 0;
+            background-color: #f5f5f5;
+            min-height: calc(100vh - 300px);
+        }
+        
+        /* Enhanced Dashboard Components */
+        .status-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .status-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        .status-badge {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-badge.active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .status-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .status-time {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1ec7e6;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            margin-bottom: 20px;
+        }
+        .quick-actions h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .action-btn {
+            background: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
+            color: white;
+        }
+        .action-btn.secondary {
+            background: white;
+            color: #333;
+            border: 1px solid #e5e7eb;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+        .action-icon {
+            font-size: 20px;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 393px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 20px 0;
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #9ca3af;
+            transition: color 0.2s ease;
+            padding: 8px 12px;
+        }
+        .nav-item.active {
+            color: #1ec7e6;
+        }
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        .nav-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-right">
+                <span>●●●●</span>
+                <span>📶</span>
+                <span>🔋</span>
+            </div>
+        </div>
+        
+        <button class="logout-btn" onclick="logout()">log out</button>
+        
+        <div class="dropdown-container">
+            <button class="dropdown-btn" onclick="toggleDropdown()">
+                ⋮ Menu
+            </button>
+            <div class="dropdown-content" id="dropdownMenu">
+                <a href="profil" class="dropdown-item">
+                    <span class="icon">👤</span>
+                    Profil Saya
+                </a>
+                <a href="pengaturan" class="dropdown-item">
+                    <span class="icon">⚙️</span>
+                    Pengaturan
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item" onclick="downloadReport('laporan')">
+                    <span class="icon">📄</span>
+                    Download Laporan
+                </a>
+                <a href="#" class="dropdown-item" onclick="downloadReport('absensi')">
+                    <span class="icon">📊</span>
+                    Download Data Absensi
+                </a>
+                <a href="#" class="dropdown-item" onclick="downloadReport('riwayat')">
+                    <span class="icon">📋</span>
+                    Download Riwayat
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="bantuan" class="dropdown-item">
+                    <span class="icon">❓</span>
+                    Bantuan
+                </a>
+                <a href="tentang" class="dropdown-item">
+                    <span class="icon">ℹ️</span>
+                    Tentang Aplikasi
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item" onclick="logout()" style="color: #ef4444;">
+                    <span class="icon">🚪</span>
+                    Keluar
+                </a>
+            </div>
+        </div>
+        
+        <div class="profile-section">
+            <div class="profile-image"></div>
+            <div class="profile-info">
+                <div class="employee-status">Karyawan</div>
+                <div class="employee-name">Widya Mayasari Fauziah</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="welcome-card">
+            <div class="welcome-text">selamat siang,</div>
+            <div class="user-name">Widya Mayasari Fauziah</div>
+            
+            <div class="menu-grid">
+                <a href="profil" class="menu-item">
+                    <div class="menu-icon profil">👤</div>
+                    <div class="menu-label">Profil</div>
+                </a>
+                
+                <a href="absensi" class="menu-item">
+                    <div class="menu-icon absen">📷</div>
+                    <div class="menu-label">Absen</div>
+                </a>
+                
+                <a href="aktifitas" class="menu-item">
+                    <div class="menu-icon aktifitas">📋</div>
+                    <div class="menu-label">Aktivitas</div>
+                </a>
+                
+                <a href="riwayat" class="menu-item">
+                    <div class="menu-icon riwayat">🕒</div>
+                    <div class="menu-label">Riwayat</div>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Additional content space -->
+        <div style="padding: 0 20px; margin-top: 20px;">
+            <!-- Today's Status Card -->
+            <div class="status-card">
+                <div class="status-header">
+                    <h3>Today's Status</h3>
+                    <span class="status-badge" id="statusBadge">Not Clocked In</span>
+                </div>
+                <div class="status-content">
+                    <div class="status-item">
+                        <span class="status-label">Clock In</span>
+                        <span class="status-time" id="clockInTime">--:--</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Clock Out</span>
+                        <span class="status-time" id="clockOutTime">--:--</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Working Hours</span>
+                        <span class="status-time" id="workingHours">0h 0m</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">22</div>
+                    <div class="stat-label">This Month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">This Week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">Late Days</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="action-buttons">
+                    <button class="action-btn primary" onclick="quickClockIn()">
+                        <span class="action-icon">📍</span>
+                        Quick Clock In
+                    </button>
+                    <button class="action-btn secondary" onclick="requestLeave()">
+                        <span class="action-icon">📝</span>
+                        Request Leave
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="dashboard" class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="riwayat" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">History</span>
+            </a>
+            <a href="laporan" class="nav-item">
+                <span class="nav-icon">📈</span>
+                <span class="nav-label">Reports</span>
+            </a>
+            <a href="profile" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Profile</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        function logout() {
+            if (confirm('Apakah Anda yakin ingin logout?')) {
+                // Clear user session
+                localStorage.removeItem('userSession');
+                localStorage.removeItem('attendanceHistory');
+                // Redirect to welcome page
+                window.location.href = 'welcome';
+            }
+        }
+
+        function downloadReport(type) {
+            // Simulate download functionality
+            const reportTypes = {
+                'laporan': 'Laporan Kehadiran',
+                'absensi': 'Data Absensi',
+                'riwayat': 'Riwayat Aktivitas'
+            };
+            
+            alert(`Download ${reportTypes[type]} akan segera dimulai...`);
+            // In real app, this would trigger actual download
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.dropdown-btn')) {
+                const dropdowns = document.getElementsByClassName('dropdown-content');
+                for (let i = 0; i < dropdowns.length; i++) {
+                    const openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        // Function to get greeting based on time
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) {
+                return 'selamat pagi,';
+            } else if (hour < 15) {
+                return 'selamat siang,';
+            } else if (hour < 18) {
+                return 'selamat sore,';
+            } else {
+                return 'selamat malam,';
+            }
+        }
+
+        // Update user info from session
+        function updateUserInfo() {
+            const userSession = localStorage.getItem('userSession');
+            const registeredUser = localStorage.getItem('registeredUser');
+            
+            if (userSession && registeredUser) {
+                const userData = JSON.parse(registeredUser);
+                const userNameElement = document.querySelector('.user-name');
+                if (userNameElement && userData.name) {
+                    userNameElement.textContent = userData.name;
+                }
+            }
+        }
+
+        // Update today's status
+        function updateTodayStatus() {
+            const attendanceHistory = JSON.parse(localStorage.getItem('attendanceHistory') || '[]');
+            const today = new Date().toDateString();
+            
+            const todayRecords = attendanceHistory.filter(record => 
+                new Date(record.date).toDateString() === today
+            );
+            
+            const clockInRecord = todayRecords.find(record => record.type === 'clock-in');
+            const clockOutRecord = todayRecords.find(record => record.type === 'clock-out');
+            
+            const statusBadge = document.getElementById('statusBadge');
+            const clockInTime = document.getElementById('clockInTime');
+            const clockOutTime = document.getElementById('clockOutTime');
+            const workingHours = document.getElementById('workingHours');
+            
+            if (clockInRecord) {
+                clockInTime.textContent = clockInRecord.time;
+                statusBadge.textContent = clockOutRecord ? 'Completed' : 'Working';
+                statusBadge.className = clockOutRecord ? 'status-badge' : 'status-badge active';
+            }
+            
+            if (clockOutRecord) {
+                clockOutTime.textContent = clockOutRecord.time;
+            }
+            
+            // Calculate working hours
+            if (clockInRecord && clockOutRecord) {
+                const start = new Date(`${today} ${clockInRecord.time}`);
+                const end = new Date(`${today} ${clockOutRecord.time}`);
+                const diff = end - start;
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                workingHours.textContent = `${hours}h ${minutes}m`;
+            }
+        }
+
+        // Quick actions
+        function quickClockIn() {
+            window.location.href = 'clock-in';
+        }
+
+        function requestLeave() {
+            window.location.href = 'izin';
+        }
+
+        // Update greeting based on current time
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const userSession = localStorage.getItem('userSession');
+            if (!userSession) {
+                window.location.href = 'welcome';
+                return;
+            }
+            
+            const welcomeText = document.querySelector('.welcome-text');
+            welcomeText.textContent = getGreeting();
+            
+            // Update user info
+            updateUserInfo();
+            
+            // Update today's status
+            updateTodayStatus();
+        });
+    </script>
+</body>
+</html>
