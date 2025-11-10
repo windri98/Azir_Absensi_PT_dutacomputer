@@ -14,11 +14,18 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
-            width: 393px;
-            height: 852px;
+            width: 100%;
+            max-width: 393px;
+            min-height: 100vh;
             margin: 0 auto;
             overflow-y: auto;
             padding-bottom: 80px;
+        }
+        
+        @media (min-width: 394px) {
+            body {
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            }
         }
         
         /* Header */
@@ -28,7 +35,7 @@
             padding: 50px 20px 30px 20px;
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 1000;
         }
         .header-content {
             display: flex;
@@ -48,6 +55,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        .back-btn:active {
+            transform: scale(0.95);
         }
         .header-title {
             flex: 1;
@@ -212,7 +229,8 @@
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 393px;
+            width: 100%;
+            max-width: 393px;
             background: white;
             border-top: 1px solid #e5e7eb;
             display: flex;
@@ -385,7 +403,7 @@
         let currentFilter = 'week';
 
         function goBack() {
-            window.location.href = 'dashboard';
+            window.location.href = '{{ route("dashboard") }}';
         }
 
         function filterBy(period) {
@@ -415,8 +433,5 @@
             
             // Filter data based on selected period
             let filteredData = filterDataByPeriod(attendanceHistory, currentFilter);
-            <script>
-                function goBack() {
-                    window.location.href = '/dashboard';
-                }
-            </script>
+            
+            if (filteredData.length === 0) {

@@ -14,10 +14,17 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
-            width: 393px;
-            height: 852px;
+            width: 100%;
+            max-width: 393px;
+            min-height: 100vh;
             margin: 0 auto;
             overflow-y: auto;
+        }
+        
+        @media (min-width: 394px) {
+            body {
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            }
         }
         
         /* Header */

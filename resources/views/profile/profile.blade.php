@@ -14,11 +14,18 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
-            width: 393px;
-            height: 852px;
+            width: 100%;
+            max-width: 393px;
+            min-height: 100vh;
             margin: 0 auto;
             overflow-y: auto;
             padding-bottom: 80px;
+        }
+        
+        @media (min-width: 394px) {
+            body {
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            }
         }
         
         /* Profile Header */
@@ -192,7 +199,8 @@
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 393px;
+            width: 100%;
+            max-width: 393px;
             background: white;
             border-top: 1px solid #e5e7eb;
             display: flex;

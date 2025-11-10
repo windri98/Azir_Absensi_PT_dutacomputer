@@ -10,7 +10,7 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
         crossorigin=""/>
     <!-- Popup Component CSS -->
-    <link rel="stylesheet" href="/components/popup.css">
+    <link rel="stylesheet" href="{{ asset('components/popup.css') }}">
     <style>
         * {
             margin: 0;
@@ -48,38 +48,20 @@
         .map-overlay > * {
             pointer-events: auto;
         }
-        .status-bar {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            z-index: 10;
-        }
-        .status-right {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
         .back-btn {
             position: absolute;
-            top: 70px;
+            top: 30px;
             left: 20px;
             background: rgba(30, 199, 230, 0.9);
             color: white;
             border: none;
             padding: 12px;
             border-radius: 50%;
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -92,18 +74,18 @@
         }
         .refresh-btn {
             position: absolute;
-            top: 70px;
+            top: 30px;
             right: 20px;
             background: rgba(30, 199, 230, 0.9);
             color: white;
             border: none;
             padding: 12px;
             border-radius: 50%;
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -151,45 +133,45 @@
             right: 0;
             background: white;
             border-radius: 25px 25px 0 0;
-            padding: 30px 25px;
+            padding: 15px 20px 20px 20px;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-            height: 40%;
+            height: 38%;
             display: flex;
             flex-direction: column;
         }
         .panel-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 8px;
         }
         .panel-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #1ec7e6;
-            margin-bottom: 10px;
+            margin-bottom: 0;
         }
         .location-section {
-            margin-bottom: 20px;
+            margin-bottom: 8px;
         }
         .location-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 6px;
         }
         .location-icon {
-            font-size: 20px;
+            font-size: 18px;
             color: #666;
         }
         .location-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             color: #333;
         }
         .location-address {
             color: #666;
-            font-size: 14px;
-            line-height: 1.4;
-            padding-left: 30px;
+            font-size: 13px;
+            line-height: 1.3;
+            padding-left: 26px;
         }
         .loading-location {
             color: #1ec7e6;
@@ -200,24 +182,24 @@
             font-style: italic;
         }
         .location-accuracy {
-            font-size: 12px;
+            font-size: 11px;
             color: #999;
-            margin-top: 5px;
-            padding-left: 30px;
+            margin-top: 4px;
+            padding-left: 26px;
         }
         .note-section {
-            margin-bottom: 25px;
+            margin-bottom: 10px;
         }
         .note-input {
             width: 100%;
-            padding: 15px;
+            padding: 10px;
             border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 13px;
             color: #666;
             background-color: #f8f9fa;
             resize: none;
-            height: 60px;
+            height: 45px;
         }
         .note-input:focus {
             outline: none;
@@ -226,12 +208,12 @@
         }
         .clock-in-btn {
             width: 100%;
-            padding: 18px;
+            padding: 14px;
             background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
             color: white;
             border: none;
-            border-radius: 15px;
-            font-size: 18px;
+            border-radius: 12px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -245,10 +227,21 @@
         .clock-in-btn:active {
             transform: translateY(0);
         }
+        .clock-in-btn:disabled {
+            background: linear-gradient(135deg, #ccc, #999);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
         
         /* Map specific styles */
         .leaflet-control-container {
             pointer-events: auto;
+        }
+        .leaflet-control-container .leaflet-top.leaflet-left {
+            top: 120px;
+        }
+        .leaflet-control-zoom {  
+            margin-top: 0 !important;
         }
         .custom-marker {
             background-color: #ef4444;
@@ -279,16 +272,6 @@
         </div>
         
         <div class="map-overlay">
-            <div class="status-bar">
-                <span>08:34</span>
-                <div class="status-right">
-                    <span>●●●●</span>
-                    <span>4G</span>
-                    <span>📶</span>
-                    <span>🔋</span>
-                </div>
-            </div>
-            
             <button class="back-btn" onclick="goBack()">←</button>
             <button class="refresh-btn" onclick="refreshLocation()">↻</button>
             
@@ -320,7 +303,7 @@
             <textarea class="note-input" placeholder="Note (optional)" id="noteInput"></textarea>
         </div>
         
-        <button class="clock-in-btn" onclick="performClockIn()">Clock In</button>
+        <button class="clock-in-btn" onclick="performClockIn()" id="clockInBtn" disabled>Waiting for location...</button>
     </div>
 
     <!-- Leaflet JavaScript -->
@@ -328,22 +311,8 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
             crossorigin=""></script>
     <!-- Popup Component JavaScript -->
-    <script src="/assets/js/attendance-helper.js"></script>
-    <script src="/components/popup.js"></script>
+    <script src="{{ asset('components/popup.js') }}"></script>
     <script>
-        // Fallback functions if popup.js fails to load
-        if (typeof showSuccessPopup === 'undefined') {
-            window.showSuccessPopup = function(options) {
-                alert(options.title + '\n' + options.message);
-                if (options.onClose) options.onClose();
-            };
-        }
-        if (typeof showErrorPopup === 'undefined') {
-            window.showErrorPopup = function(options) {
-                alert('ERROR: ' + options.title + '\n' + options.message);
-            };
-        }
-
         let currentLocation = null;
         let watchId = null;
         let map = null;
@@ -408,17 +377,20 @@
             if (watchId) {
                 navigator.geolocation.clearWatch(watchId);
             }
-            window.location.href = '{{ route("attendance.absensi") }}';
+            window.location.href = "{{ route('attendance.absensi') }}";
         }
 
         function refreshLocation() {
             const refreshBtn = document.querySelector('.refresh-btn');
             const locationAddress = document.getElementById('locationAddress');
             const locationAccuracy = document.getElementById('locationAccuracy');
+            const clockInBtn = document.getElementById('clockInBtn');
             
             refreshBtn.style.transform = 'rotate(360deg)';
             locationAddress.innerHTML = '<span class="loading-location">📍 Memperbarui lokasi...</span>';
             locationAccuracy.textContent = '';
+            clockInBtn.disabled = true;
+            clockInBtn.textContent = 'Waiting for location...';
             
             setTimeout(() => {
                 refreshBtn.style.transform = 'rotate(0deg)';
@@ -426,10 +398,14 @@
             }, 1000);
         }
 
-        async function performClockIn() {
+        function performClockIn() {
             const note = document.getElementById('noteInput').value;
-            const clockBtn = document.querySelector('.clock-in-btn');
-
+            const currentTime = new Date().toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            
             if (!currentLocation) {
                 showErrorPopup({
                     title: 'Location Error',
@@ -438,70 +414,81 @@
                 });
                 return;
             }
-
+            
+            // Simulate clock in process
+            const clockBtn = document.querySelector('.clock-in-btn');
             clockBtn.textContent = 'Processing...';
             clockBtn.disabled = true;
-
-            try {
-                const payload = {
-                    location: {
-                        lat: currentLocation.lat,
-                        lng: currentLocation.lng,
-                        accuracy: currentLocation.accuracy
-                    },
-                    note: note
-                };
-
-                console.log('Sending check-in request with payload:', payload);
-
-                const response = await fetch('/attendance/check-in', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                console.log('Response status:', response.status);
-                console.log('Response ok:', response.ok);
-
-                const data = await response.json();
-                console.log('Response data:', data);
-
-                if (response.ok && data.success) {
+            
+            // Prepare data to send to server
+            const clockInData = {
+                location: JSON.stringify({
+                    latitude: currentLocation.lat,
+                    longitude: currentLocation.lng,
+                    accuracy: currentLocation.accuracy
+                }),
+                note: note,
+                _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            };
+            
+            // Send AJAX request to Laravel backend
+            fetch("{{ route('attendance.check-in') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': clockInData._token
+                },
+                body: JSON.stringify(clockInData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Show success popup with time
                     showSuccessPopup({
                         title: 'Clock In Successful!',
-                        message: data.message || 'Anda berhasil melakukan clock in',
-                        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                        message: 'Anda berhasil melakukan clock in',
+                        time: currentTime,
                         buttonText: 'Continue',
-                        onClose: () => { window.location.href = '{{ route("attendance.absensi") }}'; }
+                        onClose: () => {
+                            window.location.href = "{{ route('attendance.absensi') }}";
+                        }
                     });
                 } else {
+                    // Show error popup
                     showErrorPopup({
-                        title: 'Error',
-                        message: data.message || 'Gagal melakukan clock in',
+                        title: 'Clock In Failed',
+                        message: data.message || 'Terjadi kesalahan saat clock in',
                         buttonText: 'OK'
                     });
                     clockBtn.textContent = 'Clock In';
                     clockBtn.disabled = false;
                 }
-            } catch (err) {
-                console.error('Check-in error:', err);
-                console.error('Error details:', {
-                    name: err.name,
-                    message: err.message,
-                    stack: err.stack
-                });
-                showErrorPopup({ 
-                    title: 'Error', 
-                    message: 'Terjadi kesalahan: ' + err.message, 
-                    buttonText: 'OK' 
+            })
+            .catch(error => {
+                console.error('Clock in error:', error);
+                let errorMessage = 'Terjadi kesalahan koneksi. Silakan coba lagi.';
+                
+                // Handle validation errors
+                if (error.errors) {
+                    errorMessage = Object.values(error.errors).flat().join('\n');
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                showErrorPopup({
+                    title: 'Clock In Failed',
+                    message: errorMessage,
+                    buttonText: 'OK'
                 });
                 clockBtn.textContent = 'Clock In';
                 clockBtn.disabled = false;
-            }
+            });
         }
 
         function updateCurrentTime() {
@@ -516,19 +503,19 @@
         }
 
         function reverseGeocode(lat, lng) {
-            // Fetch ke backend Laravel agar tidak kena CORS/403
-            const url = `/reverse-geocode?lat=${lat}&lng=${lng}`;
+            // Using OpenStreetMap Nominatim API for reverse geocoding
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+            
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     const locationAddress = document.getElementById('locationAddress');
+                    
                     if (data && data.display_name) {
                         // Parse address components
                         const address = data.address || {};
                         const formattedAddress = formatAddress(address, data.display_name);
                         locationAddress.innerHTML = formattedAddress;
-                    } else if (data && data.error) {
-                        locationAddress.innerHTML = `Gagal mendapatkan alamat: ${data.error}`;
                     } else {
                         locationAddress.innerHTML = `Koordinat: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
                     }
@@ -603,6 +590,11 @@
                 
                 currentLocation = { lat, lng, accuracy };
                 
+                // Enable clock in button
+                const clockInBtn = document.getElementById('clockInBtn');
+                clockInBtn.disabled = false;
+                clockInBtn.textContent = 'Clock In';
+                
                 // Update accuracy info
                 locationAccuracy.textContent = `Akurasi: ±${Math.round(accuracy)} meter`;
                 
@@ -667,6 +659,13 @@
                         
                         currentLocation = { lat, lng, accuracy };
                         
+                        // Enable clock in button
+                        const clockInBtn = document.getElementById('clockInBtn');
+                        if (clockInBtn.disabled) {
+                            clockInBtn.disabled = false;
+                            clockInBtn.textContent = 'Clock In';
+                        }
+                        
                         // Update accuracy info
                         document.getElementById('locationAccuracy').textContent = `Akurasi: ±${Math.round(accuracy)} meter`;
                         
@@ -693,12 +692,17 @@
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Authentication is enforced server-side; avoid client-side redirect.
+            @guest
+                // Redirect to login if not authenticated
+                window.location.href = "{{ route('login') }}";
+                return;
+            @endguest
+            
             updateCurrentTime();
-
+            
             // Initialize map first
             initMap();
-
+            
             // Then get location
             setTimeout(() => {
                 getCurrentLocation();

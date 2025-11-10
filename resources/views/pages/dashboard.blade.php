@@ -13,14 +13,22 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
-            width: 393px;
-            height: 852px;
+            min-height: 100vh;
+            width: 100%;
+            max-width: 393px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
             position: relative;
             overflow-y: auto;
         }
+        
+        @media (min-width: 394px) {
+            body {
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            }
+        }
+        
         .header {
             background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
             color: white;
@@ -31,25 +39,9 @@
             height: auto;
             min-height: 200px;
         }
-        .status-bar {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .status-right {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
         .logout-btn {
             position: absolute;
-            top: 70px;
+            top: 20px;
             left: 20px;
             background: rgba(255, 255, 255, 0.2);
             color: white;
@@ -374,7 +366,8 @@
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 393px;
+            width: 100%;
+            max-width: 393px;
             background: white;
             border-top: 1px solid #e5e7eb;
             display: flex;
@@ -406,15 +399,6 @@
 </head>
 <body>
     <div class="header">
-        <div class="status-bar">
-            <span>9:41</span>
-            <div class="status-right">
-                <span>●●●●</span>
-                <span>📶</span>
-                <span>🔋</span>
-            </div>
-        </div>
-        
         <button class="logout-btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log Out</button>
         
         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">

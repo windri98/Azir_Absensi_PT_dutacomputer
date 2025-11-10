@@ -14,12 +14,11 @@
         body {
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            min-height: 100vh;
             background-color: #f5f5f5;
             font-family: Arial, sans-serif;
-            width: 393px;
-            height: 852px;
-            margin: 0 auto;
+            width: 100%;
+            margin: 0;
         }
         .header {
             background: linear-gradient(135deg, #1ec7e6, #0ea5e9);

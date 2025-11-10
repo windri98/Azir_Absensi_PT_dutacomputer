@@ -17,6 +17,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
         }
         .topbar h1 { font-size: 20px; font-weight: 600; }
         .topbar-right { display: flex; gap: 12px; align-items: center; }
@@ -31,6 +32,18 @@
         }
         .topbar-right a:hover { background: rgba(255,255,255,.25); }
         
+        /* Hamburger Menu Button (Mobile Only) */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            margin-right: 12px;
+        }
+        
         /* Sidebar */
         .layout { display: flex; min-height: calc(100vh - 60px); }
         .sidebar {
@@ -38,6 +51,7 @@
             background: white;
             box-shadow: 2px 0 8px rgba(0,0,0,.06);
             padding: 20px 0;
+            transition: transform 0.3s ease;
         }
         .sidebar a {
             display: block;
@@ -54,6 +68,66 @@
             color: #0ea5e9;
             border-left-color: #0ea5e9;
             font-weight: 600;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            
+            .topbar h1 { font-size: 16px; }
+            .topbar { padding: 12px 16px; }
+            
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 52px;
+                bottom: 0;
+                z-index: 999;
+                transform: translateX(-100%);
+                width: 280px;
+                box-shadow: 2px 0 20px rgba(0,0,0,.2);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .content {
+                padding: 16px;
+                width: 100%;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .topbar-right {
+                gap: 6px;
+            }
+            .topbar-right a {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            /* Overlay when sidebar open */
+            body::after {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,.5);
+                z-index: 998;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity .3s;
+            }
+            body.sidebar-open::after {
+                opacity: 1;
+                pointer-events: all;
+            }
         }
         
         /* Content */
@@ -192,6 +266,7 @@
 </head>
 <body>
     <div class="topbar">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <h1>🛠️ Admin Panel</h1>
         <div class="topbar-right">
             <span>{{ auth()->user()->name }}</span>
@@ -204,7 +279,7 @@
     </div>
     
     <div class="layout">
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 📊 Dashboard
             </a>
@@ -257,6 +332,32 @@
             @yield('content')
         </main>
     </div>
+    
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const body = document.body;
+            
+            sidebar.classList.toggle('open');
+            body.classList.toggle('sidebar-open');
+        }
+        
+        // Close sidebar when clicking overlay
+        document.addEventListener('click', (e) => {
+            if (document.body.classList.contains('sidebar-open') && 
+                !e.target.closest('.sidebar') && 
+                !e.target.closest('.menu-toggle')) {
+                toggleSidebar();
+            }
+        });
+        
+        // Close flash messages
+        document.querySelectorAll('.flash-close').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.remove();
+            });
+        });
+    </script>
     
     @stack('scripts')
 </body>

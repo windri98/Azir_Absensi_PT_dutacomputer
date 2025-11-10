@@ -15,11 +15,19 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
-            width: 393px;
-            height: 852px;
+            width: 100%;
+            max-width: 393px;
+            min-height: 100vh;
             margin: 0 auto;
             overflow-y: auto;
         }
+        
+        @media (min-width: 394px) {
+            body {
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            }
+        }
+        
         .header {
             background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
             color: white;
@@ -27,25 +35,9 @@
             position: relative;
             border-radius: 0 0 30px 30px;
         }
-        .status-bar {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .status-right {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
         .back-btn {
             position: absolute;
-            top: 70px;
+            top: 20px;
             left: 20px;
             background: rgba(255, 255, 255, 0.2);
             color: white;
@@ -215,15 +207,6 @@
 </head>
 <body>
     <div class="header">
-        <div class="status-bar">
-            <span>9:41</span>
-            <div class="status-right">
-                <span>●●●●</span>
-                <span>📶</span>
-                <span>🔋</span>
-            </div>
-        </div>
-        
         <button class="back-btn" onclick="goBack()">←</button>
         
         <div class="profile-section">

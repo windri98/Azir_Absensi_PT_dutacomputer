@@ -16,12 +16,20 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
-            width: 393px;
-            height: 852px;
+            width: 100%;
+            max-width: 393px;
+            height: 100vh;
             margin: 0 auto;
             overflow: hidden;
             position: relative;
         }
+        
+        @media (min-width: 394px) {
+            body {
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            }
+        }
+        
         .header {
             background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
             color: white;
@@ -33,27 +41,9 @@
             justify-content: center;
             align-items: center;
         }
-        .status-bar {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            z-index: 10;
-        }
-        .status-right {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
         .back-btn {
             position: absolute;
-            top: 70px;
+            top: 20px;
             left: 20px;
             background: rgba(255, 255, 255, 0.2);
             color: white;
@@ -97,45 +87,49 @@
             margin-bottom: 30px;
         }
         .clock-out-panel {
-            position: absolute;
+            position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: white;
             border-radius: 25px 25px 0 0;
-            padding: 30px 25px;
+            padding: 20px 25px 25px 25px;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-            height: 40%;
+            max-height: 35%;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
+            z-index: 1000;
         }
         .panel-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
         }
         .panel-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             color: #1ec7e6;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         .panel-subtitle {
             font-size: 14px;
             color: #666;
         }
         .note-section {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
         }
         .note-input {
             width: 100%;
-            padding: 15px;
+            padding: 12px 15px;
             border: 1px solid #e0e0e0;
             border-radius: 12px;
             font-size: 14px;
             color: #666;
             background-color: #f8f9fa;
             resize: none;
-            height: 60px;
+            height: 50px;
         }
         .note-input:focus {
             outline: none;
@@ -144,7 +138,7 @@
         }
         .clock-out-btn {
             width: 100%;
-            padding: 18px;
+            padding: 16px;
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
             border: none;
@@ -155,6 +149,7 @@
             transition: all 0.3s ease;
             margin-top: auto;
             box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            flex-shrink: 0;
         }
         .clock-out-btn:hover {
             transform: translateY(-2px);
@@ -167,16 +162,6 @@
 </head>
 <body>
     <div class="header">
-        <div class="status-bar">
-            <span id="statusTime">08:34</span>
-            <div class="status-right">
-                <span>●●●●</span>
-                <span>4G</span>
-                <span>📶</span>
-                <span>🔋</span>
-            </div>
-        </div>
-        
         <button class="back-btn" onclick="goBack()">←</button>
         
         <div class="clock-icon">🕐</div>

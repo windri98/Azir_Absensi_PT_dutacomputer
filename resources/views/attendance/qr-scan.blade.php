@@ -17,23 +17,31 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #000;
-            width: 393px;
-            height: 852px;
+            width: 100%;
+            max-width: 393px;
+            height: 100vh;
+            min-height: 100vh;
             margin: 0 auto;
             overflow: hidden;
             position: relative;
+        }
+        
+        @media (min-width: 394px) {
+            body {
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            }
         }
         
         /* Camera View */
         .camera-container {
             position: relative;
             width: 100%;
-            height: 100%;
+            height: 100vh;
             background: #000;
         }
         #qr-video {
             width: 100%;
-            height: 100%;
+            height: 100vh;
             object-fit: cover;
         }
         
@@ -54,10 +62,11 @@
         /* Header */
         .scan-header {
             position: absolute;
-            top: 50px;
+            top: 30px;
             left: 20px;
             right: 20px;
             z-index: 20;
+            padding-top: 20px;
         }
         .header-content {
             display: flex;
@@ -100,6 +109,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            margin-top: -20px;
             width: 250px;
             height: 250px;
             border: 2px solid #1ec7e6;
