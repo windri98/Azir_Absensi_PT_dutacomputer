@@ -1,0 +1,4 @@
+# This directory stores uploaded files (complaint attachments, profile photos)
+# Files in this directory are gitignored for security
+*
+!.gitkeep

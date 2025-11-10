@@ -105,7 +105,7 @@
 
         .profile-stats {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-bottom: 20px;
         }
@@ -387,16 +387,20 @@
 
         <div class="profile-stats">
             <div class="stat-item">
-                <div class="stat-value" id="statHadir">0</div>
+                <div class="stat-value" id="statHadir">{{ $stats['hadir'] ?? 0 }}</div>
                 <div class="stat-label">Hadir</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value" id="statIzin">0</div>
-                <div class="stat-label">Izin</div>
+                <div class="stat-value" id="statTotalHari">{{ $stats['total_days'] ?? 0 }}</div>
+                <div class="stat-label">Total Hari</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value" id="statTerlambat">0</div>
+                <div class="stat-value" id="statTerlambat">{{ $stats['terlambat'] ?? 0 }}</div>
                 <div class="stat-label">Terlambat</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="statTotalJam">{{ number_format($stats['total_hours'] ?? 0, 2) }}h</div>
+                <div class="stat-label">Total Jam</div>
             </div>
         </div>
     </div>
@@ -494,19 +498,19 @@
     </div>
 
     <div class="bottom-nav">
-        <a href="dashboard" class="nav-item">
+        <a href="{{ route('dashboard') }}" class="nav-item">
             <div class="nav-icon">🏠</div>
             <div>Beranda</div>
         </a>
-        <a href="riwayat" class="nav-item">
+        <a href="{{ route('attendance.riwayat') }}" class="nav-item">
             <div class="nav-icon">📊</div>
             <div>History</div>
         </a>
-        <a href="aktifitas" class="nav-item">
+        <a href="{{ route('activities.aktifitas') }}" class="nav-item">
             <div class="nav-icon">📈</div>
             <div>Aktivitas</div>
         </a>
-        <a href="profil" class="nav-item active">
+        <a href="{{ route('profil') }}" class="nav-item active">
             <div class="nav-icon">👤</div>
             <div>Profile</div>
         </a>
@@ -545,51 +549,10 @@
                 document.getElementById('profileRole').textContent = userProfile.jabatan;
             }
             
-            // Load attendance stats
-            loadAttendanceStats();
+            // Data kehadiran di-render server-side, tidak perlu load dari localStorage
         }
 
-        function loadAttendanceStats() {
-            const attendanceHistory = JSON.parse(localStorage.getItem('attendanceHistory') || '[]');
-            const izinData = JSON.parse(localStorage.getItem('izinData') || '[]');
-            
-            // Count hadir (clock in records for current month)
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-            
-            const hadirCount = attendanceHistory.filter(record => {
-                if (!record.timestamp) return false;
-                const recordDate = new Date(record.timestamp);
-                return recordDate.getMonth() === currentMonth && 
-                       recordDate.getFullYear() === currentYear &&
-                       record.type === 'in';
-            }).length;
-            
-            // Count izin (approved leave for current month)
-            const izinCount = izinData.filter(izin => {
-                if (!izin.tanggalMulai) return false;
-                const izinDate = new Date(izin.tanggalMulai);
-                return izinDate.getMonth() === currentMonth && 
-                       izinDate.getFullYear() === currentYear &&
-                       izin.status === 'disetujui';
-            }).length;
-            
-            // Count terlambat (late check-ins)
-            const terlambatCount = attendanceHistory.filter(record => {
-                if (!record.timestamp || record.type !== 'in') return false;
-                const recordDate = new Date(record.timestamp);
-                if (recordDate.getMonth() !== currentMonth || recordDate.getFullYear() !== currentYear) {
-                    return false;
-                }
-                const clockInTime = recordDate.getHours() * 60 + recordDate.getMinutes();
-                const deadlineTime = 8 * 60; // 08:00
-                return clockInTime > deadlineTime;
-            }).length;
-            
-            document.getElementById('statHadir').textContent = hadirCount;
-            document.getElementById('statIzin').textContent = izinCount;
-            document.getElementById('statTerlambat').textContent = terlambatCount;
-        }
+        // Fungsi loadAttendanceStats dihapus karena perhitungan dilakukan server-side
 
         // Logout Modal
         function showLogoutModal() {

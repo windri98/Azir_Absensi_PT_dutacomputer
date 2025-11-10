@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>QR Scan Absensi - Sistem Absensi</title>
-    <link rel="stylesheet" href="components/popup.css">
+    <link rel="stylesheet" href="/components/popup.css">
     <!-- QR Code Scanner Library -->
     <script src="https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
     <style>
@@ -377,7 +378,7 @@
             if (qrScanner) {
                 qrScanner.stop();
             }
-            window.location.href = 'absensi';
+            window.location.href = '{{ route("attendance.absensi") }}';
         }
         
         function initQRScanner() {
@@ -573,13 +574,8 @@
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const userSession = localStorage.getItem('userSession');
-            if (!userSession) {
-                window.location.href = 'welcome';
-                return;
-            }
-            
+            // Authentication is enforced server-side; avoid client-side redirect.
+
             // Check if browser supports camera
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 showErrorPopup({
@@ -590,7 +586,7 @@
                 });
                 return;
             }
-            
+
             initQRScanner();
         });
         

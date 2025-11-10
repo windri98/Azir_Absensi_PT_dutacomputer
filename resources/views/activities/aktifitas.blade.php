@@ -393,19 +393,19 @@
     </div>
 
     <div class="bottom-nav">
-        <a href="dashboard" class="nav-item">
+        <a href="{{ route('dashboard') }}" class="nav-item">
             <div class="nav-icon">🏠</div>
             <div>Beranda</div>
         </a>
-        <a href="riwayat" class="nav-item">
+        <a href="{{ route('attendance.riwayat') }}" class="nav-item">
             <div class="nav-icon">📊</div>
             <div>History</div>
         </a>
-        <a href="aktifitas" class="nav-item active">
+        <a href="{{ route('activities.aktifitas') }}" class="nav-item active">
             <div class="nav-icon">📈</div>
             <div>Aktivitas</div>
         </a>
-        <a href="profile" class="nav-item">
+        <a href="{{ route('profile.show') }}" class="nav-item">
             <div class="nav-icon">👤</div>
             <div>Profile</div>
         </a>

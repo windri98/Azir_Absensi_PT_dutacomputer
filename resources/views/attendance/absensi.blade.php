@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Absensi - Sistem Absensi</title>
     <!-- Popup Component CSS -->
-    <link rel="stylesheet" href="components/popup.css">
+    <link rel="stylesheet" href="/components/popup.css">
     <style>
         * {
             margin: 0;
@@ -227,10 +227,10 @@
         <button class="back-btn" onclick="goBack()">←</button>
         
         <div class="profile-section">
-            <div class="profile-image"></div>
+            <div class="profile-image" style="background-image: url('{{ $user->photo ? asset('storage/' . $user->photo) : asset('assets/image/439605617_454358160308404_313339237371064683_n.png') }}');"></div>
             <div class="profile-info">
-                <div class="employee-status">Karyawan</div>
-                <div class="employee-name">Widya Mayasari Fauziah</div>
+                <div class="employee-status">{{ $user->roles->first()->description ?? 'Karyawan' }}</div>
+                <div class="employee-name">{{ $user->name }}</div>
             </div>
         </div>
     </div>
@@ -244,7 +244,16 @@
             <div class="divider"></div>
             
             <h4>Office Hours</h4>
-            <div class="office-time">08:00 AM - 05:00 PM</div>
+            @if($userShift)
+                <div class="office-time">
+                    {{ \Carbon\Carbon::parse($userShift->start_time)->format('h:i A') }} - 
+                    {{ \Carbon\Carbon::parse($userShift->end_time)->format('h:i A') }}
+                </div>
+                <small style="color: #888; font-size: 12px;">Shift: {{ $userShift->name }}</small>
+            @else
+                <div class="office-time" style="color: #999;">Belum ada shift</div>
+                <small style="color: #ff6b6b; font-size: 12px;">⚠️ Hubungi admin untuk assign shift</small>
+            @endif
             
             <div class="clock-buttons">
                 <button class="clock-btn clock-in" onclick="scanQR()">📱 Scan QR</button>
@@ -258,60 +267,28 @@
                 <span style="font-size: 20px;">👥</span>
                 <h3>Attendance History</h3>
             </div>
-            
-            <div class="history-item">
-                <div class="history-date">Fri, 14 April 2024</div>
-                <div class="history-time ontime">
-                    <span class="time-icon">🕐</span>
-                    08:00 AM - 05:00 PM
+            <div style="margin-bottom: 15px; font-weight: bold; color: #1ec7e6;">Total Hadir: {{ $attendances->where('status', '!=', 'absent')->count() }}</div>
+            @if($attendances->count() > 0)
+                @foreach($attendances as $attendance)
+                <div class="history-item">
+                    <div class="history-date">
+                        {{ \Carbon\Carbon::parse($attendance->date)->translatedFormat('D, d F Y') }}
+                    </div>
+                    <div class="history-time {{ $attendance->status === 'late' ? 'late' : 'ontime' }}">
+                        <span class="time-icon">🕐</span>
+                        {{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '--:--' }} - {{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '--:--' }}
+                    </div>
                 </div>
-            </div>
-            
-            <div class="history-item">
-                <div class="history-date">Thu, 13 April 2024</div>
-                <div class="history-time late">
-                    <span class="time-icon">🕐</span>
-                    08:45 AM - 05:00 PM
-                </div>
-            </div>
-            
-            <div class="history-item">
-                <div class="history-date">Wed, 12 April 2024</div>
-                <div class="history-time ontime">
-                    <span class="time-icon">🕐</span>
-                    07:55 AM - 05:00 PM
-                </div>
-            </div>
-            
-            <div class="history-item">
-                <div class="history-date">Tue, 11 April 2024</div>
-                <div class="history-time ontime">
-                    <span class="time-icon">🕐</span>
-                    07:58 AM - 05:00 PM
-                </div>
-            </div>
-            
-            <div class="history-item">
-                <div class="history-date">Mon, 10 April 2024</div>
-                <div class="history-time late">
-                    <span class="time-icon">🕐</span>
-                    08:15 AM - 05:00 PM
-                </div>
-            </div>
-            
-            <div class="history-item">
-                <div class="history-date">Sun, 9 April 2024</div>
-                <div class="history-time ontime">
-                    <span class="time-icon">🕐</span>
-                    08:00 AM - 05:00 PM
-                </div>
-            </div>
+                @endforeach
+            @else
+                <div style="text-align:center; color:#888; padding:20px 0;">Belum ada data absensi</div>
+            @endif
         </div>
     </div>
 
     <script>
         function goBack() {
-            window.location.href = 'dashboard';
+            window.location.href = '/dashboard';
         }
 
         function goToClockIn() {
@@ -377,31 +354,12 @@
             document.getElementById('currentDate').textContent = dateString;
         }
 
-        function updateUserInfo() {
-            const registeredUser = localStorage.getItem('registeredUser');
-            if (registeredUser) {
-                const userData = JSON.parse(registeredUser);
-                const userNameElement = document.querySelector('.employee-name');
-                if (userNameElement && userData.name) {
-                    userNameElement.textContent = userData.name;
-                }
-            }
-        }
-
         // Update time every second
         setInterval(updateCurrentTime, 1000);
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const userSession = localStorage.getItem('userSession');
-            if (!userSession) {
-                window.location.href = 'welcome';
-                return;
-            }
-            
             updateCurrentTime();
-            updateUserInfo();
         });
     </script>
     

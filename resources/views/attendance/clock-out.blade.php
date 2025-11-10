@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Clock Out - Sistem Absensi</title>
     <!-- Popup Component CSS -->
-    <link rel="stylesheet" href="components/popup.css">
+    <link rel="stylesheet" href="/components/popup.css">
     <style>
         * {
             margin: 0;
@@ -197,50 +198,89 @@
     </div>
 
     <!-- Popup Component JavaScript -->
-    <script src="components/popup.js"></script>
+    <script src="/components/popup.js"></script>
     <script>
-        function goBack() {
-            window.location.href = 'absensi';
+        // Fallback functions if popup.js fails to load
+        if (typeof showSuccessPopup === 'undefined') {
+            window.showSuccessPopup = function(options) {
+                alert(options.title + '\n' + options.message);
+                if (options.onClose) options.onClose();
+            };
+        }
+        if (typeof showErrorPopup === 'undefined') {
+            window.showErrorPopup = function(options) {
+                alert('ERROR: ' + options.title + '\n' + options.message);
+            };
         }
 
-        function performClockOut() {
+        function goBack() {
+            window.location.href = '{{ route("attendance.absensi") }}';
+        }
+
+        async function performClockOut() {
             const note = document.getElementById('noteInput').value;
-            const currentTime = new Date().toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
-            
-            // Simulate clock out process
             const clockBtn = document.querySelector('.clock-out-btn');
+            
             clockBtn.textContent = 'Processing...';
             clockBtn.disabled = true;
             
-            setTimeout(() => {
-                // Store clock out data
-                const clockOutData = {
-                    time: currentTime,
-                    date: new Date().toISOString(),
-                    note: note,
-                    type: 'clock-out'
+            try {
+                const payload = {
+                    location: 'Clock Out Location', // You can add geolocation here if needed
+                    notes: note
                 };
-                
-                // Get existing attendance history
-                let attendanceHistory = JSON.parse(localStorage.getItem('attendanceHistory') || '[]');
-                attendanceHistory.push(clockOutData);
-                localStorage.setItem('attendanceHistory', JSON.stringify(attendanceHistory));
-                
-                // Show success popup
-                showSuccessPopup({
-                    title: 'Clock Out Successful!',
-                    message: 'Anda berhasil melakukan clock out',
-                    time: currentTime,
-                    buttonText: 'Continue',
-                    onClose: () => {
-                        window.location.href = 'absensi';
-                    }
+
+                console.log('Sending check-out request with payload:', payload);
+
+                const response = await fetch('/attendance/check-out', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
                 });
-            }, 2000);
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (response.ok && data.success) {
+                    const currentTime = new Date().toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+
+                    showSuccessPopup({
+                        title: 'Clock Out Successful!',
+                        message: data.message || 'Anda berhasil melakukan clock out',
+                        time: currentTime,
+                        buttonText: 'Continue',
+                        onClose: () => {
+                            window.location.href = '{{ route("attendance.absensi") }}';
+                        }
+                    });
+                } else {
+                    showErrorPopup({
+                        title: 'Error',
+                        message: data.message || 'Gagal melakukan clock out',
+                        buttonText: 'OK'
+                    });
+                    clockBtn.textContent = 'Clock Out';
+                    clockBtn.disabled = false;
+                }
+            } catch (err) {
+                console.error('Check-out error:', err);
+                showErrorPopup({
+                    title: 'Error',
+                    message: 'Terjadi kesalahan: ' + err.message,
+                    buttonText: 'OK'
+                });
+                clockBtn.textContent = 'Clock Out';
+                clockBtn.disabled = false;
+            }
         }
 
         function updateCurrentTime() {
@@ -275,13 +315,7 @@
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const userSession = localStorage.getItem('userSession');
-            if (!userSession) {
-                window.location.href = 'welcome';
-                return;
-            }
-            
+            // Authentication is enforced server-side; avoid client-side redirect.
             updateCurrentTime();
         });
     </script>

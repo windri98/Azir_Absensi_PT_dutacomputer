@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Absensi - Sistem Absensi</title>
-    <link rel="stylesheet" href="components/popup.css">
+    <link rel="stylesheet" href="/components/popup.css">
     <style>
         * {
             margin: 0;
@@ -308,32 +308,73 @@
 
     <div class="history-section">
         <h3 class="section-title">Detail Kehadiran</h3>
-        <div class="history-list" id="historyList">
-            <!-- History items will be populated here -->
+        @if($attendances->count() > 0)
+        <div class="history-list">
+            @foreach($attendances as $attendance)
+                <div class="history-card">
+                    <div class="history-header">
+                        <div class="history-date">
+                            {{ \Carbon\Carbon::parse($attendance->date)->translatedFormat('l, d F Y') }}
+                        </div>
+                        <div class="history-status status-{{ $attendance->status ?? 'present' }}">
+                            @if($attendance->status === 'late') Terlambat
+                            @elseif($attendance->status === 'absent') Tidak Hadir
+                            @else Hadir
+                            @endif
+                        </div>
+                    </div>
+                    <div class="history-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Masuk</div>
+                            <div class="detail-value">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '--:--' }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Keluar</div>
+                            <div class="detail-value">{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '--:--' }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Durasi</div>
+                            <div class="detail-value">
+                                @if($attendance->check_in && $attendance->check_out)
+                                    @php
+                                        $start = \Carbon\Carbon::parse($attendance->check_in);
+                                        $end = \Carbon\Carbon::parse($attendance->check_out);
+                                        $diff = $end->diff($start);
+                                    @endphp
+                                    {{ $diff->h }}h {{ $diff->i }}m
+                                @else
+                                    --:--
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
-        
-        <div class="empty-state" id="emptyState" style="display: none;">
+        @else
+        <div class="empty-state">
             <div class="empty-icon">📅</div>
             <div class="empty-text">Belum ada data absensi</div>
             <div class="empty-subtext">Mulai catat kehadiran Anda hari ini</div>
         </div>
+        @endif
     </div>
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <a href="dashboard" class="nav-item">
+        <a href="{{ route('dashboard') }}" class="nav-item">
             <span class="nav-icon">🏠</span>
             <span class="nav-label">Home</span>
         </a>
-        <a href="riwayat" class="nav-item active">
+        <a href="{{ route('attendance.riwayat') }}" class="nav-item active">
             <span class="nav-icon">📊</span>
             <span class="nav-label">History</span>
         </a>
-        <a href="laporan" class="nav-item">
+        <a href="{{ route('reports.index') }}" class="nav-item">
             <span class="nav-icon">📈</span>
             <span class="nav-label">Reports</span>
         </a>
-        <a href="profile" class="nav-item">
+        <a href="{{ route('profile.show') }}" class="nav-item">
             <span class="nav-icon">👤</span>
             <span class="nav-label">Profile</span>
         </a>
@@ -374,184 +415,8 @@
             
             // Filter data based on selected period
             let filteredData = filterDataByPeriod(attendanceHistory, currentFilter);
-            
-            if (filteredData.length === 0) {
-                historyList.style.display = 'none';
-                emptyState.style.display = 'block';
-                return;
-            }
-            
-            historyList.style.display = 'block';
-            emptyState.style.display = 'none';
-            
-            // Group data by date
-            const groupedData = groupByDate(filteredData);
-            
-            // Update summary
-            updateSummary(groupedData);
-            
-            // Render history items
-            renderHistoryItems(groupedData);
-        }
-
-        function filterDataByPeriod(data, period) {
-            const now = new Date();
-            let startDate, endDate;
-            
-            switch (period) {
-                case 'week':
-                    startDate = new Date(now.setDate(now.getDate() - now.getDay()));
-                    endDate = new Date();
-                    break;
-                case 'month':
-                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                    endDate = new Date();
-                    break;
-                case 'custom':
-                    const startInput = document.getElementById('startDate').value;
-                    const endInput = document.getElementById('endDate').value;
-                    if (!startInput || !endInput) return data;
-                    startDate = new Date(startInput);
-                    endDate = new Date(endInput);
-                    break;
-                default:
-                    return data;
-            }
-            
-            return data.filter(record => {
-                const recordDate = new Date(record.date);
-                return recordDate >= startDate && recordDate <= endDate;
-            });
-        }
-
-        function groupByDate(data) {
-            const grouped = {};
-            
-            data.forEach(record => {
-                const dateStr = new Date(record.date).toDateString();
-                if (!grouped[dateStr]) {
-                    grouped[dateStr] = [];
+            <script>
+                function goBack() {
+                    window.location.href = '/dashboard';
                 }
-                grouped[dateStr].push(record);
-            });
-            
-            return grouped;
-        }
-
-        function updateSummary(groupedData) {
-            const totalDays = Object.keys(groupedData).length;
-            let presentDays = 0;
-            let lateDays = 0;
-            let totalMinutes = 0;
-            
-            Object.values(groupedData).forEach(dayRecords => {
-                const clockIn = dayRecords.find(r => r.type === 'clock-in');
-                const clockOut = dayRecords.find(r => r.type === 'clock-out');
-                
-                if (clockIn) {
-                    presentDays++;
-                    
-                    // Check if late (after 08:00)
-                    const clockInTime = new Date(`1970-01-01 ${clockIn.time}`);
-                    const standardTime = new Date(`1970-01-01 08:00`);
-                    if (clockInTime > standardTime) {
-                        lateDays++;
-                    }
-                    
-                    // Calculate working hours
-                    if (clockOut) {
-                        const start = new Date(`1970-01-01 ${clockIn.time}`);
-                        const end = new Date(`1970-01-01 ${clockOut.time}`);
-                        totalMinutes += (end - start) / (1000 * 60);
-                    }
-                }
-            });
-            
-            const totalHours = Math.floor(totalMinutes / 60);
-            
-            document.getElementById('totalDays').textContent = totalDays;
-            document.getElementById('presentDays').textContent = presentDays;
-            document.getElementById('lateDays').textContent = lateDays;
-            document.getElementById('totalHours').textContent = `${totalHours}h`;
-        }
-
-        function renderHistoryItems(groupedData) {
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '';
-            
-            Object.entries(groupedData)
-                .sort(([a], [b]) => new Date(b) - new Date(a))
-                .forEach(([dateStr, records]) => {
-                    const clockIn = records.find(r => r.type === 'clock-in');
-                    const clockOut = records.find(r => r.type === 'clock-out');
-                    
-                    const date = new Date(dateStr);
-                    const formattedDate = date.toLocaleDateString('id-ID', {
-                        weekday: 'long',
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric'
-                    });
-                    
-                    // Determine status
-                    let status = 'absent';
-                    let statusText = 'Tidak Hadir';
-                    if (clockIn) {
-                        const clockInTime = new Date(`1970-01-01 ${clockIn.time}`);
-                        const standardTime = new Date(`1970-01-01 08:00`);
-                        status = clockInTime > standardTime ? 'late' : 'present';
-                        statusText = clockInTime > standardTime ? 'Terlambat' : 'Hadir';
-                    }
-                    
-                    // Calculate working duration
-                    let workingTime = '--:--';
-                    if (clockIn && clockOut) {
-                        const start = new Date(`1970-01-01 ${clockIn.time}`);
-                        const end = new Date(`1970-01-01 ${clockOut.time}`);
-                        const diff = end - start;
-                        const hours = Math.floor(diff / (1000 * 60 * 60));
-                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                        workingTime = `${hours}h ${minutes}m`;
-                    }
-                    
-                    const historyCard = `
-                        <div class="history-card">
-                            <div class="history-header">
-                                <div class="history-date">${formattedDate}</div>
-                                <div class="history-status status-${status}">${statusText}</div>
-                            </div>
-                            <div class="history-details">
-                                <div class="detail-item">
-                                    <div class="detail-label">Masuk</div>
-                                    <div class="detail-value">${clockIn ? clockIn.time : '--:--'}</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">Keluar</div>
-                                    <div class="detail-value">${clockOut ? clockOut.time : '--:--'}</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">Durasi</div>
-                                    <div class="detail-value">${workingTime}</div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    historyList.insertAdjacentHTML('beforeend', historyCard);
-                });
-        }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const userSession = localStorage.getItem('userSession');
-            if (!userSession) {
-                window.location.href = 'welcome';
-                return;
-            }
-            
-            loadHistoryData();
-        });
-    </script>
-</body>
-</html>
+            </script>

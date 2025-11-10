@@ -21,3 +21,18 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Ignore uploaded files
+/public/uploads/*
+!/public/uploads/.gitkeep
+/storage/app/public/*
+!/storage/app/public/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+*.swp
+*.swo
+*~

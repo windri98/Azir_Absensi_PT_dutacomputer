@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Clock In - Sistem Absensi</title>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
         crossorigin=""/>
     <!-- Popup Component CSS -->
-    <link rel="stylesheet" href="components/popup.css">
+    <link rel="stylesheet" href="/components/popup.css">
     <style>
         * {
             margin: 0;
@@ -327,8 +328,22 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
             crossorigin=""></script>
     <!-- Popup Component JavaScript -->
-    <script src="components/popup.js"></script>
+    <script src="/assets/js/attendance-helper.js"></script>
+    <script src="/components/popup.js"></script>
     <script>
+        // Fallback functions if popup.js fails to load
+        if (typeof showSuccessPopup === 'undefined') {
+            window.showSuccessPopup = function(options) {
+                alert(options.title + '\n' + options.message);
+                if (options.onClose) options.onClose();
+            };
+        }
+        if (typeof showErrorPopup === 'undefined') {
+            window.showErrorPopup = function(options) {
+                alert('ERROR: ' + options.title + '\n' + options.message);
+            };
+        }
+
         let currentLocation = null;
         let watchId = null;
         let map = null;
@@ -393,7 +408,7 @@
             if (watchId) {
                 navigator.geolocation.clearWatch(watchId);
             }
-            window.location.href = 'absensi';
+            window.location.href = '{{ route("attendance.absensi") }}';
         }
 
         function refreshLocation() {
@@ -411,14 +426,10 @@
             }, 1000);
         }
 
-        function performClockIn() {
+        async function performClockIn() {
             const note = document.getElementById('noteInput').value;
-            const currentTime = new Date().toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
-            
+            const clockBtn = document.querySelector('.clock-in-btn');
+
             if (!currentLocation) {
                 showErrorPopup({
                     title: 'Location Error',
@@ -427,42 +438,70 @@
                 });
                 return;
             }
-            
-            // Simulate clock in process
-            const clockBtn = document.querySelector('.clock-in-btn');
+
             clockBtn.textContent = 'Processing...';
             clockBtn.disabled = true;
-            
-            setTimeout(() => {
-                // Store clock in data
-                const clockInData = {
-                    time: currentTime,
-                    date: new Date().toISOString(),
+
+            try {
+                const payload = {
                     location: {
                         lat: currentLocation.lat,
                         lng: currentLocation.lng,
                         accuracy: currentLocation.accuracy
                     },
-                    note: note,
-                    type: 'clock-in'
+                    note: note
                 };
-                
-                // Get existing attendance history
-                let attendanceHistory = JSON.parse(localStorage.getItem('attendanceHistory') || '[]');
-                attendanceHistory.push(clockInData);
-                localStorage.setItem('attendanceHistory', JSON.stringify(attendanceHistory));
-                
-                // Show success popup with time
-                showSuccessPopup({
-                    title: 'Clock In Successful!',
-                    message: 'Anda berhasil melakukan clock in',
-                    time: currentTime,
-                    buttonText: 'Continue',
-                    onClose: () => {
-                        window.location.href = 'absensi';
-                    }
+
+                console.log('Sending check-in request with payload:', payload);
+
+                const response = await fetch('/attendance/check-in', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
                 });
-            }, 2000);
+
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (response.ok && data.success) {
+                    showSuccessPopup({
+                        title: 'Clock In Successful!',
+                        message: data.message || 'Anda berhasil melakukan clock in',
+                        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                        buttonText: 'Continue',
+                        onClose: () => { window.location.href = '{{ route("attendance.absensi") }}'; }
+                    });
+                } else {
+                    showErrorPopup({
+                        title: 'Error',
+                        message: data.message || 'Gagal melakukan clock in',
+                        buttonText: 'OK'
+                    });
+                    clockBtn.textContent = 'Clock In';
+                    clockBtn.disabled = false;
+                }
+            } catch (err) {
+                console.error('Check-in error:', err);
+                console.error('Error details:', {
+                    name: err.name,
+                    message: err.message,
+                    stack: err.stack
+                });
+                showErrorPopup({ 
+                    title: 'Error', 
+                    message: 'Terjadi kesalahan: ' + err.message, 
+                    buttonText: 'OK' 
+                });
+                clockBtn.textContent = 'Clock In';
+                clockBtn.disabled = false;
+            }
         }
 
         function updateCurrentTime() {
@@ -477,19 +516,19 @@
         }
 
         function reverseGeocode(lat, lng) {
-            // Using OpenStreetMap Nominatim API for reverse geocoding
-            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-            
+            // Fetch ke backend Laravel agar tidak kena CORS/403
+            const url = `/reverse-geocode?lat=${lat}&lng=${lng}`;
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     const locationAddress = document.getElementById('locationAddress');
-                    
                     if (data && data.display_name) {
                         // Parse address components
                         const address = data.address || {};
                         const formattedAddress = formatAddress(address, data.display_name);
                         locationAddress.innerHTML = formattedAddress;
+                    } else if (data && data.error) {
+                        locationAddress.innerHTML = `Gagal mendapatkan alamat: ${data.error}`;
                     } else {
                         locationAddress.innerHTML = `Koordinat: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
                     }
@@ -654,18 +693,12 @@
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const userSession = localStorage.getItem('userSession');
-            if (!userSession) {
-                window.location.href = 'welcome';
-                return;
-            }
-            
+            // Authentication is enforced server-side; avoid client-side redirect.
             updateCurrentTime();
-            
+
             // Initialize map first
             initMap();
-            
+
             // Then get location
             setTimeout(() => {
                 getCurrentLocation();

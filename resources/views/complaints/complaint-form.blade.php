@@ -661,7 +661,7 @@
             removeFile(new Event('click'));
             
             setTimeout(() => {
-                window.location.href = '{{ route(''complaint-history'') }}';
+                window.location.href = '{{ route('complaints.history') }}';
             }, 300);
         }
 
@@ -672,7 +672,7 @@
         }
 
         function viewHistory() {
-            window.location.href = '{{ route(''complaint-history'') }}';
+            window.location.href = '{{ route('complaints.history') }}';
         }
 
         function goBack() {

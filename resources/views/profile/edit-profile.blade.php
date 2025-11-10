@@ -269,89 +269,69 @@
         ✓ Profile berhasil diperbarui
     </div>
 
-    <div class="profile-photo-section">
-        <div class="profile-photo-wrapper">
-            <div class="profile-photo" id="profilePhoto"></div>
-            <button class="change-photo-btn" onclick="changePhoto()">📷</button>
-        </div>
-        <div class="change-photo-text" onclick="changePhoto()">Ubah Foto Profile</div>
-        <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="handlePhotoChange(event)">
-    </div>
-
-    <form id="editProfileForm" class="form-section">
-        <div class="form-group">
-            <label class="form-label">ID Karyawan</label>
-            <input type="text" class="form-input" id="employeeId" value="EMP001" disabled>
-            <div class="info-text">ID karyawan tidak dapat diubah</div>
+    <form id="editProfileForm" method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
+        @csrf
+        
+        <div class="profile-photo-section">
+            <div class="profile-photo-wrapper">
+                <div class="profile-photo" id="profilePhoto" style="background-image: url('{{ $user->photo ? asset('storage/' . $user->photo) : asset('assets/image/439605617_454358160308404_313339237371064683_n.png') }}');"></div>
+                <button type="button" class="change-photo-btn" onclick="changePhoto()">📷</button>
+            </div>
+            <div class="change-photo-text" onclick="changePhoto()">Ubah Foto Profile</div>
+            <input type="file" id="photoInput" name="photo" accept="image/*" style="display: none;" onchange="handlePhotoChange(event)">
         </div>
 
-        <div class="form-group">
-            <label class="form-label">Nama Lengkap</label>
-            <input type="text" class="form-input" id="fullName" value="Widya Mayasari Fauziah" required>
+        <div class="form-section">
+            <div class="form-group">
+                <label class="form-label">ID Karyawan</label>
+                <input type="text" class="form-input" value="{{ $user->employee_id ?? '' }}" disabled>
+                <div class="info-text">ID karyawan tidak dapat diubah</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nama Lengkap</label>
+                <input type="text" class="form-input" name="name" value="{{ old('name', $user->name) }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" name="email" value="{{ old('email', $user->email) }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nomor Telepon</label>
+                <input type="tel" class="form-input" name="phone" value="{{ old('phone', $user->phone) }}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Jabatan</label>
+                <input type="text" class="form-input" value="{{ $user->roles->first()->description ?? 'Karyawan' }}" disabled>
+                <div class="info-text">Hubungi HR untuk perubahan jabatan</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Departemen</label>
+                <input type="text" class="form-input" value="{{ $user->department ?? '-' }}" disabled>
+                <div class="info-text">Hubungi HR untuk perubahan departemen</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tanggal Lahir</label>
+                <input type="date" class="form-input" name="birth_date" value="{{ old('birth_date', $user->birth_date) }}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Alamat</label>
+                <textarea class="form-textarea" name="address">{{ old('address', $user->address) }}</textarea>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-input" id="email" value="widya.mayasari@company.com" required>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Nomor Telepon</label>
-            <input type="tel" class="form-input" id="phone" value="08123456789" required>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Jabatan</label>
-            <input type="text" class="form-input" id="position" value="Karyawan" disabled>
-            <div class="info-text">Hubungi HR untuk perubahan jabatan</div>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Departemen</label>
-            <select class="form-select" id="department" disabled>
-                <option value="it">IT</option>
-                <option value="hr">HR</option>
-                <option value="finance">Finance</option>
-                <option value="marketing">Marketing</option>
-                <option value="operations">Operations</option>
-            </select>
-            <div class="info-text">Hubungi HR untuk perubahan departemen</div>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Jenis Kelamin</label>
-            <select class="form-select" id="gender" required>
-                <option value="">Pilih Jenis Kelamin</option>
-                <option value="female" selected>Perempuan</option>
-                <option value="male">Laki-laki</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Tanggal Lahir</label>
-            <input type="date" class="form-input" id="birthDate" value="1995-05-15" required>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Alamat</label>
-            <textarea class="form-textarea" id="address" required>Jl. Contoh No. 123, Jakarta Selatan</textarea>
+        
+        <div class="button-group">
+            <button type="button" class="btn btn-cancel" onclick="cancelEdit()">Batal</button>
+            <button type="submit" class="btn btn-save">Simpan</button>
         </div>
     </form>
 
-    <div class="button-group">
-        <button type="button" class="btn btn-cancel" onclick="cancelEdit()">Batal</button>
-        <button type="submit" class="btn btn-save" onclick="saveProfile(event)">Simpan</button>
-    </div>
-
     <script>
         function goBack() {
-            window.location.href = 'profile';
+            window.location.href = '/profile';
         }
-
         function changePhoto() {
             document.getElementById('photoInput').click();
         }
-
         function handlePhotoChange(event) {
             const file = event.target.files[0];
             if (file) {
@@ -362,60 +342,11 @@
                 reader.readAsDataURL(file);
             }
         }
-
         function cancelEdit() {
             if (confirm('Batalkan perubahan? Data yang belum disimpan akan hilang.')) {
                 goBack();
             }
         }
-
-        function saveProfile(event) {
-            event.preventDefault();
-            
-            const form = document.getElementById('editProfileForm');
-            
-            if (!form.checkValidity()) {
-                alert('Mohon lengkapi semua field yang diperlukan');
-                return;
-            }
-
-            // Get form data
-            const profileData = {
-                fullName: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                gender: document.getElementById('gender').value,
-                birthDate: document.getElementById('birthDate').value,
-                address: document.getElementById('address').value
-            };
-
-            // Save to localStorage
-            localStorage.setItem('userProfile', JSON.stringify(profileData));
-
-            // Show success message
-            const successMessage = document.getElementById('successMessage');
-            successMessage.classList.add('show');
-
-            // Hide after 2 seconds and redirect
-            setTimeout(() => {
-                successMessage.classList.remove('show');
-                goBack();
-            }, 2000);
-        }
-
-        // Load saved data on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            const savedProfile = localStorage.getItem('userProfile');
-            if (savedProfile) {
-                const profileData = JSON.parse(savedProfile);
-                document.getElementById('fullName').value = profileData.fullName || 'Widya Mayasari Fauziah';
-                document.getElementById('email').value = profileData.email || 'widya.mayasari@company.com';
-                document.getElementById('phone').value = profileData.phone || '08123456789';
-                document.getElementById('gender').value = profileData.gender || 'female';
-                document.getElementById('birthDate').value = profileData.birthDate || '1995-05-15';
-                document.getElementById('address').value = profileData.address || 'Jl. Contoh No. 123, Jakarta Selatan';
-            }
-        });
     </script>
 </body>
 </html>

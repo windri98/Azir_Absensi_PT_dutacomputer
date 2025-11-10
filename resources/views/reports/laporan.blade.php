@@ -555,19 +555,19 @@
 
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
-        <a href="dashboard" class="nav-item">
+        <a href="{{ route('dashboard') }}" class="nav-item">
             <div class="nav-icon">🏠</div>
             <div class="nav-label">Home</div>
         </a>
-        <a href="riwayat" class="nav-item">
+        <a href="{{ route('attendance.riwayat') }}" class="nav-item">
             <div class="nav-icon">📊</div>
             <div class="nav-label">Riwayat</div>
         </a>
-        <a href="laporan" class="nav-item active">
+        <a href="{{ route('reports.index') }}" class="nav-item active">
             <div class="nav-icon">📈</div>
             <div class="nav-label">Laporan</div>
         </a>
-        <a href="profile" class="nav-item">
+        <a href="{{ route('profile.show') }}" class="nav-item">
             <div class="nav-icon">👤</div>
             <div class="nav-label">Profile</div>
         </a>

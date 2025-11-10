@@ -643,7 +643,7 @@
         }
 
         function createComplaint() {
-            window.location.href = '{{ route(''complaint-form'') }}';
+            window.location.href = '{{ route('complaints.form') }}';
         }
 
         function goBack() {

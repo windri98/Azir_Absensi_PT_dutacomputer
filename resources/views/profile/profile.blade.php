@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - Sistem Absensi</title>
-    <link rel="stylesheet" href="components/popup.css">
+    <link rel="stylesheet" href="/components/popup.css">
     <style>
         * {
             margin: 0;
@@ -50,7 +50,6 @@
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            background-image: url('assets/image/439605617_454358160308404_313339237371064683_n.png');
             background-size: cover;
             background-position: center;
             border: 4px solid rgba(255, 255, 255, 0.3);
@@ -226,12 +225,12 @@
 <body>
     <div class="profile-header">
         <button class="back-btn" onclick="goBack()">←</button>
-        <div class="profile-avatar">
+        <div class="profile-avatar" style="background-image: url('{{ $user->photo ? asset('storage/' . $user->photo) : asset('assets/image/439605617_454358160308404_313339237371064683_n.png') }}');">
             <button class="edit-avatar">📷</button>
         </div>
-        <div class="profile-name" id="profileName">Widya Mayasari Fauziah</div>
-        <div class="profile-role">Karyawan</div>
-        <div class="profile-id" id="profileId">ID: EMP001</div>
+        <div class="profile-name" id="profileName">{{ $user->name }}</div>
+        <div class="profile-role">{{ $user->roles->first()->description ?? 'Karyawan' }}</div>
+        <div class="profile-id" id="profileId">ID: {{ str_pad($user->id, 6, '0', STR_PAD_LEFT) }}</div>
     </div>
 
     <div class="profile-content">
@@ -239,16 +238,16 @@
         <div class="stats-section">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number" id="monthlyAttendance">22</div>
-                    <div class="stat-label">Bulan Ini</div>
+                    <div class="stat-number" id="monthlyAttendance">{{ $stats['total_days'] ?? 0 }}</div>
+                    <div class="stat-label">Total Hari</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="lateCount">2</div>
+                    <div class="stat-number" id="lateCount">{{ $stats['terlambat'] ?? 0 }}</div>
                     <div class="stat-label">Terlambat</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="overtimeHours">8h</div>
-                    <div class="stat-label">Overtime</div>
+                    <div class="stat-number" id="totalHours">{{ number_format($stats['total_hours'] ?? 0, 2) }}h</div>
+                    <div class="stat-label">Total Jam</div>
                 </div>
             </div>
         </div>
@@ -256,7 +255,7 @@
         <!-- Account Section -->
         <h3 class="section-header">Akun</h3>
         <div class="menu-section">
-            <a href="edit-profile" class="menu-item">
+            <a href="{{ route('profile.edit') }}" class="menu-item">
                 <div class="menu-icon blue">👤</div>
                 <div class="menu-text">
                     <div class="menu-title">Edit Profile</div>
@@ -264,7 +263,7 @@
                 </div>
                 <div class="menu-arrow">→</div>
             </a>
-            <a href="change-password" class="menu-item">
+            <a href="{{ route('change-password') }}" class="menu-item">
                 <div class="menu-icon green">🔒</div>
                 <div class="menu-text">
                     <div class="menu-title">Ubah Password</div>
@@ -272,7 +271,7 @@
                 </div>
                 <div class="menu-arrow">→</div>
             </a>
-            <a href="notification-settings" class="menu-item">
+            <a href="{{ route('settings.notifications') }}" class="menu-item">
                 <div class="menu-icon orange">🔔</div>
                 <div class="menu-text">
                     <div class="menu-title">Notifikasi</div>
@@ -285,7 +284,7 @@
         <!-- Activity Section -->
         <h3 class="section-header">Aktivitas</h3>
         <div class="menu-section">
-            <a href="riwayat" class="menu-item">
+            <a href="{{ route('attendance.riwayat') }}" class="menu-item">
                 <div class="menu-icon purple">📊</div>
                 <div class="menu-text">
                     <div class="menu-title">Riwayat Absensi</div>
@@ -293,7 +292,7 @@
                 </div>
                 <div class="menu-arrow">→</div>
             </a>
-            <a href="izin" class="menu-item">
+            <a href="{{ route('activities.izin') }}" class="menu-item">
                 <div class="menu-icon blue">📝</div>
                 <div class="menu-text">
                     <div class="menu-title">Pengajuan Izin</div>
@@ -301,7 +300,7 @@
                 </div>
                 <div class="menu-arrow">→</div>
             </a>
-            <a href="laporan" class="menu-item">
+            <a href="{{ route('reports.index') }}" class="menu-item">
                 <div class="menu-icon green">📈</div>
                 <div class="menu-text">
                     <div class="menu-title">Laporan</div>
@@ -314,7 +313,7 @@
         <!-- Support Section -->
         <h3 class="section-header">Bantuan</h3>
         <div class="menu-section">
-            <a href="help" class="menu-item">
+            <a href="{{ route('help') }}" class="menu-item">
                 <div class="menu-icon gray">❓</div>
                 <div class="menu-text">
                     <div class="menu-title">Pusat Bantuan</div>
@@ -322,7 +321,7 @@
                 </div>
                 <div class="menu-arrow">→</div>
             </a>
-            <a href="contact" class="menu-item">
+            <a href="{{ route('contact') }}" class="menu-item">
                 <div class="menu-icon blue">📞</div>
                 <div class="menu-text">
                     <div class="menu-title">Hubungi Support</div>
@@ -330,7 +329,7 @@
                 </div>
                 <div class="menu-arrow">→</div>
             </a>
-            <a href="about" class="menu-item">
+            <a href="{{ route('about') }}" class="menu-item">
                 <div class="menu-icon gray">ℹ️</div>
                 <div class="menu-text">
                     <div class="menu-title">Tentang Aplikasi</div>
@@ -355,19 +354,19 @@
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <a href="dashboard" class="nav-item">
+        <a href="{{ route('dashboard') }}" class="nav-item">
             <span class="nav-icon">🏠</span>
             <span class="nav-label">Home</span>
         </a>
-        <a href="riwayat" class="nav-item">
+        <a href="{{ route('attendance.riwayat') }}" class="nav-item">
             <span class="nav-icon">📊</span>
             <span class="nav-label">History</span>
         </a>
-        <a href="laporan" class="nav-item">
+        <a href="{{ route('reports.index') }}" class="nav-item">
             <span class="nav-icon">📈</span>
             <span class="nav-label">Reports</span>
         </a>
-        <a href="profile" class="nav-item active">
+        <a href="{{ route('profile.show') }}" class="nav-item active">
             <span class="nav-icon">👤</span>
             <span class="nav-label">Profile</span>
         </a>
@@ -385,58 +384,10 @@
                 message: 'Apakah Anda yakin ingin keluar dari aplikasi?',
                 buttonText: 'Ya, Logout',
                 onClose: () => {
-                    // Clear user session
-                    localStorage.removeItem('userSession');
-                    localStorage.removeItem('attendanceHistory');
-                    // Redirect to welcome page
                     window.location.href = 'welcome';
                 }
             });
         }
-
-        function updateProfileInfo() {
-            const registeredUser = localStorage.getItem('registeredUser');
-            if (registeredUser) {
-                const userData = JSON.parse(registeredUser);
-                document.getElementById('profileName').textContent = userData.name || 'User';
-                document.getElementById('profileId').textContent = `ID: ${userData.idcard || 'N/A'}`;
-            }
-
-            // Update stats from attendance history
-            const attendanceHistory = JSON.parse(localStorage.getItem('attendanceHistory') || '[]');
-            
-            // Calculate monthly attendance
-            const thisMonth = new Date().getMonth();
-            const thisYear = new Date().getFullYear();
-            const monthlyRecords = attendanceHistory.filter(record => {
-                const recordDate = new Date(record.date);
-                return recordDate.getMonth() === thisMonth && 
-                       recordDate.getFullYear() === thisYear &&
-                       record.type === 'clock-in';
-            });
-            
-            // Calculate late count
-            const lateRecords = monthlyRecords.filter(record => {
-                const clockInTime = new Date(`1970-01-01 ${record.time}`);
-                const standardTime = new Date(`1970-01-01 08:00`);
-                return clockInTime > standardTime;
-            });
-            
-            document.getElementById('monthlyAttendance').textContent = monthlyRecords.length;
-            document.getElementById('lateCount').textContent = lateRecords.length;
-        }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const userSession = localStorage.getItem('userSession');
-            if (!userSession) {
-                window.location.href = 'welcome';
-                return;
-            }
-            
-            updateProfileInfo();
-        });
     </script>
 </body>
 </html>

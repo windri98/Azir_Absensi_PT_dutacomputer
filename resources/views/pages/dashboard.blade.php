@@ -189,7 +189,7 @@
         }
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             margin-top: 15px;
         }
@@ -415,16 +415,20 @@
             </div>
         </div>
         
-        <button class="logout-btn" onclick="logout()">log out</button>
+        <button class="logout-btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log Out</button>
+        
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
         
         <div class="dropdown-container">
             <button class="dropdown-btn" onclick="toggleDropdown()">
-                ⋮ Menu
+                ⋮ Profile
             </button>
             <div class="dropdown-content" id="dropdownMenu">
-                <a href="profil" class="dropdown-item">
+                <a href="{{ route('profile.show') }}" class="dropdown-item">
                     <span class="icon">👤</span>
-                    Profil Saya
+                    Lihat Profile
                 </a>
                 <a href="pengaturan" class="dropdown-item">
                     <span class="icon">⚙️</span>
@@ -453,7 +457,7 @@
                     Tentang Aplikasi
                 </a>
                 <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item" onclick="logout()" style="color: #ef4444;">
+                <a href="#" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="color: #ef4444;">
                     <span class="icon">🚪</span>
                     Keluar
                 </a>
@@ -461,25 +465,39 @@
         </div>
         
         <div class="profile-section">
-            <div class="profile-image"></div>
+            <div class="profile-image" style="background-image: url('{{ $user->photo ? asset('storage/' . $user->photo) : asset('assets/image/439605617_454358160308404_313339237371064683_n.png') }}');"></div>
             <div class="profile-info">
-                <div class="employee-status">Karyawan</div>
-                <div class="employee-name">Widya Mayasari Fauziah</div>
+                <div class="employee-status">
+                    @if($user->roles->isNotEmpty())
+                        {{ ucfirst($user->roles->first()->name) }}
+                    @else
+                        Karyawan
+                    @endif
+                </div>
+                <div class="employee-name">{{ $user->name }}</div>
             </div>
         </div>
     </div>
     
     <div class="main-content">
         <div class="welcome-card">
-            <div class="welcome-text">selamat siang,</div>
-            <div class="user-name">Widya Mayasari Fauziah</div>
+            <div class="welcome-text">
+                @php
+                    $hour = date('H');
+                    if ($hour >= 5 && $hour < 11) {
+                        echo 'Selamat pagi,';
+                    } elseif ($hour >= 11 && $hour < 15) {
+                        echo 'Selamat siang,';
+                    } elseif ($hour >= 15 && $hour < 18) {
+                        echo 'Selamat sore,';
+                    } else {
+                        echo 'Selamat malam,';
+                    }
+                @endphp
+            </div>
+            <div class="user-name">{{ $user->name }}</div>
             
             <div class="menu-grid">
-                <a href="profil" class="menu-item">
-                    <div class="menu-icon profil">👤</div>
-                    <div class="menu-label">Profil</div>
-                </a>
-                
                 <a href="absensi" class="menu-item">
                     <div class="menu-icon absen">📷</div>
                     <div class="menu-label">Absen</div>
@@ -503,20 +521,34 @@
             <div class="status-card">
                 <div class="status-header">
                     <h3>Today's Status</h3>
-                    <span class="status-badge" id="statusBadge">Not Clocked In</span>
+                    @if($todayAttendance)
+                        @if($todayAttendance->check_out)
+                            <span class="status-badge">Completed</span>
+                        @else
+                            <span class="status-badge active">Working</span>
+                        @endif
+                    @else
+                        <span class="status-badge" id="statusBadge">Not Clocked In</span>
+                    @endif
                 </div>
                 <div class="status-content">
                     <div class="status-item">
                         <span class="status-label">Clock In</span>
-                        <span class="status-time" id="clockInTime">--:--</span>
+                        <span class="status-time" id="clockInTime">
+                            {{ $todayAttendance ? \Carbon\Carbon::parse($todayAttendance->check_in)->format('H:i') : '--:--' }}
+                        </span>
                     </div>
                     <div class="status-item">
                         <span class="status-label">Clock Out</span>
-                        <span class="status-time" id="clockOutTime">--:--</span>
+                        <span class="status-time" id="clockOutTime">
+                            {{ $todayAttendance && $todayAttendance->check_out ? \Carbon\Carbon::parse($todayAttendance->check_out)->format('H:i') : '--:--' }}
+                        </span>
                     </div>
                     <div class="status-item">
                         <span class="status-label">Working Hours</span>
-                        <span class="status-time" id="workingHours">0h 0m</span>
+                        <span class="status-time" id="workingHours">
+                            {{ $todayAttendance && $todayAttendance->work_hours ? number_format($todayAttendance->work_hours, 1) . 'h' : '0h' }}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -524,16 +556,16 @@
             <!-- Quick Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number">22</div>
+                    <div class="stat-number">{{ $monthlyStats['present'] + $monthlyStats['late'] }}</div>
                     <div class="stat-label">This Month</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">5</div>
-                    <div class="stat-label">This Week</div>
+                    <div class="stat-number">{{ $monthlyStats['late'] }}</div>
+                    <div class="stat-label">Late Days</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">2</div>
-                    <div class="stat-label">Late Days</div>
+                    <div class="stat-number">{{ $monthlyStats['sick'] + $monthlyStats['leave'] }}</div>
+                    <div class="stat-label">Absent</div>
                 </div>
             </div>
 
@@ -555,19 +587,19 @@
 
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
-            <a href="dashboard" class="nav-item active">
+            <a href="{{ route('dashboard') }}" class="nav-item active">
                 <span class="nav-icon">🏠</span>
                 <span class="nav-label">Home</span>
             </a>
-            <a href="riwayat" class="nav-item">
+            <a href="{{ route('attendance.riwayat') }}" class="nav-item">
                 <span class="nav-icon">📊</span>
                 <span class="nav-label">History</span>
             </a>
-            <a href="laporan" class="nav-item">
+            <a href="{{ route('reports.index') }}" class="nav-item">
                 <span class="nav-icon">📈</span>
                 <span class="nav-label">Reports</span>
             </a>
-            <a href="profile" class="nav-item">
+            <a href="{{ route('profile.show') }}" class="nav-item">
                 <span class="nav-icon">👤</span>
                 <span class="nav-label">Profile</span>
             </a>
@@ -575,16 +607,8 @@
     </div>
 
     <script>
-        function logout() {
-            if (confirm('Apakah Anda yakin ingin logout?')) {
-                // Clear user session
-                localStorage.removeItem('userSession');
-                localStorage.removeItem('attendanceHistory');
-                // Redirect to welcome page
-                window.location.href = 'welcome';
-            }
-        }
-
+        // Logout function is now handled by form submission (see logout button above)
+        
         function downloadReport(type) {
             // Simulate download functionality
             const reportTypes = {
@@ -630,18 +654,8 @@
         }
 
         // Update user info from session
-        function updateUserInfo() {
-            const userSession = localStorage.getItem('userSession');
-            const registeredUser = localStorage.getItem('registeredUser');
-            
-            if (userSession && registeredUser) {
-                const userData = JSON.parse(registeredUser);
-                const userNameElement = document.querySelector('.user-name');
-                if (userNameElement && userData.name) {
-                    userNameElement.textContent = userData.name;
-                }
-            }
-        }
+        // NOTE: User info is now rendered server-side via Laravel Blade ({{ $user->name }})
+        // No need for client-side localStorage updates
 
         // Update today's status
         function updateTodayStatus() {
@@ -692,19 +706,9 @@
 
         // Update greeting based on current time
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const userSession = localStorage.getItem('userSession');
-            if (!userSession) {
-                window.location.href = 'welcome';
-                return;
-            }
-            
             const welcomeText = document.querySelector('.welcome-text');
-            welcomeText.textContent = getGreeting();
-            
-            // Update user info
-            updateUserInfo();
-            
+            welcomeText && (welcomeText.textContent = getGreeting());
+
             // Update today's status
             updateTodayStatus();
         });

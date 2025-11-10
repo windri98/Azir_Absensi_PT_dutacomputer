@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pengajuan Izin - Sistem Absensi</title>
-    <link rel="stylesheet" href="components/popup.css">
+    <link rel="stylesheet" href="{{ asset('components/popup.css') }}">
     <style>
         * {
             margin: 0;
@@ -284,19 +284,19 @@
         <!-- Leave Balance -->
         <div class="balance-card">
             <div class="balance-header">
-                <h3 class="balance-title">Sisa Cuti Anda</h3>
+                <h3 class="balance-title">Sisa Cuti Anda Tahun {{ now()->year }}</h3>
             </div>
             <div class="balance-grid">
                 <div class="balance-item">
-                    <div class="balance-number">12</div>
+                    <div class="balance-number">{{ $leaveBalance['annual'] }}</div>
                     <div class="balance-label">Cuti Tahunan</div>
                 </div>
                 <div class="balance-item">
-                    <div class="balance-number">5</div>
+                    <div class="balance-number">{{ $leaveBalance['sick'] }}</div>
                     <div class="balance-label">Cuti Sakit</div>
                 </div>
                 <div class="balance-item">
-                    <div class="balance-number">3</div>
+                    <div class="balance-number">{{ $leaveBalance['special'] }}</div>
                     <div class="balance-label">Cuti Khusus</div>
                 </div>
             </div>
@@ -306,46 +306,50 @@
         <div class="form-section">
             <h3 class="section-title">Ajukan Izin Baru</h3>
             
-            <form id="leaveForm">
+            <form id="leaveForm" action="{{ route('complaints.store') }}" method="POST">
+                @csrf
                 <div class="form-group">
                     <label class="form-label">Jenis Izin</label>
                     <div class="leave-types">
-                        <div class="leave-type" data-type="annual">
+                        <div class="leave-type" data-type="cuti">
                             <div class="leave-type-icon">🏖️</div>
                             <div class="leave-type-name">Cuti Tahunan</div>
                         </div>
-                        <div class="leave-type" data-type="sick">
+                        <div class="leave-type" data-type="sakit">
                             <div class="leave-type-icon">🏥</div>
                             <div class="leave-type-name">Cuti Sakit</div>
                         </div>
-                        <div class="leave-type" data-type="personal">
+                        <div class="leave-type" data-type="izin">
                             <div class="leave-type-icon">👤</div>
-                            <div class="leave-type-name">Cuti Pribadi</div>
+                            <div class="leave-type-name">Izin Pribadi</div>
                         </div>
-                        <div class="leave-type" data-type="emergency">
+                        <div class="leave-type" data-type="lainnya">
                             <div class="leave-type-icon">🚨</div>
-                            <div class="leave-type-name">Darurat</div>
+                            <div class="leave-type-name">Lainnya</div>
                         </div>
                     </div>
+                    <input type="hidden" name="category" id="categoryInput" required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Periode Izin</label>
                     <div class="date-range">
-                        <input type="date" class="form-input" id="startDate" required>
-                        <input type="date" class="form-input" id="endDate" required>
+                        <input type="date" class="form-input" name="start_date" id="startDate" required>
+                        <input type="date" class="form-input" name="end_date" id="endDate" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Alasan Izin</label>
-                    <textarea class="form-textarea" id="reason" placeholder="Jelaskan alasan pengajuan izin Anda..." required></textarea>
+                    <label class="form-label">Judul Pengajuan</label>
+                    <input type="text" class="form-input" name="title" id="title" placeholder="Contoh: Cuti Liburan Akhir Tahun" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Pengganti Selama Izin (Opsional)</label>
-                    <input type="text" class="form-input" id="replacement" placeholder="Nama pengganti">
+                    <label class="form-label">Alasan Izin</label>
+                    <textarea class="form-textarea" name="description" id="reason" placeholder="Jelaskan alasan pengajuan izin Anda..." required></textarea>
                 </div>
+
+                <input type="hidden" name="priority" value="medium">
 
                 <button type="submit" class="submit-btn">Ajukan Izin</button>
             </form>
@@ -353,33 +357,77 @@
 
         <!-- Recent Requests -->
         <div class="recent-section">
-            <h3 class="section-title">Riwayat Pengajuan</h3>
-            <div id="recentRequests">
-                <!-- Recent requests will be populated here -->
-                <div class="request-item">
-                    <div class="request-info">
-                        <h4>Cuti Tahunan</h4>
-                        <p>15-17 Oktober 2025 • 3 hari</p>
-                    </div>
-                    <span class="request-status status-pending">Pending</span>
-                </div>
-                <div class="request-item">
-                    <div class="request-info">
-                        <h4>Cuti Sakit</h4>
-                        <p>10 Oktober 2025 • 1 hari</p>
-                    </div>
-                    <span class="request-status status-approved">Approved</span>
-                </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h3 class="section-title" style="margin:0;">Riwayat Pengajuan</h3>
+                <button onclick="location.reload()" style="background:#e5e7eb;border:none;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;">
+                    🔄 Refresh
+                </button>
             </div>
+            
+            @if(isset($complaints))
+                @if($complaints->count() > 0)
+                    <div id="recentRequests">
+                        @foreach($complaints as $complaint)
+                            <div class="request-item" style="display:block;padding:16px;border-bottom:1px solid #f3f4f6">
+                                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+                                    <div class="request-info" style="flex:1">
+                                        <h4 style="font-size:15px;font-weight:600;color:#333;margin-bottom:4px">{{ $complaint->title }}</h4>
+                                        <p style="font-size:13px;color:#6b7280;margin:0">
+                                            {{ ucfirst($complaint->category) }} • {{ $complaint->created_at->format('d M Y H:i') }}
+                                        </p>
+                                    </div>
+                                    @php
+                                        $statusClass = 'status-pending';
+                                        $statusText = 'Pending';
+                                        if($complaint->status == 'approved') {
+                                            $statusClass = 'status-approved';
+                                            $statusText = 'Disetujui';
+                                        } elseif($complaint->status == 'rejected') {
+                                            $statusClass = 'status-rejected';
+                                            $statusText = 'Ditolak';
+                                        }
+                                    @endphp
+                                    <span class="request-status {{ $statusClass }}" style="margin-left:12px">{{ $statusText }}</span>
+                                </div>
+                                
+                                @if($complaint->response)
+                                    <div style="margin-top:12px;padding:12px;background:{{ $complaint->status == 'rejected' ? '#fee2e2' : '#d1fae5' }};border-left:3px solid {{ $complaint->status == 'rejected' ? '#ef4444' : '#10b981' }};border-radius:6px">
+                                        <div style="font-size:12px;font-weight:600;color:{{ $complaint->status == 'rejected' ? '#991b1b' : '#065f46' }};margin-bottom:4px">
+                                            {{ $complaint->status == 'rejected' ? '❌ Alasan Penolakan:' : '✅ Catatan Admin:' }}
+                                        </div>
+                                        <div style="font-size:13px;color:#374151">{{ $complaint->response }}</div>
+                                        @if($complaint->responded_at)
+                                            <div style="font-size:11px;color:#6b7280;margin-top:4px">
+                                                {{ $complaint->responded_at->format('d M Y, H:i') }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div style="text-align: center; padding: 20px; color: #6b7280;">
+                        <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">📝</div>
+                        <div>Belum ada pengajuan izin</div>
+                        <small style="font-size: 12px; margin-top: 8px; display: block;">Ajukan izin pertama Anda di formulir di atas</small>
+                    </div>
+                @endif
+            @else
+                <div style="text-align: center; padding: 20px; color: #ff6b6b;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                    <div>Data tidak tersedia - Variable $complaints tidak ada</div>
+                </div>
+            @endif
         </div>
     </div>
 
-    <script src="components/popup.js"></script>
+    <script src="{{ asset('components/popup.js') }}"></script>
     <script>
         let selectedLeaveType = null;
 
         function goBack() {
-            window.location.href = 'dashboard';
+            window.location.href = '{{ route('dashboard') }}';
         }
 
         // Handle leave type selection
@@ -388,14 +436,14 @@
                 document.querySelectorAll('.leave-type').forEach(t => t.classList.remove('selected'));
                 this.classList.add('selected');
                 selectedLeaveType = this.dataset.type;
+                document.getElementById('categoryInput').value = selectedLeaveType;
             });
         });
 
         // Handle form submission
         document.getElementById('leaveForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
             if (!selectedLeaveType) {
+                e.preventDefault();
                 showErrorPopup({
                     title: 'Error',
                     message: 'Silakan pilih jenis izin terlebih dahulu',
@@ -406,20 +454,10 @@
 
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
-            const reason = document.getElementById('reason').value;
-            const replacement = document.getElementById('replacement').value;
-
-            if (!startDate || !endDate || !reason) {
-                showErrorPopup({
-                    title: 'Error',
-                    message: 'Mohon lengkapi semua field yang wajib diisi',
-                    buttonText: 'OK'
-                });
-                return;
-            }
 
             // Validate date range
             if (new Date(startDate) > new Date(endDate)) {
+                e.preventDefault();
                 showErrorPopup({
                     title: 'Error',
                     message: 'Tanggal mulai tidak boleh lebih besar dari tanggal selesai',
@@ -428,109 +466,18 @@
                 return;
             }
 
-            // Calculate days
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            const diffTime = Math.abs(end - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-            // Create leave request
-            const leaveRequest = {
-                id: Date.now(),
-                type: selectedLeaveType,
-                startDate: startDate,
-                endDate: endDate,
-                days: diffDays,
-                reason: reason,
-                replacement: replacement,
-                status: 'pending',
-                createdAt: new Date().toISOString()
-            };
-
-            // Save to localStorage
-            const leaveRequests = JSON.parse(localStorage.getItem('leaveRequests') || '[]');
-            leaveRequests.push(leaveRequest);
-            localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
-
-            // Show success popup
-            showSuccessPopup({
-                title: 'Pengajuan Berhasil!',
-                message: `Pengajuan izin ${diffDays} hari telah dikirim untuk diproses`,
-                buttonText: 'OK',
-                onClose: () => {
-                    // Reset form
-                    document.getElementById('leaveForm').reset();
-                    document.querySelectorAll('.leave-type').forEach(t => t.classList.remove('selected'));
-                    selectedLeaveType = null;
-                    
-                    // Refresh recent requests
-                    loadRecentRequests();
-                }
+            // Debug log
+            console.log('Form submitting with data:', {
+                category: selectedLeaveType,
+                title: document.getElementById('title').value,
+                description: document.getElementById('reason').value,
+                start_date: startDate,
+                end_date: endDate
             });
         });
 
-        function loadRecentRequests() {
-            const leaveRequests = JSON.parse(localStorage.getItem('leaveRequests') || '[]');
-            const recentContainer = document.getElementById('recentRequests');
-            
-            if (leaveRequests.length === 0) {
-                recentContainer.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: #6b7280;">
-                        <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">📝</div>
-                        <div>Belum ada pengajuan izin</div>
-                    </div>
-                `;
-                return;
-            }
-
-            recentContainer.innerHTML = '';
-            
-            // Show latest 5 requests
-            leaveRequests.slice(-5).reverse().forEach(request => {
-                const leaveTypeNames = {
-                    'annual': 'Cuti Tahunan',
-                    'sick': 'Cuti Sakit',
-                    'personal': 'Cuti Pribadi',
-                    'emergency': 'Darurat'
-                };
-
-                const formatDate = (dateStr) => {
-                    return new Date(dateStr).toLocaleDateString('id-ID', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric'
-                    });
-                };
-
-                const dateRange = request.startDate === request.endDate 
-                    ? formatDate(request.startDate)
-                    : `${formatDate(request.startDate)} - ${formatDate(request.endDate)}`;
-
-                const requestItem = `
-                    <div class="request-item">
-                        <div class="request-info">
-                            <h4>${leaveTypeNames[request.type]}</h4>
-                            <p>${dateRange} • ${request.days} hari</p>
-                        </div>
-                        <span class="request-status status-${request.status}">
-                            ${request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                        </span>
-                    </div>
-                `;
-                
-                recentContainer.insertAdjacentHTML('beforeend', requestItem);
-            });
-        }
-
         // Set minimum date to today
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const userSession = localStorage.getItem('userSession');
-            if (!userSession) {
-                window.location.href = 'welcome';
-                return;
-            }
-
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('startDate').min = today;
             document.getElementById('endDate').min = today;
@@ -539,9 +486,24 @@
             document.getElementById('startDate').addEventListener('change', function() {
                 document.getElementById('endDate').min = this.value;
             });
-
-            loadRecentRequests();
         });
+
+        // Show success message if redirected after successful submission
+        @if(session('success'))
+            showSuccessPopup({
+                title: 'Pengajuan Berhasil!',
+                message: '{{ session('success') }}',
+                buttonText: 'OK'
+            });
+        @endif
+
+        @if(session('error'))
+            showErrorPopup({
+                title: 'Error',
+                message: '{{ session('error') }}',
+                buttonText: 'OK'
+            });
+        @endif
     </script>
 </body>
 </html>

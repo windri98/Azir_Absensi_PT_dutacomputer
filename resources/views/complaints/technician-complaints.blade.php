@@ -711,15 +711,15 @@
             <div class="nav-icon">🏠</div>
             <div>Beranda</div>
         </a>
-        <a href="{{ route('complaint-history') }}" class="nav-item">
+        <a href="{{ route('complaints.history') }}" class="nav-item">
             <div class="nav-icon">📝</div>
             <div>Riwayat</div>
         </a>
-        <a href="{{ route('technician-complaints') }}" class="nav-item active">
+        <a href="{{ route('complaints.technician') }}" class="nav-item active">
             <div class="nav-icon">🔧</div>
             <div>Keluhan</div>
         </a>
-        <a href="{{ route('profile') }}" class="nav-item">
+        <a href="{{ route('profile.show') }}" class="nav-item">
             <div class="nav-icon">👤</div>
             <div>Profil</div>
         </a>
