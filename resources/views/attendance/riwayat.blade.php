@@ -29,18 +29,20 @@
         }
         
         /* Header */
-        .header {
-            background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
+                .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 50px 20px 30px 20px;
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 10;
         }
         .header-content {
             display: flex;
             align-items: center;
             gap: 15px;
+            position: relative;
+            z-index: 11;
         }
         .back-btn {
             background: rgba(255, 255, 255, 0.2);
@@ -56,8 +58,12 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            z-index: 1001;
+            z-index: 1000;
             transition: all 0.3s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+            text-decoration: none;
         }
         .back-btn:hover {
             background: rgba(255, 255, 255, 0.3);
@@ -65,6 +71,10 @@
         }
         .back-btn:active {
             transform: scale(0.95);
+        }
+        .back-btn:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.5);
+            outline-offset: 2px;
         }
         .header-title {
             flex: 1;
@@ -362,7 +372,7 @@
 <body>
     <div class="header">
         <div class="header-content">
-            <button class="back-btn" onclick="goBack()">←</button>
+            <a href="{{ route('dashboard') }}" class="back-btn">←</a>
             <div class="header-title">
                 <h1>Riwayat Absensi</h1>
                 <p>Lihat rekam jejak kehadiran Anda</p>

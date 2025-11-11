@@ -48,6 +48,7 @@
             top: 0;
             z-index: 100;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            pointer-events: auto;
         }
 
         .back-btn {
@@ -62,6 +63,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            z-index: 1001;
+            transition: all 0.3s ease;
+            user-select: none;
+            pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+        .back-btn:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.5);
+            outline-offset: 2px;
         }
 
         .header-title {

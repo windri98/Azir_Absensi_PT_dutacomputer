@@ -35,12 +35,14 @@
             padding: 50px 20px 30px 20px;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 10;
         }
         .header-content {
             display: flex;
             align-items: center;
             gap: 15px;
+            position: relative;
+            z-index: 11;
         }
         .back-btn {
             background: rgba(255, 255, 255, 0.2);
@@ -56,11 +58,12 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            z-index: 1001;
+            z-index: 1000;
             position: relative;
             user-select: none;
-            pointer-events: auto;
             -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+            text-decoration: none;
         }
         .back-btn:hover {
             background: rgba(255, 255, 255, 0.3);
@@ -72,6 +75,9 @@
         .back-btn:focus {
             outline: 2px solid rgba(255, 255, 255, 0.5);
             outline-offset: 2px;
+        }
+        .header-title {
+            flex: 1;
         }
         .header-title h1 {
             font-size: 20px;
@@ -398,7 +404,7 @@
 <body>
     <div class="header">
         <div class="header-content">
-            <button class="back-btn" onclick="goBack()">←</button>
+            <a href="{{ route('dashboard') }}" class="back-btn">←</a>
             <div class="header-title">
                 <h1>Pengajuan Izin</h1>
                 <p>Ajukan cuti dan izin Anda</p>
