@@ -218,6 +218,13 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- Pagination for Complaints -->
+    @if($recentComplaints->hasPages())
+    <div style="margin-top:16px;display:flex;justify-content:center">
+        {{ $recentComplaints->links() }}
+    </div>
+    @endif
 </div>
 @endif
 
@@ -281,6 +288,13 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- Pagination for Work Leave -->
+    @if($recentWorkLeave->hasPages())
+    <div style="margin-top:16px;display:flex;justify-content:center">
+        {{ $recentWorkLeave->links() }}
+    </div>
+    @endif
 </div>
 @endif
 

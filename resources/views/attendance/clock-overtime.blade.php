@@ -451,11 +451,17 @@
             Scan QR code karyawan untuk verifikasi attendance overtime
         </p>
         
-        <div style="text-align: center;">
-            <button onclick="startQRScanner()" style="background: linear-gradient(135deg, #1ec7e6, #0ea5e9); color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%;">
-                📷 Buka Scanner QR
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+            <button onclick="startQRScanner()" style="background: linear-gradient(135deg, #1ec7e6, #0ea5e9); color: white; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 600;">
+                📷 Scan Camera
+            </button>
+            <button onclick="document.getElementById('qrFileInput').click()" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 600;">
+                � Upload File
             </button>
         </div>
+
+        <!-- Hidden file input -->
+        <input type="file" id="qrFileInput" accept="image/*" style="display: none;" onchange="handleQRFile(event)">
 
         <!-- QR Scanner Video (Hidden by default) -->
         <div id="qrScannerContainer" style="display: none; margin-top: 15px;">
@@ -469,6 +475,16 @@
             <button onclick="stopQRScanner()" style="margin-top: 10px; background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer; font-size: 13px; width: 100%;">
                 ❌ Tutup Scanner
             </button>
+        </div>
+
+        <!-- Upload Preview -->
+        <div id="uploadPreview" style="display: none; margin-top: 15px;">
+            <canvas id="uploadCanvas" style="width: 100%; max-height: 300px; border-radius: 12px;"></canvas>
+            <div id="uploadResult" style="margin-top: 10px; padding: 12px; background: #f0f9ff; border-radius: 8px; display: none;">
+                <p style="font-size: 13px; color: #0284c7; margin: 0;">
+                    <strong>Scanned:</strong> <span id="uploadScannedInfo"></span>
+                </p>
+            </div>
         </div>
     </div>
 

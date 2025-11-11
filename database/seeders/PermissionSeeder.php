@@ -254,11 +254,34 @@ class PermissionSeeder extends Seeder
 
     private function assignPermissionsToRoles()
     {
+        // Super Admin gets all permissions
+        $superadminRole = Role::where('name', 'superadmin')->first();
+        if ($superadminRole) {
+            $allPermissions = Permission::all();
+            $superadminRole->permissions()->sync($allPermissions->pluck('id'));
+        }
+
         // Admin gets all permissions
         $adminRole = Role::where('name', 'admin')->first();
         if ($adminRole) {
             $allPermissions = Permission::all();
             $adminRole->permissions()->sync($allPermissions->pluck('id'));
+        }
+
+        // HR permissions (similar to manager but more focus on employee management)
+        $hrRole = Role::where('name', 'hr')->first();
+        if ($hrRole) {
+            $hrPermissions = Permission::whereIn('name', [
+                'dashboard.view', 'dashboard.admin',
+                'users.view', 'users.create', 'users.edit', 'users.delete', 'users.manage_roles',
+                'roles.view',
+                'attendance.own', 'attendance.view_all', 'attendance.edit', 'attendance.approve_leave',
+                'shifts.view', 'shifts.create', 'shifts.edit', 'shifts.delete', 'shifts.assign_users',
+                'reports.view_own', 'reports.view_all', 'reports.export',
+                'complaints.create', 'complaints.view_own', 'complaints.view_all', 'complaints.manage',
+                'profile.edit_own', 'profile.view_others', 'profile.edit_others'
+            ])->get();
+            $hrRole->permissions()->sync($hrPermissions->pluck('id'));
         }
 
         // Manager permissions
@@ -267,6 +290,7 @@ class PermissionSeeder extends Seeder
             $managerPermissions = Permission::whereIn('name', [
                 'dashboard.view', 'dashboard.admin',
                 'users.view', 'users.edit', 'users.manage_roles',
+                'roles.view',
                 'attendance.own', 'attendance.view_all', 'attendance.approve_leave',
                 'shifts.view', 'shifts.edit', 'shifts.assign_users',
                 'reports.view_own', 'reports.view_all', 'reports.export',
@@ -282,6 +306,7 @@ class PermissionSeeder extends Seeder
             $supervisorPermissions = Permission::whereIn('name', [
                 'dashboard.view',
                 'users.view',
+                'roles.view',
                 'attendance.own', 'attendance.view_all', 'attendance.approve_leave',
                 'shifts.view',
                 'reports.view_own', 'reports.view_all',
@@ -303,6 +328,32 @@ class PermissionSeeder extends Seeder
                 'profile.edit_own'
             ])->get();
             $employeeRole->permissions()->sync($employeePermissions->pluck('id'));
+        }
+
+        // Intern permissions (very limited)
+        $internRole = Role::where('name', 'intern')->first();
+        if ($internRole) {
+            $internPermissions = Permission::whereIn('name', [
+                'dashboard.view',
+                'attendance.own',
+                'shifts.view',
+                'reports.view_own',
+                'profile.edit_own'
+            ])->get();
+            $internRole->permissions()->sync($internPermissions->pluck('id'));
+        }
+
+        // Contractor permissions (limited, no complaints)
+        $contractorRole = Role::where('name', 'contractor')->first();
+        if ($contractorRole) {
+            $contractorPermissions = Permission::whereIn('name', [
+                'dashboard.view',
+                'attendance.own',
+                'shifts.view',
+                'reports.view_own',
+                'profile.edit_own'
+            ])->get();
+            $contractorRole->permissions()->sync($contractorPermissions->pluck('id'));
         }
     }
 }

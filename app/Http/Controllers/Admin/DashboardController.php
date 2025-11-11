@@ -46,21 +46,19 @@ class DashboardController extends Controller
             ->where('status', 'rejected')
             ->count();
 
-        // Pengajuan izin/cuti terbaru yang masih pending
+        // Pengajuan izin/cuti terbaru yang masih pending (with pagination)
         $recentComplaints = Complaint::with('user')
             ->whereIn('category', ['cuti', 'sakit', 'izin'])
             ->where('status', 'pending')
             ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+            ->paginate(10, ['*'], 'complaints_page');
             
-        // Pengajuan izin kerja terbaru (dengan dokumen)
+        // Pengajuan izin kerja terbaru (dengan dokumen) (with pagination)
         $recentWorkLeave = Attendance::with('user')
             ->where('status', 'work_leave')
             ->whereNotNull('document_filename')
             ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+            ->paginate(10, ['*'], 'work_leave_page');
 
         return view('admin.dashboard', compact(
             'userCount',

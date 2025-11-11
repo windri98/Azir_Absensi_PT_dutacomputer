@@ -14,6 +14,11 @@ class RoleSeeder extends Seeder
     {
         $roles = [
             [
+                'name' => 'superadmin',
+                'display_name' => 'Super Administrator',
+                'description' => 'Super Admin dengan akses penuh ke seluruh sistem termasuk konfigurasi',
+            ],
+            [
                 'name' => 'admin',
                 'display_name' => 'Administrator',
                 'description' => 'Administrator dengan akses penuh ke seluruh sistem',
@@ -24,14 +29,29 @@ class RoleSeeder extends Seeder
                 'description' => 'Manager yang dapat melihat dan mengelola data karyawan',
             ],
             [
+                'name' => 'supervisor',
+                'display_name' => 'Supervisor',
+                'description' => 'Supervisor yang dapat melihat data tim',
+            ],
+            [
+                'name' => 'hr',
+                'display_name' => 'Human Resource',
+                'description' => 'HR yang mengelola kepegawaian dan absensi',
+            ],
+            [
                 'name' => 'employee',
                 'display_name' => 'Employee',
                 'description' => 'Karyawan dengan akses terbatas hanya untuk absensi pribadi',
             ],
             [
-                'name' => 'supervisor',
-                'display_name' => 'Supervisor',
-                'description' => 'Supervisor yang dapat melihat data tim',
+                'name' => 'intern',
+                'display_name' => 'Intern / Magang',
+                'description' => 'Karyawan magang dengan akses sangat terbatas',
+            ],
+            [
+                'name' => 'contractor',
+                'display_name' => 'Contractor',
+                'description' => 'Kontraktor atau freelancer dengan akses terbatas',
             ],
         ];
 
@@ -44,10 +64,20 @@ class RoleSeeder extends Seeder
                 ]
             );
             
-            // Update existing roles that might not have display_name
-            if (!$role->display_name) {
-                $role->update(['display_name' => $roleData['display_name']]);
+            // Update existing roles that might not have display_name or description
+            if (!$role->display_name || !$role->description) {
+                $role->update([
+                    'display_name' => $roleData['display_name'],
+                    'description' => $roleData['description']
+                ]);
             }
+        }
+
+        $this->command->info('Roles created successfully!');
+        $this->command->info('');
+        $this->command->info('Available roles:');
+        foreach ($roles as $role) {
+            $this->command->info("- {$role['name']}: {$role['display_name']}");
         }
     }
 }

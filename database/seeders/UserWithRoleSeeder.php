@@ -21,10 +21,30 @@ class UserWithRoleSeeder extends Seeder
     public function run(): void
     {
         // Pastikan roles sudah ada
+        $superadminRole = Role::where('name', 'superadmin')->first();
         $adminRole = Role::where('name', 'admin')->first();
+        $hrRole = Role::where('name', 'hr')->first();
         $managerRole = Role::where('name', 'manager')->first();
-        $employeeRole = Role::where('name', 'employee')->first();
         $supervisorRole = Role::where('name', 'supervisor')->first();
+        $employeeRole = Role::where('name', 'employee')->first();
+        $internRole = Role::where('name', 'intern')->first();
+        $contractorRole = Role::where('name', 'contractor')->first();
+
+        // Buat Super Admin User
+        $superadmin = User::firstOrCreate(
+            ['email' => 'superadmin@example.com'],
+            [
+                'employee_id' => 'SADM001',
+                'name' => 'Super Admin',
+                'password' => Hash::make('password123'),
+                'phone' => '081234567888',
+                'address' => 'Jl. Super Admin No. 001, Jakarta',
+                'birth_date' => '1985-01-01',
+            ]
+        );
+        if ($superadminRole && ! $superadmin->roles->contains($superadminRole->id)) {
+            $superadmin->roles()->attach($superadminRole->id);
+        }
 
         // Buat Admin User
         $admin = User::firstOrCreate(
@@ -42,6 +62,22 @@ class UserWithRoleSeeder extends Seeder
             $admin->roles()->attach($adminRole->id);
         }
 
+        // Buat HR User
+        $hr = User::firstOrCreate(
+            ['email' => 'hr@example.com'],
+            [
+                'employee_id' => 'HR001',
+                'name' => 'HR Manager',
+                'password' => Hash::make('password123'),
+                'phone' => '081234567889',
+                'address' => 'Jl. HR No. 100, Jakarta',
+                'birth_date' => '1988-03-20',
+            ]
+        );
+        if ($hrRole && ! $hr->roles->contains($hrRole->id)) {
+            $hr->roles()->attach($hrRole->id);
+        }
+
         // Buat Manager User
         $manager = User::firstOrCreate(
             ['email' => 'manager@example.com'],
@@ -56,6 +92,22 @@ class UserWithRoleSeeder extends Seeder
         );
         if ($managerRole && ! $manager->roles->contains($managerRole->id)) {
             $manager->roles()->attach($managerRole->id);
+        }
+
+        // Buat Supervisor User
+        $supervisor = User::firstOrCreate(
+            ['email' => 'supervisor@example.com'],
+            [
+                'employee_id' => 'SPV001',
+                'name' => 'Supervisor User',
+                'password' => Hash::make('password123'),
+                'phone' => '081234567894',
+                'address' => 'Jl. Supervisor No. 654, Yogyakarta',
+                'birth_date' => '1988-12-05',
+            ]
+        );
+        if ($supervisorRole && ! $supervisor->roles->contains($supervisorRole->id)) {
+            $supervisor->roles()->attach($supervisorRole->id);
         }
 
         // Buat Employee Users
@@ -89,29 +141,49 @@ class UserWithRoleSeeder extends Seeder
             $employee2->roles()->attach($employeeRole->id);
         }
 
-        // Buat Supervisor User
-        $supervisor = User::firstOrCreate(
-            ['email' => 'supervisor@example.com'],
+        // Buat Intern User
+        $intern = User::firstOrCreate(
+            ['email' => 'intern@example.com'],
             [
-                'employee_id' => 'SPV001',
-                'name' => 'Supervisor User',
+                'employee_id' => 'INT001',
+                'name' => 'Intern User',
                 'password' => Hash::make('password123'),
-                'phone' => '081234567894',
-                'address' => 'Jl. Supervisor No. 654, Yogyakarta',
-                'birth_date' => '1988-12-05',
+                'phone' => '081234567895',
+                'address' => 'Jl. Magang No. 111, Malang',
+                'birth_date' => '2000-06-15',
             ]
         );
-        if ($supervisorRole && ! $supervisor->roles->contains($supervisorRole->id)) {
-            $supervisor->roles()->attach($supervisorRole->id);
+        if ($internRole && ! $intern->roles->contains($internRole->id)) {
+            $intern->roles()->attach($internRole->id);
+        }
+
+        // Buat Contractor User
+        $contractor = User::firstOrCreate(
+            ['email' => 'contractor@example.com'],
+            [
+                'employee_id' => 'CTR001',
+                'name' => 'Contractor User',
+                'password' => Hash::make('password123'),
+                'phone' => '081234567896',
+                'address' => 'Jl. Kontraktor No. 222, Bali',
+                'birth_date' => '1991-09-10',
+            ]
+        );
+        if ($contractorRole && ! $contractor->roles->contains($contractorRole->id)) {
+            $contractor->roles()->attach($contractorRole->id);
         }
 
         $this->command->info('Users with roles created successfully!');
         $this->command->info('');
         $this->command->info('Login credentials:');
+        $this->command->info('Super Admin: superadmin@example.com / password123');
         $this->command->info('Admin: admin@example.com / password123');
+        $this->command->info('HR: hr@example.com / password123');
         $this->command->info('Manager: manager@example.com / password123');
+        $this->command->info('Supervisor: supervisor@example.com / password123');
         $this->command->info('Employee 1: employee1@example.com / password123');
         $this->command->info('Employee 2: employee2@example.com / password123');
-        $this->command->info('Supervisor: supervisor@example.com / password123');
+        $this->command->info('Intern: intern@example.com / password123');
+        $this->command->info('Contractor: contractor@example.com / password123');
     }
 }
