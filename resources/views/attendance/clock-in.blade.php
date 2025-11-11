@@ -179,7 +179,15 @@
         }
         .location-error {
             color: #ef4444;
-            font-style: italic;
+            font-size: 13px;
+            line-height: 1.4;
+            padding: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        .location-error strong {
+            color: #dc2626;
         }
         .location-accuracy {
             font-size: 11px;
@@ -297,6 +305,7 @@
                 <span class="loading-location">📍 Mendapatkan lokasi Anda...</span>
             </div>
             <div class="location-accuracy" id="locationAccuracy"></div>
+            <button onclick="getCurrentLocation(true)" style="margin-top: 10px; padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; display: none;" id="refreshLocationBtn">🔄 Refresh Location</button>
         </div>
         
         <div class="note-section">
@@ -377,7 +386,24 @@
             if (watchId) {
                 navigator.geolocation.clearWatch(watchId);
             }
-            window.location.href = "{{ route('attendance.absensi') }}";
+            
+            // Use smartGoBack function if available
+            if (typeof smartGoBack === 'function') {
+                smartGoBack('{{ route("attendance.absensi") }}');
+            } else {
+                // Fallback navigation
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = '{{ route("attendance.absensi") }}';
+                    }
+                } else {
+                    window.location.href = '{{ route("attendance.absensi") }}';
+                }
+            }
         }
 
         function refreshLocation() {
@@ -568,7 +594,8 @@
             }
         }
 
-        function getCurrentLocation(forceRefresh = false) {
+        // Force geolocation for development (bypass HTTPS check)
+        function forceGetLocation() {
             const locationAddress = document.getElementById('locationAddress');
             const locationAccuracy = document.getElementById('locationAccuracy');
             
@@ -576,6 +603,92 @@
                 locationAddress.innerHTML = '<span class="location-error">❌ Geolocation tidak didukung browser</span>';
                 return;
             }
+            
+            locationAddress.innerHTML = '<span class="loading-location">⚠️ Memaksa akses lokasi (Development Mode)...</span>';
+            locationAccuracy.textContent = 'Menunggu respons GPS...';
+
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
+            };
+
+            function success(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+                
+                currentLocation = { lat, lng, accuracy };
+                
+                // Enable clock in button
+                const clockInBtn = document.getElementById('clockInBtn');
+                clockInBtn.disabled = false;
+                clockInBtn.textContent = 'Clock In';
+                
+                // Show refresh location button
+                const refreshBtn = document.getElementById('refreshLocationBtn');
+                refreshBtn.style.display = 'inline-block';
+                
+                // Update accuracy info
+                locationAccuracy.textContent = `Akurasi: ±${Math.round(accuracy)} meter (Forced)`;
+                
+                // Update map with current location
+                if (map) {
+                    addLocationMarker(lat, lng);
+                }
+                
+                // Get address from coordinates
+                reverseGeocode(lat, lng);
+                
+                console.log(`Force location updated: ${lat}, ${lng} (±${accuracy}m)`);
+            }
+
+            function error(err) {
+                console.error('Force Geolocation error:', err);
+                locationAddress.innerHTML = `
+                    <div class="location-error">
+                        ❌ Gagal memaksa akses lokasi<br>
+                        💡 Browser benar-benar memblokir geolocation di HTTP<br>
+                        <strong>Gunakan ngrok untuk HTTPS</strong>
+                        <br><button onclick="forceGetLocation()" style="margin-top: 10px; padding: 5px 10px; background: #dc2626; color: white; border: none; border-radius: 5px; cursor: pointer;">🔄 Coba Lagi Force</button>
+                    </div>
+                `;
+                locationAccuracy.textContent = '';
+            }
+
+            // Try to get position anyway
+            navigator.geolocation.getCurrentPosition(success, error, options);
+        }
+
+        function getCurrentLocation(forceRefresh = false) {
+            const locationAddress = document.getElementById('locationAddress');
+            const locationAccuracy = document.getElementById('locationAccuracy');
+            
+            // Check if geolocation is supported
+            if (!navigator.geolocation) {
+                locationAddress.innerHTML = '<span class="location-error">❌ Geolocation tidak didukung browser</span>';
+                return;
+            }
+            
+            // Check if using HTTP (not secure context) - allow local network for development
+            const isLocalNetwork = location.hostname.startsWith('192.168.') || location.hostname.startsWith('10.') || location.hostname.startsWith('172.');
+            const isSecureContext = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1' || isLocalNetwork;
+            
+            if (!isSecureContext) {
+                locationAddress.innerHTML = `
+                    <div class="location-error">
+                        ❌ Geolocation memerlukan HTTPS<br>
+                        💡 <strong>Solusi:</strong> Akses via HTTPS atau gunakan ngrok
+                        <br><button onclick="forceGetLocation()" style="margin-top: 10px; padding: 5px 10px; background: #dc2626; color: white; border: none; border-radius: 5px; cursor: pointer;">⚠️ Force Try (Development)</button>
+                        <br><button onclick="getCurrentLocation(true)" style="margin-top: 5px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">🔄 Coba Lagi</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Show loading state
+            locationAddress.innerHTML = '<span class="loading-location">📍 Mendapatkan lokasi Anda...</span>';
+            locationAccuracy.textContent = 'Menunggu respons GPS...';
 
             const options = {
                 enableHighAccuracy: true,
@@ -595,6 +708,10 @@
                 clockInBtn.disabled = false;
                 clockInBtn.textContent = 'Clock In';
                 
+                // Show refresh location button
+                const refreshBtn = document.getElementById('refreshLocationBtn');
+                refreshBtn.style.display = 'inline-block';
+                
                 // Update accuracy info
                 locationAccuracy.textContent = `Akurasi: ±${Math.round(accuracy)} meter`;
                 
@@ -612,24 +729,41 @@
             function error(err) {
                 console.error('Geolocation error:', err);
                 let errorMessage = '';
+                let showRetryButton = true;
                 
                 switch(err.code) {
                     case err.PERMISSION_DENIED:
-                        errorMessage = '❌ Akses lokasi ditolak. Silakan aktifkan izin lokasi.';
+                        errorMessage = '❌ Akses lokasi ditolak.<br>' +
+                                     '💡 <strong>Cara mengaktifkan:</strong><br>' +
+                                     '• Klik ikon 🔒 di address bar<br>' +
+                                     '• Pilih "Izinkan" untuk Location<br>' +
+                                     '• Refresh halaman ini';
                         break;
                     case err.POSITION_UNAVAILABLE:
-                        errorMessage = '❌ Informasi lokasi tidak tersedia.';
+                        errorMessage = '❌ Informasi lokasi tidak tersedia.<br>' +
+                                     '💡 Pastikan GPS/Location Services aktif';
                         break;
                     case err.TIMEOUT:
-                        errorMessage = '❌ Timeout mendapatkan lokasi.';
+                        errorMessage = '❌ Timeout mendapatkan lokasi.<br>' +
+                                     '💡 Coba lagi dengan koneksi yang lebih stabil';
                         break;
                     default:
                         errorMessage = '❌ Error tidak diketahui saat mendapatkan lokasi.';
                         break;
                 }
                 
-                locationAddress.innerHTML = `<span class="location-error">${errorMessage}</span>`;
+                locationAddress.innerHTML = `
+                    <div class="location-error">
+                        ${errorMessage}
+                        ${showRetryButton ? '<br><button onclick="getCurrentLocation(true)" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">🔄 Coba Lagi</button>' : ''}
+                    </div>
+                `;
                 locationAccuracy.textContent = '';
+                
+                // Disable clock in button
+                const clockInBtn = document.getElementById('clockInBtn');
+                clockInBtn.disabled = true;
+                clockInBtn.textContent = 'Lokasi Diperlukan';
             }
 
             // Get current position

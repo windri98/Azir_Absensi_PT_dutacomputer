@@ -989,7 +989,7 @@
         function formatDateTime(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + 
-                   ', ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                ', ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         }
 
         document.getElementById('detailModal').addEventListener('click', function(e) {

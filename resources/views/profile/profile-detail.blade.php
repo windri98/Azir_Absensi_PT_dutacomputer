@@ -194,7 +194,7 @@
         </div>
 
         <div class="menu-list">
-            <div class="menu-item" onclick="location.href='id-card'">
+            <div class="menu-item" onclick="location.href='{{ route('profile.show') }}'">
                 <div class="menu-item-left">
                     <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
@@ -204,7 +204,7 @@
                 <span class="menu-arrow">›</span>
             </div>
 
-            <div class="menu-item" onclick="location.href='change-password'">
+            <div class="menu-item" onclick="location.href='{{ route('change-password') }}'">
                 <div class="menu-item-left">
                     <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
@@ -220,7 +220,22 @@
 
     <script>
         function goBack() {
-            window.history.back();
+            if (typeof smartGoBack === 'function') {
+                smartGoBack('{{ route("profile.show") }}');
+            } else {
+                // Fallback navigation
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = '{{ route("profile.show") }}';
+                    }
+                } else {
+                    window.location.href = '{{ route("profile.show") }}';
+                }
+            }
         }
 
         function logout() {
@@ -229,7 +244,7 @@
                 localStorage.clear();
                 sessionStorage.clear();
                 // Redirect to login page
-                window.location.href = 'login';
+                window.location.href = '{{ route("login") }}';
             }
         }
     </script>

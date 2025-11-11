@@ -481,7 +481,22 @@
         }
 
         function goBack() {
-            window.location.href = 'profile';
+            if (typeof smartGoBack === 'function') {
+                smartGoBack('{{ route("profile.show") }}');
+            } else {
+                // Fallback navigation
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = '{{ route("profile.show") }}';
+                    }
+                } else {
+                    window.location.href = '{{ route("profile.show") }}';
+                }
+            }
         }
 
         // Load settings on page load

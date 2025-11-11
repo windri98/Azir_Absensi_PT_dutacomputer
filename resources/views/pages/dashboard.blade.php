@@ -352,6 +352,7 @@
             color: #333;
             border: 1px solid #e5e7eb;
         }
+
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -414,11 +415,23 @@
                     <span class="icon">👤</span>
                     Lihat Profile
                 </a>
-                <a href="pengaturan" class="dropdown-item">
+                @if(auth()->user()->hasPermission('dashboard.admin'))
+                    <a href="{{ route('dashboard') }}?type=admin" class="dropdown-item">
+                        <span class="icon">🛠️</span>
+                        Dashboard Admin
+                    </a>
+                @endif
+                <a href="{{ route('management.pengaturan') }}" class="dropdown-item">
                     <span class="icon">⚙️</span>
                     Pengaturan
                 </a>
                 <div class="dropdown-divider"></div>
+                @can('reports.view')
+                <a href="{{ route('reports.users') }}" class="dropdown-item">
+                    <span class="icon">👥</span>
+                    Laporan Per User
+                </a>
+                @endcan
                 <a href="#" class="dropdown-item" onclick="downloadReport('laporan')">
                     <span class="icon">📄</span>
                     Download Laporan
@@ -432,11 +445,11 @@
                     Download Riwayat
                 </a>
                 <div class="dropdown-divider"></div>
-                <a href="bantuan" class="dropdown-item">
+                <a href="{{ route('help') }}" class="dropdown-item">
                     <span class="icon">❓</span>
                     Bantuan
                 </a>
-                <a href="tentang" class="dropdown-item">
+                <a href="{{ route('about') }}" class="dropdown-item">
                     <span class="icon">ℹ️</span>
                     Tentang Aplikasi
                 </a>
@@ -482,17 +495,17 @@
             <div class="user-name">{{ $user->name }}</div>
             
             <div class="menu-grid">
-                <a href="absensi" class="menu-item">
+                <a href="{{ route('attendance.absensi') }}" class="menu-item">
                     <div class="menu-icon absen">📷</div>
                     <div class="menu-label">Absen</div>
                 </a>
                 
-                <a href="aktifitas" class="menu-item">
+                <a href="{{ route('activities.aktifitas') }}" class="menu-item">
                     <div class="menu-icon aktifitas">📋</div>
                     <div class="menu-label">Aktivitas</div>
                 </a>
                 
-                <a href="riwayat" class="menu-item">
+                <a href="{{ route('attendance.riwayat') }}" class="menu-item">
                     <div class="menu-icon riwayat">🕒</div>
                     <div class="menu-label">Riwayat</div>
                 </a>
@@ -548,8 +561,8 @@
                     <div class="stat-label">Late Days</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">{{ $monthlyStats['sick'] + $monthlyStats['leave'] }}</div>
-                    <div class="stat-label">Absent</div>
+                    <div class="stat-number">{{ $monthlyStats['work_leave'] ?? 0 }}</div>
+                    <div class="stat-label">Work Leave</div>
                 </div>
             </div>
 
@@ -561,9 +574,9 @@
                         <span class="action-icon">📍</span>
                         Quick Clock In
                     </button>
-                    <button class="action-btn secondary" onclick="requestLeave()">
+                    <button class="action-btn secondary" onclick="requestWorkLeave()">
                         <span class="action-icon">📝</span>
-                        Request Leave
+                        Ajukan Izin
                     </button>
                 </div>
             </div>
@@ -681,11 +694,11 @@
 
         // Quick actions
         function quickClockIn() {
-            window.location.href = 'clock-in';
+            window.location.href = '{{ route("attendance.clock-in") }}';
         }
 
-        function requestLeave() {
-            window.location.href = 'izin';
+        function requestWorkLeave() {
+            window.location.href = '{{ route("absensi") }}';
         }
 
         // Update greeting based on current time

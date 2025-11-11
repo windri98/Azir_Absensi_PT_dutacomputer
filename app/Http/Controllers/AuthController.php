@@ -128,7 +128,7 @@ class AuthController extends Controller
                 $user->roles()->attach($defaultRole->id);
             }
 
-            return back()->with('success', 'User berhasil dibuat: '.$user->name.' (ID: '.$user->employee_id.')');
+            return redirect()->route('admin.users.index')->with('success', 'User berhasil dibuat: '.$user->name.' (ID: '.$user->employee_id.')');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal membuat user: '.$e->getMessage()])->withInput();
         }

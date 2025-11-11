@@ -15,6 +15,7 @@ class Complaint extends Model
         'priority',
         'status',
         'response',
+        'notes',
         'responded_by',
         'responded_at',
         'attachment',

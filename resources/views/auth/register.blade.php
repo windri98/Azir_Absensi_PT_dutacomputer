@@ -18,6 +18,7 @@
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
         .header {
             background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
@@ -130,6 +131,165 @@
         }
         .login-link:hover {
             text-decoration: underline;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        
+        /* Mobile First - Base styles are for mobile */
+        
+        /* Tablet - Portrait (768px and up) */
+        @media (min-width: 768px) {
+            body {
+                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                min-height: 100vh;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .header {
+                padding: 40px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            }
+            
+            .header h1 {
+                font-size: 32px;
+                font-weight: 600;
+                margin-bottom: 30px;
+            }
+            
+            .illustration {
+                width: 80%;
+                height: 250px;
+                margin: 0 auto;
+                background-size: contain;
+            }
+            
+            .register-container {
+                padding: 40px 50px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                background: white;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+                overflow-y: auto;
+                max-height: 100vh;
+            }
+            
+            .register-title {
+                font-size: 32px;
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            
+            .input-group {
+                margin-bottom: 20px;
+            }
+        }
+        
+        /* Desktop (1024px and up) */
+        @media (min-width: 1024px) {
+            .header {
+                padding: 60px 60px;
+            }
+            
+            .header h1 {
+                font-size: 36px;
+            }
+            
+            .illustration {
+                height: 300px;
+                width: 70%;
+            }
+            
+            .register-container {
+                padding: 60px 70px;
+            }
+            
+            .register-title {
+                font-size: 36px;
+                margin-bottom: 40px;
+            }
+            
+            .input-group input {
+                padding: 18px 18px 18px 55px;
+                font-size: 16px;
+            }
+            
+            .register-btn {
+                padding: 18px;
+                font-size: 18px;
+                margin: 20px 0 30px 0;
+            }
+        }
+        
+        /* Large Desktop (1440px and up) */
+        @media (min-width: 1440px) {
+            body {
+                grid-template-columns: 55% 45%;
+            }
+            
+            .header {
+                padding: 80px;
+            }
+            
+            .register-container {
+                padding: 80px 90px;
+            }
+        }
+        
+        /* Mobile Landscape & Small Height Devices */
+        @media (max-width: 767px) and (orientation: landscape), 
+               (max-height: 600px) and (max-width: 767px) {
+            .header {
+                padding: 15px 20px 10px 20px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+                margin-top: 5px;
+            }
+            
+            .illustration {
+                height: 80px;
+                margin: 5px 0;
+            }
+            
+            .register-container {
+                padding: 15px 20px 20px 20px;
+            }
+            
+            .register-title {
+                font-size: 22px;
+                margin-bottom: 15px;
+            }
+            
+            .input-group {
+                margin-bottom: 12px;
+            }
+            
+            .input-group input {
+                padding: 12px 12px 12px 45px;
+                font-size: 14px;
+            }
+            
+            .register-btn {
+                padding: 12px;
+                font-size: 16px;
+                margin: 12px 0 15px 0;
+            }
+            
+            .login-section {
+                margin-top: 5px;
+                margin-bottom: 10px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>

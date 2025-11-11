@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Clock In Lembur - Sistem Absensi</title>
-    <link rel="stylesheet" href="/components/popup.css">
+    <link rel="stylesheet" href="{{ asset('components/popup.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <style>
@@ -455,7 +455,7 @@
         </button>
     </div>
 
-    <script src="components/popup.js"></script>
+    <script src="{{ asset('components/popup.js') }}"></script>
     <script>
         let map;
         let userMarker;
@@ -472,7 +472,22 @@
         };
         
         function goBack() {
-            window.location.href = '{{ route("attendance.absensi") }}';
+            if (typeof smartGoBack === 'function') {
+                smartGoBack('{{ route("attendance.absensi") }}');
+            } else {
+                // Fallback navigation
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = '{{ route("attendance.absensi") }}';
+                    }
+                } else {
+                    window.location.href = '{{ route("attendance.absensi") }}';
+                }
+            }
         }
         
         function updateTime() {
@@ -721,12 +736,14 @@
                 // Clear QR result from storage
                 localStorage.removeItem('qrScanResult');
             } else {
-                // Redirect back if no QR data
+                // Redirect to QR scan if no QR data
                 showErrorPopup({
                     title: 'Data QR Tidak Ditemukan',
                     message: 'Silakan scan QR code terlebih dahulu',
-                    buttonText: 'OK',
-                    onClose: () => goBack()
+                    buttonText: 'Scan QR Code',
+                    onClose: () => {
+                        window.location.href = '{{ route("attendance.qr-scan") }}';
+                    }
                 });
             }
         }

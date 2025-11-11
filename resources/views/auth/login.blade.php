@@ -18,6 +18,7 @@
             margin: 0;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
         .header {
             background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
@@ -175,6 +176,199 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.2);
             color: #333;
         }
+        
+        /* Forgot password popup styles */
+        .forgot-popup {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            color: #333;
+            text-align: center;
+        }
+        
+        .forgot-popup h3 {
+            color: #e74c3c;
+            margin-bottom: 16px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .forgot-popup h3 svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+        
+        .forgot-popup p {
+            margin-bottom: 20px;
+            line-height: 1.5;
+            color: #555;
+        }
+        
+        .popup-btn {
+            padding: 10px 20px;
+            background: #06b6d4;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .popup-btn:hover {
+            background: #0891b2;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        
+        /* Mobile First - Base styles are for mobile */
+        
+        /* Tablet - Portrait (768px and up) */
+        @media (min-width: 768px) {
+            body {
+                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                min-height: 100vh;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .header {
+                padding: 60px 40px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            }
+            
+            .header h1 {
+                font-size: 28px;
+                font-weight: 600;
+                margin-bottom: 30px;
+            }
+            
+            .illustration {
+                width: 80%;
+                height: 300px;
+                margin: 0 auto;
+                background-size: contain;
+            }
+            
+            .login-container {
+                padding: 60px 60px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                background: white;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            }
+            
+            .login-title {
+                font-size: 36px;
+                text-align: center;
+                margin-bottom: 40px;
+            }
+        }
+        
+        /* Desktop (1024px and up) */
+        @media (min-width: 1024px) {
+            .header {
+                padding: 80px 60px;
+            }
+            
+            .header h1 {
+                font-size: 32px;
+            }
+            
+            .illustration {
+                height: 350px;
+                width: 70%;
+            }
+            
+            .login-container {
+                padding: 80px 80px;
+                max-width: none;
+            }
+            
+            .login-title {
+                font-size: 40px;
+                margin-bottom: 50px;
+            }
+            
+            .input-group input {
+                padding: 20px 20px 20px 60px;
+                font-size: 18px;
+            }
+            
+            .login-btn {
+                padding: 20px;
+                font-size: 20px;
+                margin-bottom: 40px;
+            }
+        }
+        
+        /* Large Desktop (1440px and up) */
+        @media (min-width: 1440px) {
+            body {
+                grid-template-columns: 60% 40%;
+            }
+            
+            .header {
+                padding: 100px 80px;
+            }
+            
+            .login-container {
+                padding: 100px 100px;
+            }
+        }
+        
+        /* Mobile Landscape */
+        @media (max-width: 767px) and (orientation: landscape) {
+            .header {
+                padding: 30px 20px 20px 20px;
+            }
+            
+            .header h1 {
+                font-size: 16px;
+                margin-top: 10px;
+            }
+            
+            .illustration {
+                height: 120px;
+                margin: 10px 0;
+            }
+            
+            .login-container {
+                padding: 20px;
+            }
+            
+            .login-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .input-group {
+                margin-bottom: 15px;
+            }
+            
+            .remember-section {
+                margin: 15px 0 20px 0;
+            }
+            
+            .login-btn {
+                margin-bottom: 20px;
+            }
+        }
     </style>
     
 </head>
@@ -242,7 +436,7 @@
                     <input type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }} />
                     <label for="remember">Remember me</label>
                 </div>
-                <a href="#" class="forgot-link">Forgot password?</a>
+                <a href="#" class="forgot-link" id="forgot-password-link">Forgot password?</a>
             </div>
 
             <button type="submit" class="login-btn">Login</button>
@@ -250,6 +444,20 @@
 
         <div class="register-section">
             Tidak punya akun? Hubungi admin untuk pembuatan akun.
+        </div>
+    </div>
+
+    <!-- Forgot Password Popup -->
+    <div id="forgot-password-popup" class="popup-overlay">
+        <div class="forgot-popup">
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12 13a1.49 1.49 0 0 0-1 2.61V17a1 1 0 0 0 2 0v-1.39A1.49 1.49 0 0 0 12 13m5-4V7A5 5 0 0 0 7 7v2a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3M9 7a3 3 0 0 1 6 0v2H9Zm9 12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1Z"/>
+                </svg>
+                <span>Lupa Password?</span>
+            </h3>
+            <p>Silakan hubungi Admin untuk reset password Anda.</p>
+            <button id="forgot-popup-close" class="popup-btn">Tutup</button>
         </div>
     </div>
 
@@ -294,6 +502,38 @@
                     if (e.target === popup) hide();
                 });
             }
+        });
+        
+        // Forgot password popup logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const forgotLink = document.getElementById('forgot-password-link');
+            const forgotPopup = document.getElementById('forgot-password-popup');
+            const closeBtn = document.getElementById('forgot-popup-close');
+            
+            // Show popup when forgot password link is clicked
+            forgotLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                forgotPopup.style.display = 'flex';
+            });
+            
+            // Hide popup when close button is clicked
+            closeBtn.addEventListener('click', function() {
+                forgotPopup.style.display = 'none';
+            });
+            
+            // Hide popup when clicking outside the popup box
+            forgotPopup.addEventListener('click', function(e) {
+                if (e.target === forgotPopup) {
+                    forgotPopup.style.display = 'none';
+                }
+            });
+            
+            // Hide popup when pressing Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && forgotPopup.style.display === 'flex') {
+                    forgotPopup.style.display = 'none';
+                }
+            });
         });
     </script>
 </body>

@@ -39,7 +39,7 @@ sudo apt install -y nodejs
 
 ```bash
 cd /var/www
-sudo git clone https://github.com/windri98/website-absensi_11.git absensi
+sudo git clone https://github.com/your-username/laravel-absensi.git absensi
 cd absensi
 sudo chown -R www-data:www-data /var/www/absensi
 ```
@@ -85,7 +85,7 @@ DB_PASSWORD=your_secure_password
 SESSION_DRIVER=database
 QUEUE_CONNECTION=database
 ```
-
+  
 ## 5. Generate Application Key
 
 ```bash
@@ -397,7 +397,7 @@ sudo chmod -R 775 public/uploads
 ## Support
 
 For issues or questions:
-- GitHub Issues: https://github.com/windri98/website-absensi_11/issues
+- GitHub Issues: https://github.com/your-username/laravel-absensi/issues
 - Documentation: See README.md
 
 ## Security

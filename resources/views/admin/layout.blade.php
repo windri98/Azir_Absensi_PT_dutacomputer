@@ -270,7 +270,11 @@
         <h1>🛠️ Admin Panel</h1>
         <div class="topbar-right">
             <span>{{ auth()->user()->name }}</span>
-            <a href="{{ route('dashboard') }}">Dashboard User</a>
+            @if(auth()->user()->hasPermission('dashboard.view'))
+                <a href="{{ route('dashboard') }}?type=user">Dashboard User</a>
+            @else
+                <a href="{{ route('dashboard') }}">Dashboard</a>
+            @endif
             <form method="post" action="{{ route('logout') }}" style="display:inline">
                 @csrf
                 <button type="submit" class="btn btn-secondary" style="padding:8px 14px">Logout</button>
@@ -280,24 +284,53 @@
     
     <div class="layout">
         <aside class="sidebar" id="sidebar">
-            <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                📊 Dashboard
-            </a>
-            <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                👥 Kelola Pengguna
-            </a>
-            <a href="{{ route('admin.shifts.index') }}" class="{{ request()->routeIs('admin.shifts.*') ? 'active' : '' }}">
-                🕐 Kelola Shift
-            </a>
-            <a href="{{ route('admin.complaints.index') }}" class="{{ request()->routeIs('admin.complaints.*') ? 'active' : '' }}">
-                📝 Kelola Pengajuan
-            </a>
-            <a href="{{ route('admin.reports.export') }}" class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
-                📥 Export Laporan
-            </a>
-            <a href="{{ route('register') }}">
-                ➕ Tambah User
-            </a>
+            @if(auth()->user()->hasPermission('dashboard.admin'))
+                <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    📊 Dashboard
+                </a>
+            @endif
+            
+            @if(auth()->user()->hasPermission('users.view'))
+                <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    👥 Kelola Pengguna
+                </a>
+            @endif
+            
+            @if(auth()->user()->hasPermission('roles.view'))
+                <a href="{{ route('admin.roles.index') }}" class="{{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                    🛡️ Kelola Role
+                </a>
+            @endif
+            
+            @if(auth()->user()->hasPermission('permissions.view'))
+                <a href="{{ route('admin.permissions.capabilities') }}" class="{{ request()->routeIs('admin.permissions.*') ? 'active' : '' }}">
+                    🎯 Hak Akses & Fungsi
+                </a>
+            @endif
+            
+            @if(auth()->user()->hasPermission('shifts.view'))
+                <a href="{{ route('admin.shifts.index') }}" class="{{ request()->routeIs('admin.shifts.*') ? 'active' : '' }}">
+                    🕐 Kelola Shift
+                </a>
+            @endif
+            
+            @if(auth()->user()->hasPermission('complaints.view_all'))
+                <a href="{{ route('admin.complaints.index') }}" class="{{ request()->routeIs('admin.complaints.*') ? 'active' : '' }}">
+                    📝 Kelola Pengajuan
+                </a>
+            @endif
+            
+            @if(auth()->user()->hasPermission('reports.export'))
+                <a href="{{ route('admin.reports.export') }}" class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                    📥 Export Laporan
+                </a>
+            @endif
+            
+            @if(auth()->user()->hasPermission('users.create'))
+                <a href="{{ route('register') }}">
+                    ➕ Tambah User
+                </a>
+            @endif
         </aside>
         
         <main class="content">

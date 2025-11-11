@@ -109,4 +109,55 @@ class ShiftController extends Controller
 
         return redirect()->route('admin.shifts.index')->with('success', 'Shift berhasil dihapus');
     }
+
+    /**
+     * Display shift management page with all users and their assigned shifts
+     */
+    public function management(Request $request)
+    {
+        $search = $request->get('search');
+        $shiftFilter = $request->get('shift_filter');
+        
+        // Get all shifts for filter dropdown
+        $shifts = Shift::orderBy('name')->get();
+        
+        // Query users with their assigned shifts
+        $usersQuery = User::with(['shifts' => function($query) {
+            $query->orderBy('name');
+        }, 'roles'])
+        ->orderBy('name');
+        
+        // Apply search filter
+        if ($search) {
+            $usersQuery->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('employee_id', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+        
+        // Apply shift filter
+        if ($shiftFilter) {
+            $usersQuery->whereHas('shifts', function($q) use ($shiftFilter) {
+                $q->where('shifts.id', $shiftFilter);
+            });
+        }
+        
+        $users = $usersQuery->paginate(20)->withQueryString();
+        
+        // Get users without shifts
+        $usersWithoutShifts = User::doesntHave('shifts')->count();
+        
+        // Get shift statistics
+        $shiftStats = Shift::withCount('users')->get();
+        
+        return view('management.shift-management', compact(
+            'users', 
+            'shifts', 
+            'search', 
+            'shiftFilter', 
+            'usersWithoutShifts',
+            'shiftStats'
+        ));
+    }
 }

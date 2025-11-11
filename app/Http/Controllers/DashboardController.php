@@ -35,20 +35,10 @@ class DashboardController extends Controller
                 ->whereYear('date', $thisMonth->year)
                 ->where('status', 'late')
                 ->count(),
-            'absent' => Attendance::where('user_id', $user->id)
+            'work_leave' => Attendance::where('user_id', $user->id)
                 ->whereMonth('date', $thisMonth->month)
                 ->whereYear('date', $thisMonth->year)
-                ->where('status', 'absent')
-                ->count(),
-            'sick' => Attendance::where('user_id', $user->id)
-                ->whereMonth('date', $thisMonth->month)
-                ->whereYear('date', $thisMonth->year)
-                ->where('status', 'sick')
-                ->count(),
-            'leave' => Attendance::where('user_id', $user->id)
-                ->whereMonth('date', $thisMonth->month)
-                ->whereYear('date', $thisMonth->year)
-                ->where('status', 'leave')
+                ->where('status', 'work_leave')
                 ->count(),
         ];
 

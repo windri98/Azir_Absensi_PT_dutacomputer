@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Absensi - Sistem Absensi</title>
     <!-- Popup Component CSS -->
-    <link rel="stylesheet" href="/components/popup.css">
+    <link rel="stylesheet" href="{{ asset('components/popup.css') }}">
     <style>
         * {
             margin: 0;
@@ -153,9 +153,31 @@
             background: linear-gradient(135deg, #22d3ee, #06b6d4);
             color: white;
         }
+        .overtime-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        .leave-btn {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            margin-top: 15px;
+            width: 100%;
+        }
         .clock-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(30, 199, 230, 0.3);
+        }
+        .leave-btn:hover {
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        .attendance-completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            margin: 10px 0;
         }
         .history-section {
             background: white;
@@ -238,10 +260,41 @@
                 <small style="color: #ff6b6b; font-size: 12px;">⚠️ Hubungi admin untuk assign shift</small>
             @endif
             
+            <!-- Status Attendance Hari Ini -->
+            @if($todayAttendance)
+                <div style="margin: 15px 0; padding: 10px; background: #f8fafc; border-radius: 10px; font-size: 12px; border-left: 4px solid #1ec7e6;">
+                    @if($todayAttendance->check_in && $todayAttendance->check_out)
+                        <span style="color: #10b981; font-weight: 600;">✅ Completed: {{ \Carbon\Carbon::parse($todayAttendance->check_in)->format('H:i') }} - {{ \Carbon\Carbon::parse($todayAttendance->check_out)->format('H:i') }}</span>
+                    @elseif($todayAttendance->check_in)
+                        <span style="color: #3b82f6; font-weight: 600;">🔵 Checked In: {{ \Carbon\Carbon::parse($todayAttendance->check_in)->format('H:i') }}</span>
+                        <br><small style="color: #6b7280;">Jangan lupa check-out setelah kerja selesai</small>
+                    @endif
+                </div>
+            @else
+                <div style="margin: 15px 0; padding: 10px; background: #fef3c7; border-radius: 10px; font-size: 12px; border-left: 4px solid #f59e0b;">
+                    <span style="color: #92400e; font-weight: 600;">⚪ Ready to Check-in</span>
+                    <br><small style="color: #78716c;">Tap Clock In to start your work day</small>
+                </div>
+            @endif
+            
             <div class="clock-buttons">
-                <button class="clock-btn clock-in" onclick="scanQR()">📱 Scan QR</button>
-                <button class="clock-btn clock-in" onclick="goToClockIn()">Clock In</button>
-                <button class="clock-btn clock-out" onclick="goToClockOut()">Clock Out</button>
+                @if(!$todayAttendance || !$todayAttendance->check_in)
+                    <!-- Belum check-in hari ini -->
+                    <button class="clock-btn clock-in" onclick="scanQR()">📱 Scan QR</button>
+                    <button class="clock-btn clock-in" onclick="goToClockIn()">🕐 Clock In</button>
+                @elseif($todayAttendance && $todayAttendance->check_in && !$todayAttendance->check_out)
+                    <!-- Sudah check-in tapi belum check-out -->
+                    <button class="clock-btn clock-out" onclick="goToClockOut()">🕐 Clock Out</button>
+                    <button class="clock-btn overtime-btn" onclick="goToOvertime()">⏰ Overtime</button>
+                @else
+                    <!-- Sudah check-in dan check-out -->
+                    <div class="attendance-completed">
+                        ✅ Attendance completed for today
+                    </div>
+                @endif
+                
+                <!-- Tombol Ajukan Izin - selalu tersedia -->
+                <button class="clock-btn leave-btn" onclick="showLeaveModal()">📋 Ajukan Izin</button>
             </div>
         </div>
 
@@ -269,21 +322,260 @@
         </div>
     </div>
 
+    <!-- Modal Pengajuan Izin -->
+    <div id="leaveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📋 Pengajuan Izin</h3>
+                <button class="modal-close" onclick="closeLeaveModal()">&times;</button>
+            </div>
+            <form id="leaveForm" enctype="multipart/form-data">
+                @csrf
+                <div class="form-group">
+                    <label>Tanggal</label>
+                    <input type="date" name="date" required class="form-control" min="{{ date('Y-m-d') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>Jenis Izin</label>
+                    <select name="type" required class="form-control" onchange="toggleUpload(this.value)">
+                        <option value="">Pilih Jenis Izin</option>
+                        <option value="work_leave">Izin Kerja</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Keterangan</label>
+                    <textarea name="notes" required class="form-control" rows="3" placeholder="Alasan/keterangan izin..."></textarea>
+                </div>
+                
+                <!-- Upload untuk surat izin kerja -->
+                <div id="workLeaveUpload" class="upload-section" style="display: none;">
+                    <label>Surat Keterangan Izin Kerja</label>
+                    <div class="upload-area" onclick="document.getElementById('work_leave_document').click()">
+                        <div class="upload-icon">📄</div>
+                        <div class="upload-text">
+                            <span>Klik untuk upload surat izin kerja</span>
+                            <small>JPG, PNG, PDF - Max 5MB</small>
+                        </div>
+                        <input type="file" id="work_leave_document" name="work_leave_document" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" onchange="showFileName('work_leave_document', 'workLeaveFileName')">
+                    </div>
+                    <div id="workLeaveFileName" class="file-name"></div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closeLeaveModal()" class="btn-cancel">Batal</button>
+                    <button type="submit" class="btn-submit">Ajukan Izin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .form-group {
+            margin: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+        
+        .upload-section {
+            margin: 20px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+        
+        .upload-area:hover {
+            border-color: #8b5cf6;
+            background: #f3f4f6;
+        }
+        
+        .upload-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .upload-text span {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+        
+        .upload-text small {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #ecfdf5;
+            border: 1px solid #d1fae5;
+            border-radius: 8px;
+            color: #065f46;
+            font-size: 13px;
+            display: none;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .btn-cancel {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            color: #374151;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-submit {
+            flex: 1;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+    </style>
+
     <script>
+        // Fallback function if popup.js fails to load
+        if (typeof smartGoBack === 'undefined') {
+            function smartGoBack(fallbackUrl) {
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = fallbackUrl;
+                    }
+                } else {
+                    window.location.href = fallbackUrl;
+                }
+            }
+        }
+
         function goBack() {
-            window.location.href = '/dashboard';
+            smartGoBack('{{ route("dashboard") }}');
         }
 
         function goToClockIn() {
-            window.location.href = 'clock-in';
+            window.location.href = "{{ route('attendance.clock-in') }}";
         }
 
         function goToClockOut() {
-            window.location.href = 'clock-out';
+            window.location.href = "{{ route('attendance.clock-out') }}";
         }
         
         function scanQR() {
-            window.location.href = 'qr-scan';
+            window.location.href = "{{ route('attendance.qr-scan') }}";
+        }
+
+        function goToOvertime() {
+            // Untuk lembur, harus scan QR code terlebih dahulu
+            showInfoPopup({
+                title: 'Scan QR Code',
+                message: 'Untuk clock in lembur, silakan scan QR code terlebih dahulu',
+                buttonText: 'Scan QR Code',
+                onClose: () => {
+                    window.location.href = "{{ route('attendance.qr-scan') }}";
+                }
+            });
         }
 
         function clockOut() {
@@ -344,9 +636,99 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateCurrentTime();
         });
+
+        // Modal functions
+        function showLeaveModal() {
+            document.getElementById('leaveModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLeaveModal() {
+            document.getElementById('leaveModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('leaveForm').reset();
+            document.querySelectorAll('.upload-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.querySelectorAll('.file-name').forEach(element => {
+                element.style.display = 'none';
+            });
+        }
+
+        function toggleUpload(type) {
+            document.getElementById('workLeaveUpload').style.display = 'none';
+            
+            if (type === 'work_leave') {
+                document.getElementById('workLeaveUpload').style.display = 'block';
+            }
+        }
+
+        function showFileName(inputId, displayId) {
+            const input = document.getElementById(inputId);
+            const display = document.getElementById(displayId);
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                display.textContent = `📎 ${file.name} (${fileSize} MB)`;
+                display.style.display = 'block';
+            }
+        }
+
+        // Form submission
+        document.getElementById('leaveForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('.btn-submit');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Mengirim...';
+            submitBtn.disabled = true;
+            
+            const formData = new FormData(this);
+            
+            fetch('{{ route("attendance.submit-leave") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccessPopup({
+                        title: 'Izin Berhasil Diajukan!',
+                        message: data.message,
+                        buttonText: 'OK',
+                        onClose: () => {
+                            closeLeaveModal();
+                            location.reload();
+                        }
+                    });
+                } else {
+                    alert('Error: ' + (data.message || 'Terjadi kesalahan'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengirim data');
+            })
+            .finally(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('leaveModal');
+            if (event.target === modal) {
+                closeLeaveModal();
+            }
+        };
     </script>
     
     <!-- Popup Component JavaScript -->
-    <script src="components/popup.js"></script>
+    <script src="{{ asset('components/popup.js') }}"></script>
 </body>
 </html>

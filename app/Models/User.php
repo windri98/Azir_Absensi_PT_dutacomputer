@@ -28,6 +28,7 @@ class User extends Authenticatable
         'address',
         'birth_date',
         'photo',
+        'shift_id',
         'annual_leave_quota',
         'sick_leave_quota',
         'special_leave_quota',
@@ -104,6 +105,69 @@ class User extends Authenticatable
     public function hasAnyRole(array $roles): bool
     {
         return $this->roles()->whereIn('name', $roles)->exists();
+    }
+
+    /**
+     * Get all permissions for this user through their roles
+     */
+    public function getAllPermissions()
+    {
+        return $this->roles()->with('permissions')
+            ->get()
+            ->pluck('permissions')
+            ->flatten()
+            ->unique('id');
+    }
+
+    /**
+     * Check if user has a specific permission
+     */
+    public function hasPermission($permission): bool
+    {
+        // Admin and superadmin role has all permissions
+        if ($this->hasRole('admin') || $this->hasRole('superadmin')) {
+            return true;
+        }
+
+        $allPermissions = $this->getAllPermissions();
+
+        if (is_string($permission)) {
+            return $allPermissions->contains('name', $permission);
+        }
+
+        if ($permission instanceof \App\Models\Permission) {
+            return $allPermissions->contains('id', $permission->id);
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user has any of the given permissions
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if ($this->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user has all of the given permissions
+     */
+    public function hasAllPermissions(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if (!$this->hasPermission($permission)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

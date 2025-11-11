@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>QR Scan Absensi - Sistem Absensi</title>
-    <link rel="stylesheet" href="/components/popup.css">
+    <link rel="stylesheet" href="{{ asset('components/popup.css') }}">
     <!-- QR Code Scanner Library -->
     <script src="https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
     <style>
@@ -378,7 +378,7 @@
         </div>
     </div>
 
-    <script src="components/popup.js"></script>
+    <script src="{{ asset('components/popup.js') }}"></script>
     <script>
         let qrScanner = null;
         let flashEnabled = false;
@@ -388,7 +388,23 @@
             if (qrScanner) {
                 qrScanner.stop();
             }
-            window.location.href = '{{ route("attendance.absensi") }}';
+            
+            if (typeof smartGoBack === 'function') {
+                smartGoBack('{{ route("attendance.absensi") }}');
+            } else {
+                // Fallback navigation
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = '{{ route("attendance.absensi") }}';
+                    }
+                } else {
+                    window.location.href = '{{ route("attendance.absensi") }}';
+                }
+            }
         }
         
         function initQRScanner() {
@@ -489,7 +505,9 @@
                     message: `Office: ${office.replace('_', ' ')}\nShift: ${shift}\nLocation: ${location}`,
                     buttonText: 'Lanjutkan',
                     onClose: () => {
-                        window.location.href = shift === 'OVERTIME' ? 'clock-overtime' : 'clock-in';
+                        window.location.href = shift === 'OVERTIME' 
+                            ? '{{ route("attendance.clock-overtime") }}' 
+                            : '{{ route("attendance.clock-in") }}';
                     }
                 });
                 

@@ -305,7 +305,7 @@
             <div class="contact-icon-wrapper email">📧</div>
             <div class="contact-info">
                 <div class="contact-label">Email Support</div>
-                <div class="contact-value">support@absensi.com</div>
+                <div class="contact-value">lorem@absensi.com</div>
                 <a href="mailto:support@absensi.com" class="contact-action">Kirim Email</a>
             </div>
         </div>
@@ -314,7 +314,7 @@
             <div class="contact-icon-wrapper phone">📱</div>
             <div class="contact-info">
                 <div class="contact-label">Telepon / SMS</div>
-                <div class="contact-value">+62 812-3456-7890</div>
+                <div class="contact-value">+62 812-****-****</div>
                 <a href="tel:+6281234567890" class="contact-action">Hubungi</a>
             </div>
         </div>
@@ -323,7 +323,7 @@
             <div class="contact-icon-wrapper whatsapp">💬</div>
             <div class="contact-info">
                 <div class="contact-label">WhatsApp</div>
-                <div class="contact-value">+62 812-3456-7890</div>
+                <div class="contact-value">+62 812-****-****</div>
                 <a href="https://wa.me/6281234567890?text=Halo,%20saya%20butuh%20bantuan%20dengan%20aplikasi%20absensi" target="_blank" class="contact-action">Chat WhatsApp</a>
             </div>
         </div>
@@ -380,7 +380,22 @@
 
     <script>
         function goBack() {
-            window.history.back();
+            if (typeof smartGoBack === 'function') {
+                smartGoBack('{{ route("dashboard") }}');
+            } else {
+                // Fallback navigation
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = '{{ route("dashboard") }}';
+                    }
+                } else {
+                    window.location.href = '{{ route("dashboard") }}';
+                }
+            }
         }
     </script>
 </body>

@@ -325,7 +325,7 @@
 </head>
 <body>
     <div class="header">
-        <button class="back-btn" onclick="window.location.href='dashboard'">←</button>
+        <button class="back-btn" onclick="goBack()">←</button>
         <div class="header-title">
             <h1>Aktivitas</h1>
             <p>Menu aktivitas karyawan</p>
@@ -334,7 +334,7 @@
 
     <div class="content">
         <div class="menu-grid">
-            <a href="riwayat" class="menu-card">
+            <a href="{{ route('attendance.riwayat') }}" class="menu-card">
                 <div class="menu-icon">📊</div>
                 <div>
                     <div class="menu-title">Riwayat Absensi</div>
@@ -342,23 +342,33 @@
                 </div>
             </a>
             
-            <a href="izin" class="menu-card">
-                <div class="menu-icon">�</div>
+            <a href="{{ route('activities.izin') }}" class="menu-card">
+                <div class="menu-icon">📝</div>
                 <div>
                     <div class="menu-title">Pengajuan Izin</div>
                     <div class="menu-subtitle">Cuti dan izin</div>
                 </div>
             </a>
             
-            <a href="laporan" class="menu-card">
+            @if(auth()->check() && (auth()->user()->hasAnyRole(['admin', 'manager']) || auth()->user()->can('reports.view')))
+            <a href="{{ route('reports.index') }}" class="menu-card">
                 <div class="menu-icon">📈</div>
                 <div>
                     <div class="menu-title">Laporan</div>
                     <div class="menu-subtitle">Analisa kehadiran</div>
                 </div>
             </a>
+            @else
+            <a href="{{ route('reports.history') }}" class="menu-card">
+                <div class="menu-icon">📈</div>
+                <div>
+                    <div class="menu-title">Riwayat Laporan</div>
+                    <div class="menu-subtitle">Laporan pribadi</div>
+                </div>
+            </a>
+            @endif
             
-            <a href="complaint-form" class="menu-card">
+            <a href="{{ route('complaints.form') }}" class="menu-card">
                 <div class="menu-icon">🔧</div>
                 <div>
                     <div class="menu-title">Keluhan</div>
@@ -366,21 +376,41 @@
                 </div>
             </a>
             
-            <a href="customer-report" class="menu-card">
+            @if(auth()->check() && (auth()->user()->hasAnyRole(['admin', 'manager']) || auth()->user()->can('reports.view')))
+            <a href="{{ route('reports.customer') }}" class="menu-card">
                 <div class="menu-icon">💬</div>
                 <div>
                     <div class="menu-title">Laporan Customer</div>
                     <div class="menu-subtitle">Form khusus</div>
                 </div>
             </a>
+            @else
+            <a href="{{ route('absensi') }}" class="menu-card">
+                <div class="menu-icon">📱</div>
+                <div>
+                    <div class="menu-title">Absensi</div>
+                    <div class="menu-subtitle">Clock in/out</div>
+                </div>
+            </a>
+            @endif
             
-            <a href="shift-management" class="menu-card">
+            @if(auth()->check() && auth()->user()->hasAnyRole(['admin', 'manager']))
+            <a href="{{ route('management.shift') }}" class="menu-card">
                 <div class="menu-icon">🕐</div>
                 <div>
                     <div class="menu-title">Shift</div>
                     <div class="menu-subtitle">Kelola jadwal</div>
                 </div>
             </a>
+            @else
+            <a href="{{ route('profile.show') }}" class="menu-card">
+                <div class="menu-icon">👤</div>
+                <div>
+                    <div class="menu-title">Profile</div>
+                    <div class="menu-subtitle">Kelola profil</div>
+                </div>
+            </a>
+            @endif
         </div>
 
         <div class="section-title">
@@ -418,14 +448,47 @@
             // Combine activities from different sources
             const activities = [];
             
-            // Get attendance history
+            // Add some sample activities if no data exists
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            // Sample recent activities
+            activities.push({
+                type: 'absen',
+                icon: '✓',
+                title: 'Clock In',
+                desc: 'Absen masuk hari ini',
+                time: today.toISOString(),
+                priority: 1
+            });
+            
+            activities.push({
+                type: 'izin',
+                icon: '📝',
+                title: 'Pengajuan Izin',
+                desc: 'Izin sakit - Menunggu persetujuan',
+                time: yesterday.toISOString(),
+                priority: 2
+            });
+            
+            activities.push({
+                type: 'laporan',
+                icon: '📊',
+                title: 'Lihat Laporan',
+                desc: 'Mengecek laporan kehadiran bulan ini',
+                time: yesterday.toISOString(),
+                priority: 3
+            });
+            
+            // Get attendance history from storage
             const attendanceHistory = JSON.parse(localStorage.getItem('attendanceHistory') || '[]');
             attendanceHistory.slice(0, 3).forEach(record => {
                 activities.push({
                     type: 'absen',
                     icon: '✓',
                     title: record.type === 'in' ? 'Clock In' : 'Clock Out',
-                    desc: `${record.location || '[object Object]'}`,
+                    desc: `${record.location || 'Lokasi kantor'}`,
                     time: record.timestamp || new Date().toISOString(),
                     priority: 1
                 });
@@ -526,7 +589,30 @@
             });
         }
         
+        // Fallback function if popup.js fails to load
+        if (typeof smartGoBack === 'undefined') {
+            function smartGoBack(fallbackUrl) {
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = fallbackUrl;
+                    }
+                } else {
+                    window.location.href = fallbackUrl;
+                }
+            }
+        }
+
+        function goBack() {
+            smartGoBack('{{ route("dashboard") }}');
+        }
+        
         window.addEventListener('DOMContentLoaded', loadRecentActivity);
     </script>
+
+    <script src="{{ asset('components/popup.js') }}"></script>
 </body>
 </html>

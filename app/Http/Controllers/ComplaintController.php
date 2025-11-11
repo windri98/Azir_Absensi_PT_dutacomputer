@@ -29,6 +29,7 @@ class ComplaintController extends Controller
             'category' => 'nullable|string|max:100',
             'priority' => 'nullable|in:low,medium,normal,high,urgent',
             'attachment' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'admin_notes' => 'nullable|string|max:1000',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ], [
@@ -54,6 +55,11 @@ class ComplaintController extends Controller
             'priority' => $request->priority ?? 'medium',
             'status' => 'pending',
         ];
+
+        // Add admin notes if provided (especially for sick leave)
+        if ($request->filled('admin_notes')) {
+            $data['notes'] = $request->admin_notes;
+        }
 
         if ($request->hasFile('attachment')) {
             $attachmentPath = $request->file('attachment')->store('complaints', 'public');
@@ -199,22 +205,41 @@ class ComplaintController extends Controller
      */
     public function showIzinPage()
     {
-        $user = Auth::user();
-        $userId = $user->id;
+        try {
+            \Log::info('showIzinPage called');
+            
+            $user = Auth::user();
+            \Log::info('Current user: ' . ($user ? $user->name : 'Not logged in'));
+            
+            if (!$user) {
+                \Log::warning('User not authenticated, redirecting to login');
+                return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+            }
 
-        // Ambil semua complaints user dengan response
-        $complaints = Complaint::where('user_id', $userId)
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
+            $userId = $user->id;
 
-        // Hitung sisa cuti
-        $leaveBalance = [
-            'annual' => $user->getRemainingAnnualLeave(),
-            'sick' => $user->getRemainingSickLeave(),
-            'special' => $user->getRemainingSpecialLeave(),
-        ];
+            // Ambil semua complaints user dengan response
+            $complaints = Complaint::where('user_id', $userId)
+                ->orderBy('created_at', 'desc')
+                ->take(10)
+                ->get();
 
-        return view('activities.izin', compact('complaints', 'leaveBalance'));
+            \Log::info('Found complaints: ' . $complaints->count());
+
+            // Hitung sisa cuti dengan fallback values
+            $leaveBalance = [
+                'annual' => $user->annual_leave_quota ? $user->getRemainingAnnualLeave() : 12,
+                'sick' => $user->sick_leave_quota ? $user->getRemainingSickLeave() : 12,
+                'special' => $user->special_leave_quota ? $user->getRemainingSpecialLeave() : 3,
+            ];
+
+            \Log::info('Leave balance calculated: ', $leaveBalance);
+
+            return view('activities.izin', compact('complaints', 'leaveBalance'));
+        } catch (\Exception $e) {
+            \Log::error('Error in showIzinPage: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->route('dashboard')->with('error', 'Terjadi kesalahan saat memuat halaman izin: ' . $e->getMessage());
+        }
     }
 }

@@ -127,6 +127,25 @@ function closePopup() {
     popup.hide();
 }
 
+// Global back button function with smart fallback
+function smartGoBack(fallbackUrl = '/dashboard') {
+    // Check if there's actual browser history to go back to
+    if (window.history.length > 1 && document.referrer && 
+        document.referrer !== window.location.href &&
+        !document.referrer.includes('login')) {
+        
+        try {
+            window.history.back();
+        } catch (error) {
+            console.log('History.back() failed, using fallback');
+            window.location.href = fallbackUrl;
+        }
+    } else {
+        // No valid history, go to fallback URL
+        window.location.href = fallbackUrl;
+    }
+}
+
 // Initialize popup component when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     new PopupComponent();

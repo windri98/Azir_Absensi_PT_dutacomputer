@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class AttendanceController extends Controller
 {
@@ -15,19 +16,35 @@ class AttendanceController extends Controller
      */
     public function index(Request $request)
     {
+        \Log::info('Attendance index method called', [
+            'user_id' => Auth::id(),
+            'request_params' => $request->all()
+        ]);
+
         $query = Attendance::with('user');
 
-        // Filter by user (untuk admin/manager bisa lihat semua, employee hanya miliknya)
-        if (! Auth::user()->hasAnyRole(['admin', 'manager'])) {
-            $query->where('user_id', Auth::id());
-        }
+        // For attendance riwayat page, always show current user's data only
+        // (Admin can view other users' data through different routes if needed)
+        $query->where('user_id', Auth::id());
 
-        // Filter by date range
-        if ($request->filled('start_date')) {
-            $query->whereDate('date', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->whereDate('date', '<=', $request->end_date);
+        // Filter by period or date range
+        $period = $request->get('period', 'week');
+        
+        if ($period === 'week') {
+            $startOfWeek = Carbon::now()->startOfWeek();
+            $endOfWeek = Carbon::now()->endOfWeek();
+            $query->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()]);
+        } elseif ($period === 'month') {
+            $startOfMonth = Carbon::now()->startOfMonth();
+            $endOfMonth = Carbon::now()->endOfMonth();
+            $query->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()]);
+        } elseif ($period === 'custom') {
+            if ($request->filled('start_date')) {
+                $query->where('date', '>=', $request->start_date);
+            }
+            if ($request->filled('end_date')) {
+                $query->where('date', '<=', $request->end_date);
+            }
         }
 
         // Filter by status
@@ -39,7 +56,54 @@ class AttendanceController extends Controller
             ->orderBy('check_in', 'desc')
             ->paginate(15);
 
-        return view('attendance.riwayat', compact('attendances'));
+        // Calculate statistics - for regular users, always filter to their data only
+        // For admin/managers in attendance history, show only their own data unless explicitly viewing someone else's
+        $baseStatsQuery = Attendance::query();
+        
+        // Always filter by current user for this page (even admin sees their own stats)
+        $baseStatsQuery->where('user_id', Auth::id());
+
+        // Apply same filters to statistics base query
+        if ($period === 'week') {
+            $startOfWeek = Carbon::now()->startOfWeek();
+            $endOfWeek = Carbon::now()->endOfWeek();
+            $baseStatsQuery->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()]);
+        } elseif ($period === 'month') {
+            $startOfMonth = Carbon::now()->startOfMonth();
+            $endOfMonth = Carbon::now()->endOfMonth();
+            $baseStatsQuery->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()]);
+        } elseif ($period === 'custom') {
+            if ($request->filled('start_date')) {
+                $baseStatsQuery->where('date', '>=', $request->start_date);
+            }
+            if ($request->filled('end_date')) {
+                $baseStatsQuery->where('date', '<=', $request->end_date);
+            }
+        }
+        if ($request->filled('status')) {
+            $baseStatsQuery->where('status', $request->status);
+        }
+
+        // Calculate statistics using separate queries to avoid conflicts
+        $stats = [
+            'total_days' => (clone $baseStatsQuery)->count(),
+            'present_days' => (clone $baseStatsQuery)->whereIn('status', ['present', 'late'])->count(),
+            'late_days' => (clone $baseStatsQuery)->where('status', 'late')->count(),
+            'total_hours' => (clone $baseStatsQuery)->sum('work_hours') ?? 0,
+        ];
+
+        // Debug info
+        \Log::info('Attendance Statistics Debug', [
+            'period' => $period,
+            'user_id' => Auth::id(),
+            'is_admin' => Auth::user()->hasAnyRole(['admin', 'manager']),
+            'week_start' => $period === 'week' ? Carbon::now()->startOfWeek()->toDateString() : null,
+            'week_end' => $period === 'week' ? Carbon::now()->endOfWeek()->toDateString() : null,
+            'stats' => $stats,
+            'attendances_count' => $attendances->total()
+        ]);
+
+        return view('attendance.riwayat', compact('attendances', 'stats'));
     }
 
     /**
@@ -184,21 +248,36 @@ class AttendanceController extends Controller
     {
         $request->validate([
             'date' => 'required|date',
-            'type' => 'required|in:sick,leave',
+            'type' => 'required|in:work_leave',
             'notes' => 'required|string',
+            'work_leave_document' => 'nullable|file|mimes:jpeg,jpg,png,pdf|max:5120', // 5MB
         ]);
 
-        $attendance = Attendance::create([
+        $attendanceData = [
             'user_id' => Auth::id(),
             'date' => $request->date,
             'status' => $request->type,
             'notes' => $request->notes,
-        ]);
+        ];
+
+        // Handle file upload for work leave
+        if ($request->type === 'work_leave' && $request->hasFile('work_leave_document')) {
+            $file = $request->file('work_leave_document');
+            $filename = time() . '_work_leave_' . $file->getClientOriginalName();
+            $path = $file->storeAs('attendance/work-leave-documents', $filename, 'public');
+            
+            $attendanceData['leave_letter_path'] = $path;
+            $attendanceData['document_filename'] = $file->getClientOriginalName();
+            $attendanceData['document_uploaded_at'] = now();
+        }
+
+        $attendance = Attendance::create($attendanceData);
 
         return response()->json([
             'success' => true,
             'message' => 'Pengajuan izin berhasil',
             'data' => $attendance,
+            'has_document' => $attendance->hasDocument(),
         ]);
     }
 
@@ -220,9 +299,7 @@ class AttendanceController extends Controller
             'total_days' => (clone $query)->count(),
             'total_present' => (clone $query)->where('status', 'present')->count(),
             'total_late' => (clone $query)->where('status', 'late')->count(),
-            'total_absent' => (clone $query)->where('status', 'absent')->count(),
-            'total_sick' => (clone $query)->where('status', 'sick')->count(),
-            'total_leave' => (clone $query)->where('status', 'leave')->count(),
+            'total_work_leave' => (clone $query)->where('status', 'work_leave')->count(),
             'total_work_hours' => (clone $query)->sum('work_hours'),
         ];
 
@@ -321,5 +398,88 @@ class AttendanceController extends Controller
             ->first();
 
         return view('attendance.clock-overtime', compact('user', 'todayAttendance'));
+    }
+
+    /**
+     * Download attendance document
+     */
+    public function downloadDocument(Attendance $attendance)
+    {
+        // Check authorization - user can only download their own documents or admin/manager can download all
+        if (!Auth::user()->hasAnyRole(['admin', 'manager']) && $attendance->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $path = $attendance->getDocumentPath();
+        if (!$path) {
+            abort(404, 'Document not found');
+        }
+
+        $fullPath = storage_path('app/public/' . $path);
+        if (!file_exists($fullPath)) {
+            abort(404, 'File not found');
+        }
+
+        $filename = $attendance->document_filename ?: basename($path);
+        return response()->download($fullPath, $filename);
+    }
+
+    /**
+     * View attendance document (for images and PDFs)
+     */
+    public function viewDocument(Attendance $attendance)
+    {
+        // Check authorization
+        if (!Auth::user()->hasAnyRole(['admin', 'manager']) && $attendance->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $path = $attendance->getDocumentPath();
+        if (!$path) {
+            abort(404, 'Document not found');
+        }
+
+        $fullPath = storage_path('app/public/' . $path);
+        if (!file_exists($fullPath)) {
+            abort(404, 'File not found');
+        }
+
+        $mimeType = mime_content_type($fullPath);
+        return response()->file($fullPath, ['Content-Type' => $mimeType]);
+    }
+
+    /**
+     * Delete attendance document
+     */
+    public function deleteDocument(Attendance $attendance)
+    {
+        // Check authorization - user can only delete their own documents or admin/manager can delete all
+        if (!Auth::user()->hasAnyRole(['admin', 'manager']) && $attendance->user_id !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $path = $attendance->getDocumentPath();
+        if (!$path) {
+            return response()->json(['success' => false, 'message' => 'Document not found'], 404);
+        }
+
+        // Delete file from storage
+        if (\Storage::disk('public')->exists($path)) {
+            \Storage::disk('public')->delete($path);
+        }
+
+        // Clear document fields
+        $updateData = [
+            'leave_letter_path' => null,
+            'document_filename' => null,
+            'document_uploaded_at' => null,
+        ];
+
+        $attendance->update($updateData);
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'Document deleted successfully'
+        ]);
     }
 }

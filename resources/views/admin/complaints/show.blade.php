@@ -39,6 +39,59 @@
                 <label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">Alasan</label>
                 <div style="padding:12px;background:#f9fafb;border-radius:8px;white-space:pre-line">{{ $complaint->description }}</div>
             </div>
+
+            @if($complaint->notes)
+            <div>
+                <label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">
+                    📝 Catatan untuk Admin
+                    @if($complaint->category == 'sakit')
+                        <span style="color:#dc2626;font-weight:600">(Kondisi Medis)</span>
+                    @endif
+                </label>
+                <div style="padding:12px;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;white-space:pre-line">{{ $complaint->notes }}</div>
+            </div>
+            @endif
+
+            @if($complaint->attachment)
+            <div>
+                <label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">
+                    📎 Lampiran
+                    @if($complaint->category == 'sakit')
+                        <span style="color:#dc2626;font-weight:600">(Surat MC/Dokter)</span>
+                    @elseif($complaint->category == 'mendadak')
+                        <span style="color:#f59e0b;font-weight:600">(Bukti Pendukung)</span>
+                    @endif
+                </label>
+                <div style="padding:12px;background:#f0f9ff;border:1px solid #0ea5e9;border-radius:8px">
+                    @php
+                        $extension = pathinfo($complaint->attachment, PATHINFO_EXTENSION);
+                        $fileName = basename($complaint->attachment);
+                        $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']);
+                    @endphp
+                    
+                    @if($isImage)
+                        <div style="margin-bottom:8px">
+                            <img src="{{ asset('storage/' . $complaint->attachment) }}" 
+                                 alt="Lampiran" 
+                                 style="max-width:100%;height:auto;border-radius:6px;cursor:pointer"
+                                 onclick="window.open('{{ asset('storage/' . $complaint->attachment) }}', '_blank')">
+                        </div>
+                    @endif
+                    
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div>
+                            <strong>{{ $fileName }}</strong><br>
+                            <small style="color:#6b7280">{{ strtoupper($extension) }} • {{ number_format(Storage::size('public/' . $complaint->attachment) / 1024, 1) }} KB</small>
+                        </div>
+                        <a href="{{ asset('storage/' . $complaint->attachment) }}" 
+                           target="_blank" 
+                           style="background:#0ea5e9;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;font-size:12px">
+                            📂 Lihat File
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endif
             
             <div>
                 <label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">Tanggal Pengajuan</label>

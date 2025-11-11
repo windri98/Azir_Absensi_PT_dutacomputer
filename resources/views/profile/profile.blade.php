@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - Sistem Absensi</title>
-    <link rel="stylesheet" href="/components/popup.css">
+    <link rel="stylesheet" href="{{ asset('components/popup.css') }}">
     <style>
         * {
             margin: 0;
@@ -380,10 +380,27 @@
         </a>
     </nav>
 
-    <script src="components/popup.js"></script>
+    <script src="{{ asset('components/popup.js') }}"></script>
     <script>
+        // Fallback function if popup.js fails to load
+        if (typeof smartGoBack === 'undefined') {
+            function smartGoBack(fallbackUrl) {
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = fallbackUrl;
+                    }
+                } else {
+                    window.location.href = fallbackUrl;
+                }
+            }
+        }
+
         function goBack() {
-            window.location.href = 'dashboard';
+            smartGoBack('{{ route("dashboard") }}');
         }
 
         function logout() {
@@ -392,7 +409,7 @@
                 message: 'Apakah Anda yakin ingin keluar dari aplikasi?',
                 buttonText: 'Ya, Logout',
                 onClose: () => {
-                    window.location.href = 'welcome';
+                    window.location.href = '{{ route("welcome") }}';
                 }
             });
         }

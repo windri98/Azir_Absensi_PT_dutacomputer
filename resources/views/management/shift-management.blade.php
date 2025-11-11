@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shift Management - Admin Panel</title>
-    <link rel="stylesheet" href="components/popup.css">
+    <title>Manajemen Jadwal Shift</title>
+    <link rel="stylesheet" href="{{ asset('components/popup.css') }}">
     <style>
         * {
             margin: 0;
@@ -19,6 +19,7 @@
             min-height: 100vh;
             margin: 0 auto;
             overflow-y: auto;
+            padding-bottom: 20px;
         }
         
         @media (min-width: 394px) {
@@ -46,7 +47,7 @@
             border: none;
             padding: 10px;
             border-radius: 50%;
-            font-size: 16px;
+            font-size: 18px;
             cursor: pointer;
             width: 40px;
             height: 40px;
@@ -568,10 +569,25 @@
         <button class="action-btn primary" onclick="saveChanges()">Save Changes</button>
     </div>
 
-    <script src="components/popup.js"></script>
+    <script src="{{ asset('components/popup.js') }}"></script>
     <script>
         function goBack() {
-            window.location.href = 'dashboard';
+            if (typeof smartGoBack === 'function') {
+                smartGoBack('{{ route("dashboard") }}');
+            } else {
+                // Fallback navigation
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = '{{ route("dashboard") }}';
+                    }
+                } else {
+                    window.location.href = '{{ route("dashboard") }}';
+                }
+            }
         }
         
         function exportConfig() {

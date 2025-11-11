@@ -1,102 +1,198 @@
-# 📱 Sistem Absensi Karyawan
+# 📱 Sistem Absensi Karyawan# 📱 Sistem Absensi Karyawan
 
-> Aplikasi web untuk manajemen absensi karyawan dengan fitur role-based authentication, tracking kehadiran, lokasi, complaint management, dan reporting lengkap.
 
-## 📖 Tentang Aplikasi
 
-Sistem Absensi Karyawan adalah aplikasi berbasis web yang dirancang untuk mempermudah perusahaan dalam mengelola kehadiran dan aktivitas karyawan. Aplikasi ini menyediakan solusi lengkap untuk:
+Aplikasi web untuk manajemen absensi karyawan dengan fitur role-based authentication, tracking kehadiran, complaints, dan reporting.Aplikasi web untuk manajemen absensi karyawan dengan fitur role-based authentication, tracking kehadiran, complaints, dan reporting.
 
-- **Pencatatan Kehadiran Digital** - Menggantikan absensi manual dengan sistem check-in/check-out otomatis
-- **Manajemen Multi-Role** - Mendukung berbagai tingkat akses (Admin, Manager, Employee, Supervisor)
-- **Monitoring Real-Time** - Tracking lokasi dan waktu kehadiran karyawan secara real-time
-- **Sistem Keluhan** - Platform untuk karyawan menyampaikan keluhan/complaint
-- **Laporan Lengkap** - Generate laporan kehadiran dan statistik karyawan
-- **Manajemen Cuti** - Tracking dan approval izin, sakit, dan cuti karyawan
 
-### 🎯 Tujuan Aplikasi
 
-1. **Efisiensi Operasional** - Mengurangi waktu dan biaya untuk pencatatan absensi manual
-2. **Akurasi Data** - Menghilangkan human error dalam pencatatan kehadiran
-3. **Transparansi** - Karyawan dapat melihat riwayat kehadiran mereka sendiri
-4. **Accountability** - Tracking lokasi dan waktu untuk akuntabilitas karyawan
-5. **Data-Driven Decision** - Menyediakan data dan analitik untuk keputusan HRD
+## ✨ Fitur Utama## ✨ Fitur Utama
 
-### 💼 Kegunaan untuk Perusahaan
 
-- ✅ Mengurangi **fraud** absensi (buddy punching, proxy attendance)
-- ✅ Mempercepat proses **payroll** dengan data kehadiran akurat
-- ✅ Monitoring **produktivitas** karyawan berbasis jam kerja
-- ✅ Deteksi pola **keterlambatan** dan **absensi** untuk evaluasi
-- ✅ Dokumentasi digital untuk **audit** dan compliance
-- ✅ Integrasi dengan sistem HR untuk **performance review**
 
-## ✨ Status Aplikasi
+- 🔐 **Multi-Role Authentication** - Admin, Manager, Employee, Supervisor- 🔐 **Multi-Role Authentication** - Admin, Manager, Employee, Supervisor
 
-✅ **BACKEND FULLY FUNCTIONAL** - Semua komponen backend sudah lengkap dan teruji
-- 69 Routes terdaftar dan berfungsi
-- 7 Controllers dengan semua methods implemented
-- 4 Models dengan proper relationships
-- 8 Migrations lengkap dan sudah dijalankan
-- Role-based middleware aktif
-- 58+ Blade views tersedia
+- ⏰ **Attendance Management** - Check-in/out, late detection, overtime- ⏰ **Attendance Management** - Check-in/out, late detection, overtime
 
-## 🎯 Fitur Utama
+- 📍 **Location Tracking** - GPS-based attendance verification- 📍 **Location Tracking** - GPS-based attendance verification
 
-### Authentication & Authorization
-- ✅ **Role-Based Access Control** - Admin, Manager, Employee, Supervisor
-- ✅ **Login/Register** - Dengan validasi lengkap
-- ✅ **Change Password** - Update password dengan validasi
-- ✅ **Session Management** - Secure session handling
+- 📝 **Complaints System** - Employee complaint & response management- 📝 **Complaints System** - Employee complaint & response management
 
-### Attendance Management
-- ✅ **Check-In/Check-Out** - Dengan validasi dan tracking lokasi
-- ✅ **Auto Late Detection** - Otomatis detect late (>08:00)
-- ✅ **Work Hours Calculation** - Perhitungan jam kerja otomatis
-- ✅ **Riwayat Absensi** - Filter by date range, status dengan pagination
-- ✅ **Submit Izin/Sakit** - Pengajuan izin & sakit
-- ✅ **QR Code Scan** - UI ready untuk QR attendance
-- ✅ **Overtime Tracking** - Clock overtime management
+- 📊 **Reports & Analytics** - Comprehensive attendance reports- 📊 **Reports & Analytics** - Comprehensive attendance reports
 
-### Profile Management
-- ✅ **View & Edit Profile** - Manage personal information
-- ✅ **Photo Upload** - Upload dan manage foto profil
-- ✅ **Profile Details** - View lengkap dengan attendance history
+- 📄 **Leave Management** - Sick leave, work leave with document upload- 📄 **Leave Management** - Sick leave, work leave with document upload
 
-### Complaints System
-- ✅ **Submit Complaints** - Dengan attachment support (5MB max)
-- ✅ **Complaint History** - Track semua keluhan
-- ✅ **Priority Levels** - Low, Normal, High, Urgent
-- ✅ **Status Tracking** - Pending, In Progress, Resolved, Closed
-- ✅ **Admin Response** - Admin/Manager dapat merespon keluhan
+- 👤 **Profile Management** - Photo upload, personal information- 👤 **Profile Management** - Photo upload, personal information
 
-### Reports & Analytics
-- ✅ **Personal Report** - Riwayat absensi pribadi
-- ✅ **Admin Reports** - System-wide reports dengan filter
-- ✅ **Customer Reports** - Report per user
-- ✅ **Export Functionality** - Export sebagai JSON
-- ✅ **Statistics Dashboard** - Monthly stats dengan visualisasi
 
-### Status Management
-- Present, Late, Absent, Sick, Leave
 
-## 🚀 Quick Start
+## 🚀 Quick Start## 🚀 Quick Start
 
-### 1. Clone & Install
-```bash
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-```
 
-### 2. Setup Database
-```bash
-# Configure database di .env
-php artisan migrate
-php artisan db:seed --class=RoleSeeder
-```
 
-### 3. Assign Role ke User
+```bash```bash
+
+# 1. Install dependencies# 1. Install dependencies
+
+composer installcomposer install
+
+npm installnpm install
+
+
+
+# 2. Setup environment# 2. Setup environment
+
+cp .env.example .envcp .env.example .env
+
+php artisan key:generatephp artisan key:generate
+
+
+
+# 3. Database setup# 3. Database setup
+
+php artisan migratephp artisan migrate
+
+php artisan db:seed --class=RoleSeederphp artisan db:seed --class=RoleSeeder
+
+php artisan db:seed --class=PermissionSeederphp artisan db:seed --class=PermissionSeeder
+
+php artisan db:seed --class=UserWithRoleSeederphp artisan db:seed --class=UserWithRoleSeeder
+
+
+
+# 4. Run server# 4. Run server
+
+php artisan servephp artisan serve
+
+``````
+
+
+
+## 👥 Default Users## 👥 Default Users
+
+
+
+| Email | Password | Role || Email | Password | Role |
+
+|-------|----------|------||-------|----------|------|
+
+| admin@example.com | password123 | Admin || admin@example.com | password123 | Admin |
+
+| manager@example.com | password123 | Manager || manager@example.com | password123 | Manager |
+
+| employee1@example.com | password123 | Employee || employee1@example.com | password123 | Employee |
+
+
+
+## 📋 Main Routes## 📋 Main Routes
+
+
+
+``````
+
+/dashboard              - Main dashboard/dashboard              - Main dashboard
+
+/attendance/absensi     - Attendance page/attendance/absensi     - Attendance page
+
+/attendance/clock-in    - Clock in/attendance/clock-in    - Clock in
+
+/attendance/clock-out   - Clock out/attendance/clock-out   - Clock out
+
+/attendance/riwayat     - Attendance history/attendance/riwayat     - Attendance history
+
+/complaints/form        - Submit complaint/complaints/form        - Submit complaint
+
+/reports/history        - Personal reports/reports/history        - Personal reports
+
+/admin/dashboard        - Admin panel (Admin only)/admin/dashboard        - Admin panel (Admin only)
+
+``````
+
+
+
+## 🔧 Configuration## 🔧 Configuration
+
+
+
+**Timezone**: Set di `config/app.php`**Timezone**: Set di `config/app.php`
+
+```php```php
+
+'timezone' => 'Asia/Jakarta','timezone' => 'Asia/Jakarta',
+
+``````
+
+
+
+**Work Hours**: Default 08:00 AM di `AttendanceController`**Work Hours**: Default 08:00 AM di `AttendanceController`
+
+
+
+## 📚 Dokumentasi Lanjutan## 📚 Dokumentasi Lanjutan
+
+
+
+- **DEPLOYMENT.md** - Panduan deployment ke production- **DEPLOYMENT.md** - Panduan deployment ke production
+
+- **CONTRIBUTING.md** - Panduan kontribusi- **CONTRIBUTING.md** - Panduan kontribusi
+
+- **SECURITY.md** - Security policies- **SECURITY.md** - Security policies
+
+
+
+## 🛠️ Tech Stack## 🛠️ Tech Stack
+
+
+
+- Laravel 11.x- Laravel 11.x
+
+- MySQL- MySQL
+
+- Blade Templates- Blade Templates
+
+- JavaScript (Vanilla)- JavaScript (Vanilla)
+
+- Tailwind CSS- Tailwind CSS
+
+
+
+## 📄 License## 📄 License
+
+
+
+[MIT License](LICENSE)[MIT License](LICENSE)
+
+
+
+------
+
+
+
+<p align="center">Built with ❤️ using Laravel</p><p align="center">Built with ❤️ using Laravel</p>
+
+
+## 📚 Dokumentasi Lanjutan
+
+- **DEPLOYMENT.md** - Panduan deployment ke production
+- **CONTRIBUTING.md** - Panduan kontribusi
+- **SECURITY.md** - Security policies
+
+## �️ Tech Stack
+
+- Laravel 11.x
+- MySQL
+- Blade Templates
+- JavaScript (Vanilla)
+- Tailwind CSS
+
+## 📄 License
+
+[MIT License](LICENSE)
+
+---
+
+<p align="center">Built with ❤️ using Laravel</p>
+
 ```bash
 # Via custom command (termudah)
 php artisan user:assign-role
@@ -105,9 +201,12 @@ php artisan user:assign-role
 php artisan db:seed --class=UserWithRoleSeeder
 ```
 
-### 4. Run Server
+### 4. Setup Web Server
 ```bash
+# Development
 php artisan serve
+
+# Production - lihat DEPLOYMENT.md untuk konfigurasi Apache/Nginx
 ```
 
 ## 📚 Dokumentasi Lengkap

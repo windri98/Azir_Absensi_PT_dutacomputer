@@ -35,7 +35,7 @@
             padding: 50px 20px 30px 20px;
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 100;
         }
         .header-content {
             display: flex;
@@ -55,6 +55,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            position: relative;
+            user-select: none;
+            pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+        .back-btn:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.5);
+            outline-offset: 2px;
         }
         .header-title h1 {
             font-size: 20px;
@@ -190,10 +207,51 @@
             cursor: pointer;
             transition: all 0.2s ease;
             background: white;
+            user-select: none;
+            position: relative;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .leave-type:hover {
+            border-color: #94a3b8;
+            background: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .leave-type.selected {
             border-color: #1ec7e6;
             background: #f0faff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(30, 199, 230, 0.2);
+        }
+        .leave-type.emergency {
+            border: 2px solid #f59e0b;
+            background: #fef3c7;
+            position: relative;
+            animation: pulse-emergency 2s infinite;
+        }
+        .leave-type.emergency.selected {
+            border-color: #d97706;
+            background: #fbbf24;
+        }
+        .leave-type.emergency::after {
+            content: "URGENT";
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc2626;
+            color: white;
+            font-size: 8px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        @keyframes pulse-emergency {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
         }
         .leave-type-icon {
             font-size: 24px;
@@ -218,15 +276,76 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 20px;
+            position: relative;
+            z-index: 1;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .submit-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(30, 199, 230, 0.4);
+            background: linear-gradient(135deg, #0ea5e9, #1ec7e6);
+        }
+        .submit-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(30, 199, 230, 0.3);
         }
         .submit-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+        }
+        
+        /* Make sure buttons are clickable */
+        .submit-btn, .leave-type {
+            pointer-events: auto;
+            user-select: none;
+        }
+        
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            background: #f9fafb;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: #1ec7e6;
+            background: #f0faff;
+        }
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .upload-text {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .upload-text strong {
+            color: #1ec7e6;
+        }
+        .file-preview {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f0faff;
+            border-radius: 8px;
+            border: 1px solid #1ec7e6;
+            font-size: 14px;
+            color: #0369a1;
+        }
+        
+        /* Admin Notes Section */
+        .admin-note-info {
+            background: #f0f9ff;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #1ec7e6;
         }
         
         /* Recent Requests */
@@ -313,7 +432,7 @@
         <div class="form-section">
             <h3 class="section-title">Ajukan Izin Baru</h3>
             
-            <form id="leaveForm" action="{{ route('complaints.store') }}" method="POST">
+            <form id="leaveForm" action="{{ route('complaints.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group">
                     <label class="form-label">Jenis Izin</label>
@@ -324,14 +443,22 @@
                         </div>
                         <div class="leave-type" data-type="sakit">
                             <div class="leave-type-icon">🏥</div>
-                            <div class="leave-type-name">Cuti Sakit</div>
+                            <div class="leave-type-name">Izin Sakit</div>
+                        </div>
+                        <div class="leave-type emergency" data-type="mendadak">
+                            <div class="leave-type-icon">⚡</div>
+                            <div class="leave-type-name">Izin Mendadak</div>
+                        </div>
+                        <div class="leave-type" data-type="keluarga">
+                            <div class="leave-type-icon">👨‍👩‍👧‍👦</div>
+                            <div class="leave-type-name">Urusan Keluarga</div>
                         </div>
                         <div class="leave-type" data-type="izin">
                             <div class="leave-type-icon">👤</div>
                             <div class="leave-type-name">Izin Pribadi</div>
                         </div>
                         <div class="leave-type" data-type="lainnya">
-                            <div class="leave-type-icon">🚨</div>
+                            <div class="leave-type-icon">�</div>
                             <div class="leave-type-name">Lainnya</div>
                         </div>
                     </div>
@@ -356,9 +483,37 @@
                     <textarea class="form-textarea" name="description" id="reason" placeholder="Jelaskan alasan pengajuan izin Anda..." required></textarea>
                 </div>
 
-                <input type="hidden" name="priority" value="medium">
+                <!-- Upload Surat MC & Bukti Pendukung -->
+                <div class="form-group" id="uploadSection" style="display: none;">
+                    <label class="form-label" id="uploadLabel">Upload Bukti Pendukung</label>
+                    <div class="upload-info" id="uploadInfo" style="display: none;"></div>
+                    <div class="upload-area">
+                        <input type="file" class="form-input" name="attachment" id="attachment" accept="image/*,.pdf,.doc,.docx" style="display: none;">
+                        <div class="upload-placeholder" onclick="document.getElementById('attachment').click();">
+                            <div class="upload-icon" id="uploadIcon">📎</div>
+                            <div class="upload-text" id="uploadText">
+                                <strong>Klik untuk upload</strong><br>
+                                <small>Foto, PDF, atau dokumen (max 5MB)</small>
+                            </div>
+                        </div>
+                        <div class="file-preview" id="filePreview" style="display: none;"></div>
+                    </div>
+                </div>
 
-                <button type="submit" class="submit-btn">Ajukan Izin</button>
+                <!-- Catatan untuk Admin (khusus sakit) -->
+                <div class="form-group" id="adminNotesSection" style="display: none;">
+                    <label class="form-label">Catatan untuk Admin</label>
+                    <div class="admin-note-info">
+                        <small style="color: #6b7280; display: block; margin-bottom: 8px;">
+                            💡 Informasi ini akan membantu admin memproses pengajuan Anda dengan lebih baik
+                        </small>
+                    </div>
+                    <textarea class="form-textarea" name="admin_notes" id="adminNotes" placeholder="Contoh: Sakit demam tinggi, sudah ke dokter, perlu istirahat 2 hari..." style="min-height: 80px;"></textarea>
+                </div>
+
+                <input type="hidden" name="priority" value="medium" id="priorityInput">
+
+                <button type="submit" class="submit-btn" id="submitBtn">Ajukan Izin</button>
             </form>
         </div>
 
@@ -429,34 +584,301 @@
         </div>
     </div>
 
-    <script src="{{ asset('components/popup.js') }}"></script>
+    <script src="{{ asset('components/popup.js') }}" onerror="console.error('❌ Failed to load popup.js')"></script>
     <script>
+        // Check if popup.js loaded successfully
+        console.log('🔍 Checking if popup.js loaded...');
+        console.log('smartGoBack available:', typeof smartGoBack !== 'undefined');
+        console.log('showErrorPopup available:', typeof showErrorPopup !== 'undefined');
+        
+        // Fallback functions if popup.js fails to load
+        if (typeof smartGoBack === 'undefined') {
+            console.log('⚠️ popup.js not loaded, creating fallback smartGoBack');
+            window.smartGoBack = function(fallbackUrl) {
+                console.log('📍 Fallback smartGoBack called with:', fallbackUrl);
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        console.log('📱 Using history.back()');
+                        window.history.back();
+                    } catch (error) {
+                        console.log('🏠 History.back() failed, redirecting to:', fallbackUrl);
+                        window.location.href = fallbackUrl;
+                    }
+                } else {
+                    console.log('🏠 No valid history, redirecting to:', fallbackUrl);
+                    window.location.href = fallbackUrl;
+                }
+            };
+        }
+
+        // Fallback popup functions
+        if (typeof showErrorPopup === 'undefined') {
+            function showErrorPopup(options) {
+                alert(options.message || 'Terjadi kesalahan');
+            }
+        }
+
+        if (typeof showSuccessPopup === 'undefined') {
+            function showSuccessPopup(options) {
+                alert(options.message || 'Berhasil!');
+            }
+        }
+
+        if (typeof showInfoPopup === 'undefined') {
+            function showInfoPopup(options) {
+                alert(options.message || 'Informasi');
+            }
+        }
+
         let selectedLeaveType = null;
 
         function goBack() {
-            window.location.href = '{{ route('dashboard') }}';
+            console.log('🔙 goBack() function called');
+            try {
+                if (typeof smartGoBack === 'function') {
+                    console.log('✅ Using smartGoBack function');
+                    smartGoBack('{{ route("dashboard") }}');
+                } else {
+                    console.log('⚠️ smartGoBack not available, using fallback');
+                    // Fallback navigation
+                    if (window.history.length > 1 && document.referrer && 
+                        document.referrer !== window.location.href &&
+                        !document.referrer.includes('login')) {
+                        console.log('📱 Going back in history');
+                        window.history.back();
+                    } else {
+                        console.log('🏠 Redirecting to dashboard');
+                        window.location.href = '{{ route("dashboard") }}';
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Error in goBack():', error);
+                // Emergency fallback
+                window.location.href = '{{ route("dashboard") }}';
+            }
         }
 
-        // Handle leave type selection
-        document.querySelectorAll('.leave-type').forEach(type => {
-            type.addEventListener('click', function() {
-                document.querySelectorAll('.leave-type').forEach(t => t.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedLeaveType = this.dataset.type;
-                document.getElementById('categoryInput').value = selectedLeaveType;
+        // Test if page is loading
+        console.log('JavaScript is loading...');
+        
+        // Ensure DOM is loaded before attaching events
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM loaded, setting up event listeners');
+            
+            // Handle leave type selection
+            const leaveTypes = document.querySelectorAll('.leave-type');
+            console.log('✅ Found leave types:', leaveTypes.length);
+            
+            // Test button clicking
+            if (leaveTypes.length > 0) {
+                console.log('✅ First leave type:', leaveTypes[0].dataset.type);
+            }
+            
+            leaveTypes.forEach((type, index) => {
+                console.log(`Setting up listener ${index + 1} for type:`, type.dataset.type);
+                type.addEventListener('click', function(e) {
+                    console.log('🎯 Leave type clicked:', this.dataset.type);
+                    console.log('🎯 Event object:', e);
+                    
+                    // Remove selected class from all
+                    leaveTypes.forEach(t => {
+                        t.classList.remove('selected');
+                        console.log('Removed selected from:', t.dataset.type);
+                    });
+                    
+                    // Add selected class to clicked item
+                    this.classList.add('selected');
+                    selectedLeaveType = this.dataset.type;
+                    console.log('🎯 Set selectedLeaveType to:', selectedLeaveType);
+                    
+                    // Update hidden input
+                    const categoryInput = document.getElementById('categoryInput');
+                    if (categoryInput) {
+                        categoryInput.value = selectedLeaveType;
+                        console.log('🎯 Updated categoryInput to:', categoryInput.value);
+                    } else {
+                        console.error('❌ categoryInput not found!');
+                    }
+                    
+                    // Special handling for different leave types
+                    try {
+                        handleLeaveTypeChange(selectedLeaveType);
+                        console.log('🎯 handleLeaveTypeChange completed');
+                    } catch (error) {
+                        console.error('❌ Error in handleLeaveTypeChange:', error);
+                    }
+                });
+                
+                // Test if the element is clickable
+                type.style.outline = '1px solid transparent';
             });
+
+            // Setup back button event listener as backup
+            const backBtn = document.querySelector('.back-btn');
+            if (backBtn) {
+                console.log('✅ Setting up back button event listener');
+                backBtn.addEventListener('click', function(e) {
+                    console.log('🔙 Back button clicked via event listener');
+                    // Don't prevent default - let onclick also work
+                    goBack();
+                });
+            } else {
+                console.error('❌ Back button not found!');
+            }
+            
+            console.log('✅ Event listeners setup complete');
         });
+
+        // Handle different leave types
+        function handleLeaveTypeChange(leaveType) {
+            const uploadSection = document.getElementById('uploadSection');
+            const adminNotesSection = document.getElementById('adminNotesSection');
+            const priorityInput = document.getElementById('priorityInput');
+            const submitBtn = document.querySelector('.submit-btn');
+            const uploadLabel = document.getElementById('uploadLabel');
+            const uploadInfo = document.getElementById('uploadInfo');
+            const uploadIcon = document.getElementById('uploadIcon');
+            const uploadText = document.getElementById('uploadText');
+            
+            // Reset
+            uploadSection.style.display = 'none';
+            adminNotesSection.style.display = 'none';
+            priorityInput.value = 'medium';
+            submitBtn.textContent = 'Ajukan Izin';
+            submitBtn.style.background = 'linear-gradient(135deg, #1ec7e6, #0ea5e9)';
+            
+            switch(leaveType) {
+                case 'sakit':
+                    uploadSection.style.display = 'block';
+                    adminNotesSection.style.display = 'block';
+                    uploadLabel.textContent = '📄 Upload Surat MC/Surat Dokter';
+                    uploadIcon.textContent = '🏥';
+                    uploadText.innerHTML = '<strong>Upload Surat MC/Surat Dokter</strong><br><small>PDF, JPG, PNG (max 5MB) - Wajib untuk verifikasi</small>';
+                    uploadInfo.style.display = 'block';
+                    uploadInfo.innerHTML = `
+                        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                            <strong style="color: #92400e;">📋 Wajib dilampirkan:</strong>
+                            <ul style="margin: 8px 0 0 20px; color: #78716c; font-size: 13px;">
+                                <li>Surat Keterangan Dokter (MC)</li>
+                                <li>Resep obat (jika ada)</li>
+                                <li>Surat rujukan (jika ada)</li>
+                            </ul>
+                        </div>
+                    `;
+                    showInfoPopup({
+                        title: '🏥 Izin Sakit - Perlu Surat MC',
+                        message: 'Untuk izin sakit wajib melampirkan:\n\n📄 Surat Keterangan Dokter (MC)\n💊 Resep obat (jika ada)\n🏥 Surat rujukan (jika perlu)\n\nAdmin akan memverifikasi dokumen untuk pencatatan yang akurat.',
+                        buttonText: 'Mengerti'
+                    });
+                    break;
+                    
+                case 'mendadak':
+                    uploadSection.style.display = 'block';
+                    priorityInput.value = 'high';
+                    submitBtn.textContent = '⚡ Ajukan Segera';
+                    submitBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                    uploadLabel.textContent = '📎 Upload Bukti Pendukung';
+                    uploadIcon.textContent = '⚡';
+                    uploadText.innerHTML = '<strong>Upload Bukti Pendukung</strong><br><small>Foto, dokumen, atau bukti lainnya (max 5MB)</small>';
+                    uploadInfo.style.display = 'block';
+                    uploadInfo.innerHTML = `
+                        <div style="background: #fee2e2; border: 1px solid #f87171; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                            <strong style="color: #dc2626;">⚡ Izin Mendadak:</strong>
+                            <ul style="margin: 8px 0 0 20px; color: #7f1d1d; font-size: 13px;">
+                                <li>Jelaskan kondisi darurat dengan detail</li>
+                                <li>Upload bukti jika memungkinkan (foto, surat, dll)</li>
+                                <li>Pengajuan akan diproses prioritas tinggi</li>
+                            </ul>
+                        </div>
+                    `;
+                    showInfoPopup({
+                        title: '⚡ Izin Mendadak - Prioritas Tinggi',
+                        message: 'Untuk izin mendadak:\n\n📝 Berikan alasan yang sangat jelas\n📎 Upload bukti pendukung jika ada\n⚡ Pengajuan akan diprioritaskan\n📬 Notifikasi langsung ke admin/atasan\n\nAdmin akan segera memproses pengajuan ini.',
+                        buttonText: 'Mengerti'
+                    });
+                    break;
+                    
+                case 'keluarga':
+                    showInfoPopup({
+                        title: '👨‍👩‍👧‍👦 Urusan Keluarga',
+                        message: 'Untuk urusan keluarga:\n• Jelaskan keperluan keluarga\n• Tentukan durasi yang diperlukan\n• Berikan pemberitahuan sejauh mungkin',
+                        buttonText: 'Mengerti'
+                    });
+                    break;
+            }
+        }
+
+        // Handle file upload
+        document.getElementById('attachment').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('filePreview');
+            const placeholder = document.querySelector('.upload-placeholder');
+            
+            if (file) {
+                // Check file size (5MB limit)
+                if (file.size > 5 * 1024 * 1024) {
+                    showErrorPopup({
+                        title: 'File Terlalu Besar',
+                        message: 'Ukuran file maksimal 5MB. Silakan pilih file yang lebih kecil.',
+                        buttonText: 'OK'
+                    });
+                    e.target.value = '';
+                    return;
+                }
+                
+                placeholder.style.display = 'none';
+                preview.style.display = 'block';
+                preview.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <strong>📎 ${file.name}</strong><br>
+                            <small>${(file.size / 1024).toFixed(1)} KB</small>
+                        </div>
+                        <button type="button" onclick="removeFile()" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px;">✕</button>
+                    </div>
+                `;
+            }
+        });
+
+        function removeFile() {
+            document.getElementById('attachment').value = '';
+            document.getElementById('filePreview').style.display = 'none';
+            document.querySelector('.upload-placeholder').style.display = 'block';
+        }
 
         // Handle form submission
         document.getElementById('leaveForm').addEventListener('submit', function(e) {
+            console.log('Form submitted with selectedLeaveType:', selectedLeaveType);
+            
             if (!selectedLeaveType) {
                 e.preventDefault();
-                showErrorPopup({
-                    title: 'Error',
-                    message: 'Silakan pilih jenis izin terlebih dahulu',
-                    buttonText: 'OK'
-                });
+                console.log('No leave type selected, preventing submit');
+                if (typeof showErrorPopup === 'function') {
+                    showErrorPopup({
+                        title: 'Error',
+                        message: 'Silakan pilih jenis izin terlebih dahulu',
+                        buttonText: 'OK'
+                    });
+                } else {
+                    alert('Silakan pilih jenis izin terlebih dahulu');
+                }
                 return;
+            }
+
+            // Validasi wajib untuk izin sakit harus ada surat MC
+            if (selectedLeaveType === 'sakit') {
+                const attachment = document.getElementById('attachment').files[0];
+                if (!attachment) {
+                    e.preventDefault();
+                    showErrorPopup({
+                        title: '🏥 Surat MC Wajib',
+                        message: 'Untuk izin sakit, Anda wajib melampirkan Surat Keterangan Dokter (MC) atau dokumen medis lainnya untuk verifikasi admin.',
+                        buttonText: 'OK'
+                    });
+                    return;
+                }
             }
 
             const startDate = document.getElementById('startDate').value;
@@ -473,8 +895,8 @@
                 return;
             }
 
-            // Debug log
-            console.log('Form submitting with data:', {
+            // Submit form data
+            const formData = {
                 category: selectedLeaveType,
                 title: document.getElementById('title').value,
                 description: document.getElementById('reason').value,
@@ -483,7 +905,7 @@
             });
         });
 
-        // Set minimum date to today
+        // Set minimum date to today and handle form interactions
         document.addEventListener('DOMContentLoaded', function() {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('startDate').min = today;
@@ -493,9 +915,34 @@
             document.getElementById('startDate').addEventListener('change', function() {
                 document.getElementById('endDate').min = this.value;
             });
+
+            // Add click event to submit button for debugging
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(e) {
+                    console.log('Submit button clicked!');
+                    console.log('Current selectedLeaveType:', selectedLeaveType);
+                });
+            }
+
+            // Auto-select leave type from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const preSelectedType = urlParams.get('type');
+            
+            if (preSelectedType) {
+                const targetLeaveType = document.querySelector(`[data-type="${preSelectedType}"]`);
+                if (targetLeaveType) {
+                    // Auto-click the specified leave type
+                    setTimeout(() => {
+                        targetLeaveType.click();
+                        // Scroll to form
+                        targetLeaveType.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 500);
+                }
+            }
         });
 
-        // Show success message if redirected after successful submission
+        // Show session messages
         @if(session('success'))
             showSuccessPopup({
                 title: 'Pengajuan Berhasil!',

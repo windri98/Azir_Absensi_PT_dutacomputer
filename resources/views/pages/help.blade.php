@@ -463,7 +463,22 @@
         }
 
         function goBack() {
-            window.history.back();
+            if (typeof smartGoBack === 'function') {
+                smartGoBack('{{ route("dashboard") }}');
+            } else {
+                // Fallback navigation
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = '{{ route("dashboard") }}';
+                    }
+                } else {
+                    window.location.href = '{{ route("dashboard") }}';
+                }
+            }
         }
     </script>
 </body>

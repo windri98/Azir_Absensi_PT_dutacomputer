@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Clock Out - Sistem Absensi</title>
     <!-- Popup Component CSS -->
-    <link rel="stylesheet" href="/components/popup.css">
+    <link rel="stylesheet" href="{{ asset('components/popup.css') }}">
     <style>
         * {
             margin: 0;
@@ -43,18 +43,18 @@
         }
         .back-btn {
             position: absolute;
-            top: 20px;
+            top: 50px;
             left: 20px;
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: none;
-            padding: 12px;
+            padding: 10px;
             border-radius: 50%;
             font-size: 18px;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -62,6 +62,10 @@
         }
         .back-btn:hover {
             background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        .back-btn:active {
+            transform: scale(0.95);
         }
         .clock-icon {
             width: 120px;
@@ -165,8 +169,8 @@
         <button class="back-btn" onclick="goBack()">←</button>
         
         <div class="clock-icon">🕐</div>
-        <div class="current-time" id="currentTime">17:00</div>
-        <div class="current-date" id="currentDate">Friday, Oct 11, 2025</div>
+        <div class="current-time" id="currentTime">--:--</div>
+        <div class="current-date" id="currentDate">Loading...</div>
     </div>
 
     <div class="clock-out-panel">
@@ -183,7 +187,7 @@
     </div>
 
     <!-- Popup Component JavaScript -->
-    <script src="/components/popup.js"></script>
+    <script src="{{ asset('components/popup.js') }}"></script>
     <script>
         // Fallback functions if popup.js fails to load
         if (typeof showSuccessPopup === 'undefined') {
@@ -197,17 +201,52 @@
                 alert('ERROR: ' + options.title + '\n' + options.message);
             };
         }
+        if (typeof smartGoBack === 'undefined') {
+            window.smartGoBack = function(fallbackUrl) {
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = fallbackUrl;
+                    }
+                } else {
+                    window.location.href = fallbackUrl;
+                }
+            };
+        }
 
         function goBack() {
-            window.location.href = '{{ route("attendance.absensi") }}';
+            // Use the global smartGoBack function from popup.js
+            if (typeof smartGoBack === 'function') {
+                smartGoBack('{{ route("attendance.absensi") }}');
+            } else {
+                // Fallback if popup.js fails to load
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = '{{ route("attendance.absensi") }}';
+                    }
+                } else {
+                    window.location.href = '{{ route("attendance.absensi") }}';
+                }
+            }
         }
 
         async function performClockOut() {
             const note = document.getElementById('noteInput').value;
             const clockBtn = document.querySelector('.clock-out-btn');
             
-            clockBtn.textContent = 'Processing...';
+            // Disable button and show loading state
+            const originalText = clockBtn.textContent;
+            clockBtn.textContent = '⏳ Processing...';
             clockBtn.disabled = true;
+            clockBtn.style.opacity = '0.7';
+            clockBtn.style.cursor = 'not-allowed';
             
             try {
                 const payload = {
@@ -217,7 +256,7 @@
 
                 console.log('Sending check-out request with payload:', payload);
 
-                const response = await fetch('/attendance/check-out', {
+                const response = await fetch("{{ route('attendance.check-out') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -232,67 +271,78 @@
                 console.log('Response data:', data);
 
                 if (response.ok && data.success) {
-                    const currentTime = new Date().toLocaleTimeString('en-US', {
+                    const currentTime = new Date().toLocaleTimeString('id-ID', {
                         hour: '2-digit',
                         minute: '2-digit',
-                        hour12: true
+                        hour12: false
                     });
 
                     showSuccessPopup({
-                        title: 'Clock Out Successful!',
+                        title: 'Clock Out Berhasil!',
                         message: data.message || 'Anda berhasil melakukan clock out',
                         time: currentTime,
-                        buttonText: 'Continue',
+                        buttonText: 'Lanjutkan',
                         onClose: () => {
                             window.location.href = '{{ route("attendance.absensi") }}';
                         }
                     });
                 } else {
                     showErrorPopup({
-                        title: 'Error',
-                        message: data.message || 'Gagal melakukan clock out',
+                        title: 'Gagal Clock Out',
+                        message: data.message || 'Gagal melakukan clock out. Silakan coba lagi.',
                         buttonText: 'OK'
                     });
-                    clockBtn.textContent = 'Clock Out';
+                    // Reset button state
+                    clockBtn.textContent = originalText;
                     clockBtn.disabled = false;
+                    clockBtn.style.opacity = '1';
+                    clockBtn.style.cursor = 'pointer';
                 }
             } catch (err) {
                 console.error('Check-out error:', err);
                 showErrorPopup({
-                    title: 'Error',
-                    message: 'Terjadi kesalahan: ' + err.message,
+                    title: 'Koneksi Error',
+                    message: 'Terjadi kesalahan koneksi: ' + err.message,
                     buttonText: 'OK'
                 });
-                clockBtn.textContent = 'Clock Out';
+                // Reset button state
+                clockBtn.textContent = originalText;
                 clockBtn.disabled = false;
+                clockBtn.style.opacity = '1';
+                clockBtn.style.cursor = 'pointer';
             }
         }
 
         function updateCurrentTime() {
             const now = new Date();
             
-            const timeString = now.toLocaleTimeString('en-US', {
+            // Format waktu 24 jam untuk display utama
+            const timeString = now.toLocaleTimeString('id-ID', {
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: false
             });
             
-            const dateString = now.toLocaleDateString('en-US', {
-                weekday: 'long',
-                month: 'short',
-                day: '2-digit',
-                year: 'numeric'
-            });
+            // Format tanggal dalam bahasa Indonesia
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            const dateString = now.toLocaleDateString('id-ID', options);
             
-            const statusTimeString = now.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-            });
+            // Update elements
+            const timeElement = document.getElementById('currentTime');
+            const dateElement = document.getElementById('currentDate');
             
-            document.getElementById('currentTime').textContent = timeString;
-            document.getElementById('currentDate').textContent = dateString;
-            document.getElementById('statusTime').textContent = statusTimeString;
+            if (timeElement) {
+                timeElement.textContent = timeString;
+            }
+            
+            if (dateElement) {
+                dateElement.textContent = dateString;
+            }
         }
 
         // Update time every second
@@ -300,8 +350,14 @@
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Authentication is enforced server-side; avoid client-side redirect.
+            console.log('Clock-out page loaded');
             updateCurrentTime();
+            
+            // Focus on note input for better UX
+            const noteInput = document.getElementById('noteInput');
+            if (noteInput) {
+                noteInput.focus();
+            }
         });
     </script>
 </body>

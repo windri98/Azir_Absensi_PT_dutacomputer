@@ -15,8 +15,8 @@ class ReportController extends Controller
      */
     public function index(Request $request)
     {
-        // Only admin and manager can access
-        if (! Auth::user()->hasAnyRole(['admin', 'manager'])) {
+        // Check permission instead of role
+        if (! Auth::user()->hasPermission('reports.view')) {
             abort(403, 'Unauthorized');
         }
 
@@ -73,7 +73,7 @@ class ReportController extends Controller
      */
     public function customerReport(Request $request)
     {
-        if (! Auth::user()->hasAnyRole(['admin', 'manager'])) {
+        if (! Auth::user()->hasPermission('reports.view')) {
             abort(403, 'Unauthorized');
         }
 
@@ -94,7 +94,7 @@ class ReportController extends Controller
      */
     public function export(Request $request)
     {
-        if (! Auth::user()->hasAnyRole(['admin', 'manager'])) {
+        if (! Auth::user()->hasPermission('reports.export')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized',
@@ -126,7 +126,7 @@ class ReportController extends Controller
      */
     public function summary(Request $request)
     {
-        if (! Auth::user()->hasAnyRole(['admin', 'manager'])) {
+        if (! Auth::user()->hasPermission('reports.view')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized',
@@ -157,5 +157,100 @@ class ReportController extends Controller
             'success' => true,
             'data' => $summary,
         ]);
+    }
+
+    /**
+     * Show users list for reports
+     */
+    public function users(Request $request)
+    {
+        if (! Auth::user()->hasPermission('reports.view')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $query = User::with(['attendances' => function($q) {
+            $q->whereMonth('date', Carbon::now()->month)
+              ->whereYear('date', Carbon::now()->year);
+        }, 'roles']);
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Role filter
+        if ($request->filled('role')) {
+            $query->whereHas('roles', function($q) use ($request) {
+                $q->where('name', $request->role);
+            });
+        }
+
+        $users = $query->orderBy('name')->paginate(12);
+
+        return view('reports.users', compact('users'));
+    }
+
+    /**
+     * Show detailed user report
+     */
+    public function userDetail($userId, Request $request)
+    {
+        if (! Auth::user()->hasPermission('reports.view')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $user = User::findOrFail($userId);
+        
+        $month = $request->get('month', Carbon::now()->month);
+        $year = $request->get('year', Carbon::now()->year);
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
+        // Build query for attendances
+        $query = Attendance::where('user_id', $userId);
+        
+        if ($startDate && $endDate) {
+            $query->where('date', '>=', $startDate)
+                  ->where('date', '<=', $endDate);
+        } else {
+            $query->whereMonth('date', $month)
+                  ->whereYear('date', $year);
+        }
+
+        $attendances = $query->orderBy('date', 'desc')->get();
+
+        // Calculate statistics
+        $stats = [
+            'total_days' => $attendances->count(),
+            'present' => $attendances->where('status', 'present')->count(),
+            'late' => $attendances->where('status', 'late')->count(),
+            'absent' => $attendances->where('status', 'absent')->count(),
+            'sick' => $attendances->where('status', 'sick')->count(),
+            'leave' => $attendances->where('status', 'leave')->count(),
+            'overtime' => $attendances->where('status', 'overtime')->count(),
+            'total_work_hours' => $attendances->sum('work_hours'),
+            'average_work_hours' => $attendances->avg('work_hours'),
+            'total_overtime_hours' => $attendances->sum('overtime_hours'),
+        ];
+
+        // Monthly breakdown
+        $monthlyData = [];
+        for ($i = 1; $i <= 31; $i++) {
+            $date = Carbon::create($year, $month, $i);
+            if (!$date->isValid() || $date->day !== $i) continue;
+            
+            $dayAttendance = $attendances->firstWhere('date', $date->format('Y-m-d'));
+            $monthlyData[] = [
+                'date' => $date,
+                'attendance' => $dayAttendance,
+                'is_weekend' => $date->isWeekend(),
+            ];
+        }
+
+        return view('reports.user-detail', compact('user', 'attendances', 'stats', 'monthlyData', 'month', 'year'));
     }
 }

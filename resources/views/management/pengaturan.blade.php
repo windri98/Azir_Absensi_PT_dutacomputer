@@ -394,7 +394,7 @@
 </head>
 <body>
     <div class="header">
-        <button class="back-btn" onclick="window.location.href='profile'">←</button>
+        <button class="back-btn" onclick="window.location.href='{{ route('profile.show') }}'">←</button>
         <div class="header-title">
             <h1>Pengaturan</h1>
             <p>Kelola preferensi aplikasi</p>

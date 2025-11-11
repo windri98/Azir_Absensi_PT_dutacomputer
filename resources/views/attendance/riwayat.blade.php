@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Absensi - Sistem Absensi</title>
-    <link rel="stylesheet" href="/components/popup.css">
+    <link rel="stylesheet" href="{{ asset('components/popup.css') }}">
     <style>
         * {
             margin: 0;
@@ -204,6 +204,10 @@
             background: #fee2e2;
             color: #dc2626;
         }
+        .status-work_leave {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
         .history-details {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -221,6 +225,63 @@
             font-size: 14px;
             font-weight: 600;
             color: #333;
+        }
+        
+        /* Document Actions */
+        .document-item {
+            grid-column: span 2;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+        
+        .document-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .doc-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .view-btn {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .view-btn:hover {
+            background: #bfdbfe;
+        }
+        
+        .download-btn {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .download-btn:hover {
+            background: #bbf7d0;
+        }
+        
+        /* Notes */
+        .notes-item {
+            grid-column: span 2;
+            text-align: left;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+        
+        .notes-text {
+            font-size: 13px;
+            font-weight: normal;
+            color: #6b7280;
+            line-height: 1.4;
         }
         
         /* Bottom Navigation */
@@ -292,33 +353,37 @@
     </div>
 
     <div class="filter-section">
-        <div class="filter-tabs">
-            <button class="filter-tab active" onclick="filterBy('week')">Minggu Ini</button>
-            <button class="filter-tab" onclick="filterBy('month')">Bulan Ini</button>
-            <button class="filter-tab" onclick="filterBy('custom')">Custom</button>
-        </div>
-        <div class="date-range" id="dateRange" style="display: none;">
-            <input type="date" class="date-input" id="startDate">
-            <input type="date" class="date-input" id="endDate">
-        </div>
+        <form method="GET" action="{{ route('attendance.riwayat') }}" id="filterForm">
+            <div class="filter-tabs">
+                <button type="button" class="filter-tab {{ !request('period') || request('period') == 'week' ? 'active' : '' }}" onclick="filterBy('week')">Minggu Ini</button>
+                <button type="button" class="filter-tab {{ request('period') == 'month' ? 'active' : '' }}" onclick="filterBy('month')">Bulan Ini</button>
+                <button type="button" class="filter-tab {{ request('period') == 'custom' ? 'active' : '' }}" onclick="filterBy('custom')">Custom</button>
+            </div>
+            <div class="date-range" id="dateRange" style="display: {{ request('period') == 'custom' ? 'flex' : 'none' }};">
+                <input type="date" class="date-input" id="startDate" name="start_date" value="{{ request('start_date') }}">
+                <input type="date" class="date-input" id="endDate" name="end_date" value="{{ request('end_date') }}">
+                <button type="submit" style="padding:8px 16px;background:#1ec7e6;color:white;border:none;border-radius:6px;margin-left:10px">Filter</button>
+            </div>
+            <input type="hidden" name="period" id="periodInput" value="{{ request('period', 'week') }}">
+        </form>
     </div>
 
     <div class="summary-section">
         <div class="summary-grid">
             <div class="summary-card">
-                <div class="summary-number" id="totalDays">0</div>
+                <div class="summary-number" id="totalDays">{{ $stats['total_days'] ?? 0 }}</div>
                 <div class="summary-label">Total Hari</div>
             </div>
             <div class="summary-card">
-                <div class="summary-number" id="presentDays">0</div>
+                <div class="summary-number" id="presentDays">{{ $stats['present_days'] ?? 0 }}</div>
                 <div class="summary-label">Hadir</div>
             </div>
             <div class="summary-card">
-                <div class="summary-number" id="lateDays">0</div>
+                <div class="summary-number" id="lateDays">{{ $stats['late_days'] ?? 0 }}</div>
                 <div class="summary-label">Terlambat</div>
             </div>
             <div class="summary-card">
-                <div class="summary-number" id="totalHours">0h</div>
+                <div class="summary-number" id="totalHours">{{ number_format($stats['total_hours'] ?? 0, 1) }}h</div>
                 <div class="summary-label">Total Jam</div>
             </div>
         </div>
@@ -336,7 +401,7 @@
                         </div>
                         <div class="history-status status-{{ $attendance->status ?? 'present' }}">
                             @if($attendance->status === 'late') Terlambat
-                            @elseif($attendance->status === 'absent') Tidak Hadir
+                            @elseif($attendance->status === 'work_leave') Izin Kerja
                             @else Hadir
                             @endif
                         </div>
@@ -365,6 +430,31 @@
                                 @endif
                             </div>
                         </div>
+                        
+                        @if($attendance->hasDocument())
+                        <div class="detail-item document-item">
+                            <div class="detail-label">{{ $attendance->getDocumentTypeLabel() }}</div>
+                            <div class="detail-value">
+                                <div class="document-actions">
+                                    <a href="{{ route('attendance.document.view', $attendance) }}" 
+                                       class="doc-btn view-btn" target="_blank" title="Lihat Dokumen">
+                                        👁️ Lihat
+                                    </a>
+                                    <a href="{{ route('attendance.document.download', $attendance) }}" 
+                                       class="doc-btn download-btn" title="Download Dokumen">
+                                        💾 Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                        
+                        @if($attendance->notes)
+                        <div class="detail-item notes-item">
+                            <div class="detail-label">Keterangan</div>
+                            <div class="detail-value notes-text">{{ $attendance->notes }}</div>
+                        </div>
+                        @endif
                     </div>
                 </div>
             @endforeach
@@ -398,17 +488,32 @@
         </a>
     </nav>
 
-    <script src="components/popup.js"></script>
+    <script src="{{ asset('components/popup.js') }}"></script>
     <script>
+        // Fallback function if popup.js fails to load
+        if (typeof smartGoBack === 'undefined') {
+            function smartGoBack(fallbackUrl) {
+                if (window.history.length > 1 && document.referrer && 
+                    document.referrer !== window.location.href &&
+                    !document.referrer.includes('login')) {
+                    try {
+                        window.history.back();
+                    } catch (error) {
+                        window.location.href = fallbackUrl;
+                    }
+                } else {
+                    window.location.href = fallbackUrl;
+                }
+            }
+        }
+
         let currentFilter = 'week';
 
         function goBack() {
-            window.location.href = '{{ route("dashboard") }}';
+            smartGoBack('{{ route("dashboard") }}');
         }
 
         function filterBy(period) {
-            currentFilter = period;
-            
             // Update active tab
             document.querySelectorAll('.filter-tab').forEach(tab => {
                 tab.classList.remove('active');
@@ -421,17 +526,13 @@
                 dateRange.style.display = 'flex';
             } else {
                 dateRange.style.display = 'none';
+                // For non-custom periods, submit immediately
+                document.getElementById('periodInput').value = period;
+                document.getElementById('filterForm').submit();
             }
-            
-            loadHistoryData();
         }
 
-        function loadHistoryData() {
-            const attendanceHistory = JSON.parse(localStorage.getItem('attendanceHistory') || '[]');
-            const historyList = document.getElementById('historyList');
-            const emptyState = document.getElementById('emptyState');
-            
-            // Filter data based on selected period
-            let filteredData = filterDataByPeriod(attendanceHistory, currentFilter);
-            
-            if (filteredData.length === 0) {
+        // Form submission for custom date filter
+        document.getElementById('filterForm').addEventListener('submit', function(e) {
+            document.getElementById('periodInput').value = 'custom';
+        });
