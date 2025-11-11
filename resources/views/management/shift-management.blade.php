@@ -309,264 +309,124 @@
     <!-- Header -->
     <div class="header">
         <div class="header-content">
-            <button class="back-btn" onclick="goBack()">←</button>
+            <a href="{{ route('dashboard') }}" class="back-btn" style="text-decoration: none;">←</a>
             <div class="header-title">
-                <h1>Shift Management</h1>
-                <div class="header-subtitle">Konfigurasi shift dan lembur</div>
+                <h1>Jadwal Kerja Karyawan</h1>
+                <div class="header-subtitle">Shift Management - Read Only</div>
             </div>
         </div>
     </div>
 
-    <!-- Shift Configuration -->
+    <!-- Statistics -->
     <div class="shift-config">
         <div class="config-header">
-            <div class="config-title">⏰ Konfigurasi Shift</div>
-            <div class="config-subtitle">Atur jam kerja dan QR code untuk setiap shift</div>
+            <div class="config-title">📊 Statistik Karyawan</div>
+            <div class="config-subtitle">Ringkasan data shift karyawan</div>
         </div>
         
-        <div class="shift-types">
-            <!-- Morning Shift -->
-            <div class="shift-item active">
-                <div class="shift-header">
-                    <div>
-                        <div class="shift-name">Shift Pagi</div>
-                        <div class="shift-time">06:00 - 14:00 WIB</div>
-                    </div>
-                    <div class="shift-badge morning">MORNING</div>
-                </div>
-                
-                <div class="shift-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Jam Masuk</div>
-                        <div class="detail-value">06:00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Jam Keluar</div>
-                        <div class="detail-value">14:00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Toleransi Telat</div>
-                        <div class="detail-value">15 menit</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Aktif Hari</div>
-                        <div class="detail-value">Senin - Jumat</div>
-                    </div>
-                </div>
-                
-                <div class="shift-qr">
-                    <div class="qr-code">📱</div>
-                    <div class="qr-text">QR Code Format:</div>
-                    <div class="qr-value">MAIN_OFFICE:MORNING:LOBBY</div>
-                </div>
+        <div class="shift-types" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 20px;">
+            <div style="background: #f8fafc; border-radius: 12px; padding: 16px; text-align: center;">
+                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">Total Karyawan</div>
+                <div style="font-size: 28px; font-weight: 700; color: #667eea;">{{ $users->total() }}</div>
             </div>
-            
-            <!-- Afternoon Shift -->
-            <div class="shift-item">
-                <div class="shift-header">
-                    <div>
-                        <div class="shift-name">Shift Siang</div>
-                        <div class="shift-time">14:00 - 22:00 WIB</div>
-                    </div>
-                    <div class="shift-badge afternoon">AFTERNOON</div>
-                </div>
-                
-                <div class="shift-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Jam Masuk</div>
-                        <div class="detail-value">14:00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Jam Keluar</div>
-                        <div class="detail-value">22:00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Toleransi Telat</div>
-                        <div class="detail-value">15 menit</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Aktif Hari</div>
-                        <div class="detail-value">Senin - Jumat</div>
-                    </div>
-                </div>
-                
-                <div class="shift-qr">
-                    <div class="qr-code">📱</div>
-                    <div class="qr-text">QR Code Format:</div>
-                    <div class="qr-value">MAIN_OFFICE:AFTERNOON:LOBBY</div>
-                </div>
+            <div style="background: #f8fafc; border-radius: 12px; padding: 16px; text-align: center;">
+                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">Belum Ada Shift</div>
+                <div style="font-size: 28px; font-weight: 700; color: #f59e0b;">{{ $usersWithoutShifts }}</div>
             </div>
-            
-            <!-- Night Shift -->
-            <div class="shift-item">
-                <div class="shift-header">
-                    <div>
-                        <div class="shift-name">Shift Malam</div>
-                        <div class="shift-time">22:00 - 06:00 WIB</div>
-                    </div>
-                    <div class="shift-badge night">NIGHT</div>
-                </div>
-                
-                <div class="shift-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Jam Masuk</div>
-                        <div class="detail-value">22:00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Jam Keluar</div>
-                        <div class="detail-value">06:00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Toleransi Telat</div>
-                        <div class="detail-value">15 menit</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Aktif Hari</div>
-                        <div class="detail-value">Senin - Jumat</div>
-                    </div>
-                </div>
-                
-                <div class="shift-qr">
-                    <div class="qr-code">📱</div>
-                    <div class="qr-text">QR Code Format:</div>
-                    <div class="qr-value">MAIN_OFFICE:NIGHT:LOBBY</div>
-                </div>
+            @foreach($shiftStats as $shift)
+            <div style="background: #f8fafc; border-radius: 12px; padding: 16px; text-align: center;">
+                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">{{ $shift->name }}</div>
+                <div style="font-size: 28px; font-weight: 700; color: #333;">{{ $shift->users_count }}</div>
             </div>
-            
-            <!-- Overtime -->
-            <div class="shift-item">
-                <div class="shift-header">
-                    <div>
-                        <div class="shift-name">Lembur</div>
-                        <div class="shift-time">Fleksibel (Min 2 jam)</div>
-                    </div>
-                    <div class="shift-badge overtime">OVERTIME</div>
-                </div>
-                
-                <div class="shift-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Durasi Minimum</div>
-                        <div class="detail-value">2 jam</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Durasi Maksimum</div>
-                        <div class="detail-value">8 jam</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Rate Multiplier</div>
-                        <div class="detail-value">1.5x</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Approval</div>
-                        <div class="detail-value">Required</div>
-                    </div>
-                </div>
-                
-                <div class="shift-qr">
-                    <div class="qr-code">📱</div>
-                    <div class="qr-text">QR Code Format:</div>
-                    <div class="qr-value">MAIN_OFFICE:OVERTIME:LOBBY</div>
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
 
-    <!-- Employee Assignment -->
+    <!-- Search & Filter -->
+    <div style="padding: 0 20px 20px;">
+        <form method="GET" action="{{ route('management.shift') }}" id="filterForm">
+            <div style="background: white; border-radius: 12px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <span style="font-size: 18px;">🔍</span>
+                <input type="text" name="search" placeholder="Cari nama atau ID karyawan..." value="{{ $search }}" 
+                       style="border: none; outline: none; flex: 1; font-size: 14px;"
+                       onchange="document.getElementById('filterForm').submit()">
+            </div>
+            <select name="shift_filter" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e5e7eb; background: white; font-size: 14px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);"
+                    onchange="document.getElementById('filterForm').submit()">
+                <option value="">Semua Shift</option>
+                @foreach($shifts as $shift)
+                <option value="{{ $shift->id }}" {{ $shiftFilter == $shift->id ? 'selected' : '' }}>{{ $shift->name }}</option>
+                @endforeach
+            </select>
+        </form>
+    </div>
+
+    <!-- Employee List -->
     <div class="employee-assignment">
         <div class="config-header">
-            <div class="config-title">👥 Assignment Karyawan</div>
-            <div class="config-subtitle">Tentukan shift untuk setiap karyawan</div>
+            <div class="config-title">👥 Daftar Karyawan & Shift</div>
+            <div class="config-subtitle">{{ $users->total() }} karyawan terdaftar</div>
         </div>
         
         <div class="assignment-list">
+            @forelse($users as $user)
             <div class="employee-item">
-                <div class="employee-avatar">WM</div>
+                <div class="employee-avatar">{{ strtoupper(substr($user->name, 0, 2)) }}</div>
                 <div class="employee-info">
-                    <div class="employee-name">Widya Mayasari</div>
-                    <div class="employee-id">EMP001</div>
+                    <div class="employee-name">{{ $user->name }}</div>
+                    <div class="employee-id">{{ $user->employee_id }}</div>
+                    @if($user->roles->isNotEmpty())
+                    <div style="font-size: 11px; color: #999; margin-top: 2px;">{{ $user->roles->first()->name }}</div>
+                    @endif
                 </div>
-                <select class="shift-selector">
-                    <option value="MORNING" selected>Pagi</option>
-                    <option value="AFTERNOON">Siang</option>
-                    <option value="NIGHT">Malam</option>
-                </select>
-            </div>
-            
-            <div class="employee-item">
-                <div class="employee-avatar">JD</div>
-                <div class="employee-info">
-                    <div class="employee-name">John Doe</div>
-                    <div class="employee-id">EMP002</div>
+                <div style="text-align: right; font-size: 12px;">
+                    @if($user->shifts->isNotEmpty())
+                        @foreach($user->shifts as $shift)
+                        <div style="background: #dbeafe; color: #1e40af; padding: 6px 12px; border-radius: 6px; margin-bottom: 4px; font-weight: 500;">
+                            {{ $shift->name }}<br>
+                            <span style="font-size: 10px; opacity: 0.8;">{{ substr($shift->start_time, 0, 5) }}-{{ substr($shift->end_time, 0, 5) }}</span>
+                        </div>
+                        @endforeach
+                    @else
+                        <div style="background: #f3f4f6; color: #6b7280; padding: 6px 12px; border-radius: 6px; font-size: 11px;">
+                            ⚠️ Belum Ada Shift
+                        </div>
+                    @endif
                 </div>
-                <select class="shift-selector">
-                    <option value="MORNING">Pagi</option>
-                    <option value="AFTERNOON" selected>Siang</option>
-                    <option value="NIGHT">Malam</option>
-                </select>
             </div>
-            
-            <div class="employee-item">
-                <div class="employee-avatar">JS</div>
-                <div class="employee-info">
-                    <div class="employee-name">Jane Smith</div>
-                    <div class="employee-id">EMP003</div>
+            @empty
+            <div style="text-align: center; padding: 40px 20px; color: #999;">
+                <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+                <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Tidak Ada Data</div>
+                <div style="font-size: 14px;">
+                    @if($search || $shiftFilter)
+                    Tidak ada karyawan yang sesuai dengan filter
+                    @else
+                    Belum ada data karyawan
+                    @endif
                 </div>
-                <select class="shift-selector">
-                    <option value="MORNING">Pagi</option>
-                    <option value="AFTERNOON">Siang</option>
-                    <option value="NIGHT" selected>Malam</option>
-                </select>
             </div>
-        </div>
-    </div>
-
-    <!-- Overtime Rules -->
-    <div class="overtime-rules">
-        <div class="config-header">
-            <div class="config-title">📋 Aturan Lembur</div>
-            <div class="config-subtitle">Kebijakan dan aturan untuk lembur</div>
+            @endforelse
         </div>
         
-        <div class="rules-content">
-            <div class="rule-item">
-                <div class="rule-title">🕐 Waktu Lembur</div>
-                <div class="rule-description">
-                    Lembur dapat dilakukan setelah jam kerja normal atau di hari libur. 
-                    Durasi minimum 2 jam, maksimum 8 jam per hari.
-                </div>
-            </div>
+        <!-- Pagination -->
+        @if($users->hasPages())
+        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; padding: 20px;">
+            @if($users->onFirstPage())
+                <span style="padding: 8px 16px; border-radius: 8px; border: 1px solid #e5e7eb; background: #f3f4f6; color: #999; font-size: 14px; opacity: 0.5;">← Prev</span>
+            @else
+                <a href="{{ $users->previousPageUrl() }}" style="padding: 8px 16px; border-radius: 8px; border: 1px solid #e5e7eb; background: white; color: #666; font-size: 14px; text-decoration: none;">← Prev</a>
+            @endif
             
-            <div class="rule-item">
-                <div class="rule-title">💰 Rate Lembur</div>
-                <div class="rule-description">
-                    Lembur weekdays: 1.5x gaji per jam<br>
-                    Lembur weekend: 2.0x gaji per jam<br>
-                    Lembur hari libur: 3.0x gaji per jam
-                </div>
-            </div>
+            <span style="padding: 8px 16px; border-radius: 8px; background: #667eea; color: white; font-size: 14px; border: 1px solid #667eea;">{{ $users->currentPage() }}</span>
             
-            <div class="rule-item">
-                <div class="rule-title">✅ Approval Required</div>
-                <div class="rule-description">
-                    Semua lembur harus mendapat persetujuan supervisor sebelum 
-                    dilakukan. Request lembur maksimal H-1.
-                </div>
-            </div>
-            
-            <div class="rule-item">
-                <div class="rule-title">📍 Lokasi Tracking</div>
-                <div class="rule-description">
-                    Lembur harus dilakukan di lokasi kantor dengan QR code yang valid. 
-                    GPS tracking aktif selama periode lembur.
-                </div>
-            </div>
+            @if($users->hasMorePages())
+                <a href="{{ $users->nextPageUrl() }}" style="padding: 8px 16px; border-radius: 8px; border: 1px solid #e5e7eb; background: white; color: #666; font-size: 14px; text-decoration: none;">Next →</a>
+            @else
+                <span style="padding: 8px 16px; border-radius: 8px; border: 1px solid #e5e7eb; background: #f3f4f6; color: #999; font-size: 14px; opacity: 0.5;">Next →</span>
+            @endif
         </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-        <button class="action-btn secondary" onclick="exportConfig()">Export Config</button>
-        <button class="action-btn primary" onclick="saveChanges()">Save Changes</button>
+        @endif
     </div>
 
     <script src="{{ asset('components/popup.js') }}"></script>
@@ -590,114 +450,17 @@
             }
         }
         
-        function exportConfig() {
-            const config = {
-                shifts: {
-                    MORNING: {
-                        name: 'Shift Pagi',
-                        start: '06:00',
-                        end: '14:00',
-                        tolerance: 15,
-                        days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-                        qrFormat: 'MAIN_OFFICE:MORNING:LOBBY'
-                    },
-                    AFTERNOON: {
-                        name: 'Shift Siang',
-                        start: '14:00',
-                        end: '22:00',
-                        tolerance: 15,
-                        days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-                        qrFormat: 'MAIN_OFFICE:AFTERNOON:LOBBY'
-                    },
-                    NIGHT: {
-                        name: 'Shift Malam',
-                        start: '22:00',
-                        end: '06:00',
-                        tolerance: 15,
-                        days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-                        qrFormat: 'MAIN_OFFICE:NIGHT:LOBBY'
-                    },
-                    OVERTIME: {
-                        name: 'Lembur',
-                        minDuration: 2,
-                        maxDuration: 8,
-                        rateMultiplier: 1.5,
-                        approvalRequired: true,
-                        qrFormat: 'MAIN_OFFICE:OVERTIME:LOBBY'
-                    }
-                },
-                employees: [
-                    { id: 'EMP001', name: 'Widya Mayasari', assignedShift: 'MORNING' },
-                    { id: 'EMP002', name: 'John Doe', assignedShift: 'AFTERNOON' },
-                    { id: 'EMP003', name: 'Jane Smith', assignedShift: 'NIGHT' }
-                ],
-                overtimeRules: {
-                    weekdayRate: 1.5,
-                    weekendRate: 2.0,
-                    holidayRate: 3.0,
-                    maxRadius: 500,
-                    approvalDeadline: 1
-                }
-            };
-            
-            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'shift-config.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            showSuccessPopup({
-                title: 'Export Berhasil',
-                message: 'Konfigurasi shift telah diexport ke file JSON',
-                buttonText: 'OK'
+        // Auto-submit form on input change with debounce
+        let searchTimeout;
+        const searchInput = document.querySelector('input[name="search"]');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    document.getElementById('filterForm').submit();
+                }, 500);
             });
         }
-        
-        function saveChanges() {
-            const employees = document.querySelectorAll('.employee-item');
-            const assignments = [];
-            
-            employees.forEach(emp => {
-                const name = emp.querySelector('.employee-name').textContent;
-                const id = emp.querySelector('.employee-id').textContent;
-                const shift = emp.querySelector('.shift-selector').value;
-                
-                assignments.push({
-                    id: id,
-                    name: name,
-                    assignedShift: shift
-                });
-            });
-            
-            localStorage.setItem('shiftAssignments', JSON.stringify(assignments));
-            
-            showSuccessPopup({
-                title: 'Perubahan Disimpan',
-                message: 'Konfigurasi shift dan assignment karyawan telah disimpan',
-                buttonText: 'OK'
-            });
-        }
-        
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load existing assignments if any
-            const savedAssignments = localStorage.getItem('shiftAssignments');
-            if (savedAssignments) {
-                const assignments = JSON.parse(savedAssignments);
-                
-                assignments.forEach(assignment => {
-                    const empElement = Array.from(document.querySelectorAll('.employee-item')).find(emp => 
-                        emp.querySelector('.employee-id').textContent === assignment.id
-                    );
-                    
-                    if (empElement) {
-                        empElement.querySelector('.shift-selector').value = assignment.assignedShift;
-                    }
-                });
-            }
-        }); 
     </script>
 </body>
 </html>
