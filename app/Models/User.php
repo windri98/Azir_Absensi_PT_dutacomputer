@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Helpers\QRCodeHelper;
 
 class User extends Authenticatable
 {
@@ -216,5 +217,27 @@ class User extends Authenticatable
         $used = $this->getUsedLeaveCount('izin');
 
         return max(0, $this->special_leave_quota - $used);
+    }
+
+    /**
+     * Generate QR code untuk user ini
+     */
+    public function getQRCode(): string
+    {
+        return QRCodeHelper::generateForUser($this);
+    }
+
+    /**
+     * Get QR code data untuk scan
+     */
+    public function getQRCodeData(): array
+    {
+        return [
+            'employee_id' => $this->employee_id,
+            'user_id' => $this->id,
+            'name' => $this->name,
+            'type' => 'attendance',
+            'generated_at' => now()->toDateTimeString()
+        ];
     }
 }

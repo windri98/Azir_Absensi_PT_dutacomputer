@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{{ asset('components/popup.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="{{ asset('assets/js/qr-scanner.js') }}"></script>
     <style>
         * {
             margin: 0;
@@ -439,6 +441,34 @@
         ></textarea>
         <div class="char-count">
             <span id="charCount">0</span>/200 karakter
+        </div>
+    </div>
+
+    <!-- QR Scanner Section -->
+    <div class="notes-section" style="margin-top: 20px;">
+        <h3>📱 Scan QR Code (Opsional)</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+            Scan QR code karyawan untuk verifikasi attendance overtime
+        </p>
+        
+        <div style="text-align: center;">
+            <button onclick="startQRScanner()" style="background: linear-gradient(135deg, #1ec7e6, #0ea5e9); color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%;">
+                📷 Buka Scanner QR
+            </button>
+        </div>
+
+        <!-- QR Scanner Video (Hidden by default) -->
+        <div id="qrScannerContainer" style="display: none; margin-top: 15px;">
+            <video id="qrVideo" style="width: 100%; border-radius: 12px; background: #000;"></video>
+            <canvas id="qrCanvas" style="display: none;"></canvas>
+            <div id="qrResult" style="margin-top: 10px; padding: 12px; background: #f0f9ff; border-radius: 8px; display: none;">
+                <p style="font-size: 13px; color: #0284c7; margin: 0;">
+                    <strong>Scanned:</strong> <span id="scannedInfo"></span>
+                </p>
+            </div>
+            <button onclick="stopQRScanner()" style="margin-top: 10px; background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer; font-size: 13px; width: 100%;">
+                ❌ Tutup Scanner
+            </button>
         </div>
     </div>
 

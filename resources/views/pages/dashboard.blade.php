@@ -550,6 +550,33 @@
                 </div>
             </div>
 
+            <!-- QR Code Section -->
+            <div class="status-card">
+                <div class="status-header">
+                    <h3>🎫 QR Code Anda</h3>
+                    <span class="status-badge active">Active</span>
+                </div>
+                <div style="text-align: center; padding: 20px 0;">
+                    <div style="background: white; padding: 20px; border-radius: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        {!! $user->getQRCode() !!}
+                    </div>
+                    <p style="margin-top: 16px; color: #6b7280; font-size: 14px;">
+                        Scan QR code ini untuk absensi overtime
+                    </p>
+                    <div style="margin-top: 12px; padding: 12px; background: #f0f9ff; border-radius: 12px;">
+                        <p style="font-size: 12px; color: #0284c7; margin: 0;">
+                            <strong>ID Karyawan:</strong> {{ $user->employee_id }}
+                        </p>
+                        <p style="font-size: 12px; color: #0284c7; margin: 4px 0 0 0;">
+                            <strong>Nama:</strong> {{ $user->name }}
+                        </p>
+                    </div>
+                    <button onclick="downloadQRCode()" style="margin-top: 16px; background: linear-gradient(135deg, #1ec7e6, #0ea5e9); color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600;">
+                        📥 Download QR Code
+                    </button>
+                </div>
+            </div>
+
             <!-- Quick Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
@@ -701,7 +728,7 @@
             window.location.href = '{{ route("absensi") }}';
         }
 
-        // Update greeting based on current time
+                // Update greeting based on current time
         document.addEventListener('DOMContentLoaded', function() {
             const welcomeText = document.querySelector('.welcome-text');
             welcomeText && (welcomeText.textContent = getGreeting());
@@ -709,6 +736,43 @@
             // Update today's status
             updateTodayStatus();
         });
+
+        // Download QR Code function
+        function downloadQRCode() {
+            const svgElement = document.querySelector('.status-card svg');
+            if (!svgElement) {
+                alert('QR Code tidak ditemukan');
+                return;
+            }
+
+            // Create canvas
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const img = new Image();
+            
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                
+                // Download
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'qrcode_{{ $user->employee_id }}.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                });
+            };
+            
+            img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+        }
     </script>
 </body>
 </html>

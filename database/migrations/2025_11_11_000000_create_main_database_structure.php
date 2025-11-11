@@ -97,6 +97,18 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // Create shift_user pivot table
+        Schema::create('shift_user', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('shift_id')->constrained()->onDelete('cascade');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->timestamps();
+
+            $table->index(['user_id', 'shift_id']);
+        });
+
         // Add shift_id to users table
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('shift_id')->nullable()->after('password')->constrained('shifts')->onDelete('set null');
