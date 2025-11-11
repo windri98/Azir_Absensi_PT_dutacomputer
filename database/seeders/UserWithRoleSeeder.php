@@ -173,17 +173,6 @@ class UserWithRoleSeeder extends Seeder
             $contractor->roles()->attach($contractorRole->id);
         }
 
-        $this->command->info('Users with roles created successfully!');
-        $this->command->info('');
-        $this->command->info('Login credentials:');
-        $this->command->info('Super Admin: superadmin@example.com / password123');
-        $this->command->info('Admin: admin@example.com / password123');
-        $this->command->info('HR: hr@example.com / password123');
-        $this->command->info('Manager: manager@example.com / password123');
-        $this->command->info('Supervisor: supervisor@example.com / password123');
-        $this->command->info('Employee 1: employee1@example.com / password123');
-        $this->command->info('Employee 2: employee2@example.com / password123');
-        $this->command->info('Intern: intern@example.com / password123');
-        $this->command->info('Contractor: contractor@example.com / password123');
+        $this->command->info('✅ Users with roles created successfully!');
     }
 }
