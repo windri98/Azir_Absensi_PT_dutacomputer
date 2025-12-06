@@ -220,6 +220,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            pointer-events: auto !important;
+            outline: 0px solid transparent;
         }
         .leave-type:hover {
             border-color: #94a3b8;
@@ -234,14 +236,15 @@
             box-shadow: 0 4px 16px rgba(30, 199, 230, 0.2);
         }
         .leave-type.emergency {
-            border: 2px solid #f59e0b;
-            background: #fef3c7;
+            /* Tidak ada warna khusus, tampil netral seperti leave-type lain */
+            border: 2px solid #e5e7eb;
+            background: white;
             position: relative;
-            animation: pulse-emergency 2s infinite;
+            animation: none;
         }
         .leave-type.emergency.selected {
-            border-color: #d97706;
-            background: #fbbf24;
+            border-color: #1ec7e6;
+            background: #f0faff;
         }
         .leave-type.emergency::after {
             content: "URGENT";
@@ -254,10 +257,6 @@
             padding: 2px 6px;
             border-radius: 10px;
             font-weight: bold;
-        }
-        @keyframes pulse-emergency {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
         }
         .leave-type-icon {
             font-size: 24px;
@@ -455,18 +454,21 @@
                             <div class="leave-type-icon">⚡</div>
                             <div class="leave-type-name">Izin Mendadak</div>
                         </div>
-                        <div class="leave-type" data-type="keluarga">
-                            <div class="leave-type-icon">👨‍👩‍👧‍👦</div>
-                            <div class="leave-type-name">Urusan Keluarga</div>
-                        </div>
-                        <div class="leave-type" data-type="izin">
-                            <div class="leave-type-icon">👤</div>
-                            <div class="leave-type-name">Izin Pribadi</div>
-                        </div>
-                        <div class="leave-type" data-type="lainnya">
-                            <div class="leave-type-icon">�</div>
-                            <div class="leave-type-name">Lainnya</div>
-                        </div>
+                            <div class="leave-type" data-type="keluarga">
+                                <div class="leave-type-icon">👨‍👩‍👧‍👦</div>
+                                <div class="leave-type-check"></div>
+                                <div class="leave-type-name">Urusan Keluarga</div>
+                            </div>
+                            <div class="leave-type" data-type="izin">
+                                <div class="leave-type-icon">👤</div>
+                                <div class="leave-type-check"></div>
+                                <div class="leave-type-name">Izin Pribadi</div>
+                            </div>
+                            <div class="leave-type" data-type="lainnya">
+                                <div class="leave-type-icon">�</div>
+                                <div class="leave-type-check"></div>
+                                <div class="leave-type-name">Lainnya</div>
+                            </div>
                     </div>
                     <input type="hidden" name="category" id="categoryInput" required>
                 </div>
@@ -537,40 +539,40 @@
                     <div id="recentRequests">
                         @foreach($complaints as $complaint)
                             <div class="request-item" style="display:block;padding:16px;border-bottom:1px solid #f3f4f6">
-                                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
-                                    <div class="request-info" style="flex:1">
-                                        <h4 style="font-size:15px;font-weight:600;color:#333;margin-bottom:4px">{{ $complaint->title }}</h4>
-                                        <p style="font-size:13px;color:#6b7280;margin:0">
-                                            {{ ucfirst($complaint->category) }} • {{ $complaint->created_at->format('d M Y H:i') }}
-                                        </p>
+                                <div style="display:flex;flex-direction:column;gap:6px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                                        <span style="font-size:13px;color:#6b7280;font-weight:500;">Kategori: <b>{{ ucfirst($complaint->category) }}</b></span>
+                                        @php
+                                            $statusClass = 'status-pending';
+                                            $statusText = 'Pending';
+                                            if($complaint->status == 'approved') {
+                                                $statusClass = 'status-approved';
+                                                $statusText = 'Disetujui';
+                                            } elseif($complaint->status == 'rejected') {
+                                                $statusClass = 'status-rejected';
+                                                $statusText = 'Ditolak';
+                                            }
+                                        @endphp
+                                        <span class="request-status {{ $statusClass }}" style="margin-left:12px">{{ $statusText }}</span>
                                     </div>
-                                    @php
-                                        $statusClass = 'status-pending';
-                                        $statusText = 'Pending';
-                                        if($complaint->status == 'approved') {
-                                            $statusClass = 'status-approved';
-                                            $statusText = 'Disetujui';
-                                        } elseif($complaint->status == 'rejected') {
-                                            $statusClass = 'status-rejected';
-                                            $statusText = 'Ditolak';
-                                        }
-                                    @endphp
-                                    <span class="request-status {{ $statusClass }}" style="margin-left:12px">{{ $statusText }}</span>
-                                </div>
-                                
-                                @if($complaint->response)
-                                    <div style="margin-top:12px;padding:12px;background:{{ $complaint->status == 'rejected' ? '#fee2e2' : '#d1fae5' }};border-left:3px solid {{ $complaint->status == 'rejected' ? '#ef4444' : '#10b981' }};border-radius:6px">
-                                        <div style="font-size:12px;font-weight:600;color:{{ $complaint->status == 'rejected' ? '#991b1b' : '#065f46' }};margin-bottom:4px">
-                                            {{ $complaint->status == 'rejected' ? '❌ Alasan Penolakan:' : '✅ Catatan Admin:' }}
-                                        </div>
-                                        <div style="font-size:13px;color:#374151">{{ $complaint->response }}</div>
-                                        @if($complaint->responded_at)
-                                            <div style="font-size:11px;color:#6b7280;margin-top:4px">
-                                                {{ $complaint->responded_at->format('d M Y, H:i') }}
+                                    <div style="font-size:15px;font-weight:600;color:#333;">Judul: {{ $complaint->title }}</div>
+                                    <div style="font-size:13px;color:#374151;">Alasan: {{ $complaint->description }}</div>
+                                    <div style="font-size:13px;color:#6b7280;">Periode: {{ $complaint->start_date }} s/d {{ $complaint->end_date }}</div>
+                                    <div style="font-size:12px;color:#6b7280;">Diajukan: {{ $complaint->created_at->format('d M Y H:i') }}</div>
+                                    @if($complaint->response)
+                                        <div style="margin-top:8px;padding:10px;background:{{ $complaint->status == 'rejected' ? '#fee2e2' : '#d1fae5' }};border-left:3px solid {{ $complaint->status == 'rejected' ? '#ef4444' : '#10b981' }};border-radius:6px">
+                                            <div style="font-size:12px;font-weight:600;color:{{ $complaint->status == 'rejected' ? '#991b1b' : '#065f46' }};margin-bottom:4px">
+                                                {{ $complaint->status == 'rejected' ? '❌ Alasan Penolakan:' : '✅ Catatan Admin:' }}
                                             </div>
-                                        @endif
-                                    </div>
-                                @endif
+                                            <div style="font-size:13px;color:#374151">{{ $complaint->response }}</div>
+                                            @if($complaint->responded_at)
+                                                <div style="font-size:11px;color:#6b7280;margin-top:4px">
+                                                    {{ $complaint->responded_at->format('d M Y, H:i') }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         @endforeach
                     </div>
@@ -683,42 +685,27 @@
             }
             
             leaveTypes.forEach((type, index) => {
-                console.log(`Setting up listener ${index + 1} for type:`, type.dataset.type);
+                type.style.pointerEvents = 'auto';
+                type.style.outline = '0px solid transparent';
                 type.addEventListener('click', function(e) {
-                    console.log('🎯 Leave type clicked:', this.dataset.type);
-                    console.log('🎯 Event object:', e);
-                    
-                    // Remove selected class from all
-                    leaveTypes.forEach(t => {
-                        t.classList.remove('selected');
-                        console.log('Removed selected from:', t.dataset.type);
-                    });
-                    
-                    // Add selected class to clicked item
+                    e.stopPropagation();
+                    // Remove selected class dari semua
+                    leaveTypes.forEach(t => t.classList.remove('selected'));
                     this.classList.add('selected');
                     selectedLeaveType = this.dataset.type;
-                    console.log('🎯 Set selectedLeaveType to:', selectedLeaveType);
-                    
                     // Update hidden input
                     const categoryInput = document.getElementById('categoryInput');
                     if (categoryInput) {
                         categoryInput.value = selectedLeaveType;
-                        console.log('🎯 Updated categoryInput to:', categoryInput.value);
-                    } else {
-                        console.error('❌ categoryInput not found!');
+                        categoryInput.dispatchEvent(new Event('change'));
                     }
-                    
-                    // Special handling for different leave types
-                    try {
-                        handleLeaveTypeChange(selectedLeaveType);
-                        console.log('🎯 handleLeaveTypeChange completed');
-                    } catch (error) {
-                        console.error('❌ Error in handleLeaveTypeChange:', error);
-                    }
+                    // Pastikan pointer-events tetap aktif
+                    setTimeout(() => {
+                        leaveTypes.forEach(t => t.style.pointerEvents = 'auto');
+                    }, 10);
+                    // Special handling
+                    try { handleLeaveTypeChange(selectedLeaveType); } catch (error) {}
                 });
-                
-                // Test if the element is clickable
-                type.style.outline = '1px solid transparent';
             });
 
             // Setup back button event listener as backup

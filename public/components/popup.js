@@ -8,19 +8,28 @@ class PopupComponent {
         // Create popup overlay if not exists
         if (!document.getElementById('popupOverlay')) {
             const popupHTML = `
+                <style id="popupInlineStyle">
+                .popup-overlay {
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 9999;
+                }
+                .popup-overlay:not(.show) { display: none; }
+                .popup-container {
+                background: #fff; border-radius: 12px; padding: 32px 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); min-width: 280px; text-align: center;
+                }
+                .popup-icon { font-size: 32px; margin-bottom: 12px; }
+                .popup-title { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
+                .popup-message { font-size: 16px; margin-bottom: 8px; }
+                .popup-time { font-size: 14px; color: #888; margin-bottom: 16px; }
+                .popup-button { background: #1ec7e6; color: #fff; border: none; border-radius: 8px; padding: 8px 24px; font-size: 16px; cursor: pointer; }
+                </style>
                 <div id="popupOverlay" class="popup-overlay">
                     <div class="popup-container">
-                        <div id="popupIcon" class="popup-icon success">
-                            ✓
-                        </div>
+                        <div id="popupIcon" class="popup-icon success">✓</div>
                         <div id="popupTitle" class="popup-title">Success!</div>
-                        <div id="popupMessage" class="popup-message">
-                            Clock in berhasil dilakukan
-                        </div>
+                        <div id="popupMessage" class="popup-message">Clock in berhasil dilakukan</div>
                         <div id="popupTime" class="popup-time">08:00</div>
-                        <button id="popupButton" class="popup-button" onclick="closePopup()">
-                            OK
-                        </button>
+                        <button id="popupButton" class="popup-button" onclick="closePopup()">OK</button>
                     </div>
                 </div>
             `;

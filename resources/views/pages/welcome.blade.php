@@ -101,7 +101,7 @@
         <div class="illustration"></div>
         
         <div class="button-container">
-            <a href="{{ route('register') }}" class="button-link">Register</a>
+            {{-- <a href="{{ route('register') }}" class="button-link">Register</a> --}}
             <a href="{{ route('login') }}" class="button-link login">Login</a>
         </div>
     </div>
