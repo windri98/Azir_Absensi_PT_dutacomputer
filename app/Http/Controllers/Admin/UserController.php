@@ -231,14 +231,35 @@ class UserController extends Controller
             ->orderBy('date', 'desc')
             ->get();
 
+        // Determine owner/admin info (if filtered by user, show user, else show 'Admin')
+        $userId = $request->get('user_id');
+        $ownerInfo = '';
+        if ($userId) {
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                $ownerInfo = 'Pemilik Data: ' . $user->name . ' (' . $user->email . ')';
+            } else {
+                $ownerInfo = 'Pemilik Data: User ID ' . $userId;
+            }
+        } else {
+            $ownerInfo = 'Pemilik Data: Admin';
+        }
+
         $filename = "attendance_{$year}_{$month}.csv";
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"$filename\"",
         ];
 
-        $callback = function () use ($attendances) {
+        $callback = function () use ($attendances, $month, $year, $ownerInfo) {
             $file = fopen('php://output', 'w');
+            // Add header rows for clarity
+            fputcsv($file, ['LAPORAN ABSENSI']);
+            fputcsv($file, [$ownerInfo]);
+            fputcsv($file, ['Periode', date('F', mktime(0,0,0,$month,1)) . ' ' . $year]);
+            fputcsv($file, ['Dicetak', date('d/m/Y H:i:s')]);
+            fputcsv($file, []);
+            // Table header
             fputcsv($file, ['Tanggal', 'Nama', 'Email', 'Check In', 'Check Out', 'Status', 'Jam Kerja']);
 
             foreach ($attendances as $att) {

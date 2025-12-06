@@ -243,11 +243,34 @@ class ReportController extends Controller
      */
     private function downloadPDF(Request $request, $data)
     {
-        // For now, return CSV with PDF extension
-        // In production, you would use something like dompdf or mpdf
-        return response()->json([
-            'message' => 'PDF export will be implemented soon. Please use CSV format for now.',
-        ], 501);
+        // Use dompdf to generate PDF from Blade view
+        $attendances = $data['attendances'];
+        $month = $request->get('start_date') ? date('m', strtotime($request->get('start_date'))) : date('m');
+        $year = $request->get('end_date') ? date('Y', strtotime($request->get('end_date'))) : date('Y');
+
+        // Determine owner/admin info (if filtered by user, show user, else show 'Admin')
+        $userId = $request->get('user_id');
+        $ownerInfo = '';
+        if ($userId) {
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                $ownerInfo = 'Pemilik Data: ' . $user->name . ' (' . $user->email . ')';
+            } else {
+                $ownerInfo = 'Pemilik Data: User ID ' . $userId;
+            }
+        } else {
+            $ownerInfo = 'Pemilik Data: Admin';
+        }
+
+        $periode = $request->get('start_date') && $request->get('end_date')
+            ? $request->get('start_date') . ' s/d ' . $request->get('end_date')
+            : date('F Y');
+        $printedAt = date('d/m/Y H:i:s');
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('admin.reports.export_pdf', compact('attendances', 'ownerInfo', 'periode', 'printedAt'));
+        $filename = 'laporan_absensi_' . date('Y-m-d_His') . '.pdf';
+        return $pdf->download($filename);
     }
 
     /**

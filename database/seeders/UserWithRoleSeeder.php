@@ -45,6 +45,7 @@ class UserWithRoleSeeder extends Seeder
         if ($superadminRole && ! $superadmin->roles->contains($superadminRole->id)) {
             $superadmin->roles()->attach($superadminRole->id);
         }
+        
 
         // Buat Admin User
         $admin = User::firstOrCreate(
