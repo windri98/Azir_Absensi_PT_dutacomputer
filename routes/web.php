@@ -81,18 +81,16 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Profile Management
+    | Profile Management (No Prefix)
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', [ProfileController::class, 'show'])->name('show');
-        Route::get('/detail', [ProfileController::class, 'showDetail'])->name('detail');
-        Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
-        Route::post('/update', [ProfileController::class, 'update'])->name('update');
-        Route::post('/update-photo', [ProfileController::class, 'updatePhoto'])->name('update-photo');
-        Route::delete('/delete-photo', [ProfileController::class, 'deletePhoto'])->name('delete-photo');
-    });
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/detail', [ProfileController::class, 'showDetail'])->name('profile.detail');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/update-photo', [ProfileController::class, 'updatePhoto'])->name('profile.update-photo');
+    Route::delete('/profile/delete-photo', [ProfileController::class, 'deletePhoto'])->name('profile.delete-photo');
 
     // Change Password
     Route::get('/change-password', [AuthController::class, 'showChangePassword'])->name('change-password');
@@ -100,261 +98,247 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Attendance Management
+    | Attendance Management (No Prefix)
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('attendance')->name('attendance.')->group(function () {
-        // View Routes
-        Route::get('/absensi', [AttendanceController::class, 'showAbsensi'])->name('absensi');
-        Route::get('/clock-in', [AttendanceController::class, 'showClockIn'])->name('clock-in');
-        Route::get('/clock-out', [AttendanceController::class, 'showClockOut'])->name('clock-out');
-        Route::get('/clock-overtime', [AttendanceController::class, 'showClockOvertime'])->name('clock-overtime');
-        Route::get('/qr-scan', [AttendanceController::class, 'showQrScan'])->name('qr-scan');
-        Route::get('/riwayat', [AttendanceController::class, 'index'])->name('riwayat');
+    // View Routes
+    Route::get('/absensi', [AttendanceController::class, 'showAbsensi'])->name('attendance.absensi');
+    Route::get('/clock-in', [AttendanceController::class, 'showClockIn'])->name('attendance.clock-in');
+    Route::get('/clock-out', [AttendanceController::class, 'showClockOut'])->name('attendance.clock-out');
+    Route::get('/clock-overtime', [AttendanceController::class, 'showClockOvertime'])->name('attendance.clock-overtime');
+    Route::get('/qr-scan', [AttendanceController::class, 'showQrScan'])->name('attendance.qr-scan');
+    Route::get('/riwayat', [AttendanceController::class, 'index'])->name('attendance.riwayat');
 
-        // Action Routes
-        Route::post('/check-in', [AttendanceController::class, 'checkIn'])->name('check-in');
-        Route::post('/check-out', [AttendanceController::class, 'checkOut'])->name('check-out');
-        Route::post('/submit-leave', [AttendanceController::class, 'submitLeave'])->name('submit-leave');
+    // Action Routes
+    Route::post('/check-in', [AttendanceController::class, 'checkIn'])->name('attendance.check-in');
+    Route::post('/check-out', [AttendanceController::class, 'checkOut'])->name('attendance.check-out');
+    Route::post('/submit-leave', [AttendanceController::class, 'submitLeave'])->name('attendance.submit-leave');
 
-        // API Routes
-        Route::get('/today-status', [AttendanceController::class, 'todayStatus'])->name('today-status');
-        Route::get('/statistics', [AttendanceController::class, 'statistics'])->name('statistics');
-        
-        // File Management Routes
-        Route::get('/document/{attendance}/download', [AttendanceController::class, 'downloadDocument'])->name('document.download');
-        Route::get('/document/{attendance}/view', [AttendanceController::class, 'viewDocument'])->name('document.view');
-        Route::delete('/document/{attendance}', [AttendanceController::class, 'deleteDocument'])->name('document.delete');
+    // API Routes
+    Route::get('/today-status', [AttendanceController::class, 'todayStatus'])->name('attendance.today-status');
+    Route::get('/statistics', [AttendanceController::class, 'statistics'])->name('attendance.statistics');
+    
+    // File Management Routes
+    Route::get('/document/{attendance}/download', [AttendanceController::class, 'downloadDocument'])->name('attendance.document.download');
+    Route::get('/document/{attendance}/view', [AttendanceController::class, 'viewDocument'])->name('attendance.document.view');
+    Route::delete('/document/{attendance}', [AttendanceController::class, 'deleteDocument'])->name('attendance.document.delete');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Complaints Management (No Prefix)
+    |--------------------------------------------------------------------------
+    */
+
+    // User Routes
+    Route::get('/complaint-form', [ComplaintController::class, 'showForm'])->name('complaints.form');
+    Route::post('/complaints', [ComplaintController::class, 'store'])->name('complaints.store');
+    Route::get('/complaint-history', [ComplaintController::class, 'history'])->name('complaints.history');
+    Route::delete('/complaints/{id}', [ComplaintController::class, 'destroy'])->name('complaints.destroy');
+
+    // Technician Routes (Admin/Manager only)
+    Route::middleware(['role:admin,manager'])->group(function () {
+        Route::get('/technician-complaints', [ComplaintController::class, 'technicianComplaints'])->name('complaints.technician');
+        Route::post('/complaints/{id}/respond', [ComplaintController::class, 'respond'])->name('complaints.respond');
     });
 
     /*
     |--------------------------------------------------------------------------
-    | Complaints Management
+    | Reports Management (No Prefix)
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('complaints')->name('complaints.')->group(function () {
-        // User Routes
-        Route::get('/form', [ComplaintController::class, 'showForm'])->name('form');
-        Route::post('/', [ComplaintController::class, 'store'])->name('store');
-        Route::get('/history', [ComplaintController::class, 'history'])->name('history');
-        Route::delete('/{id}', [ComplaintController::class, 'destroy'])->name('destroy');
+    // User Routes
+    Route::get('/report-history', [ReportController::class, 'history'])
+        ->middleware('role_or_permission:reports.view_own')
+        ->name('reports.history');
 
-        // Technician Routes (Admin/Manager only)
-        Route::middleware(['role:admin,manager'])->group(function () {
-            Route::get('/technician', [ComplaintController::class, 'technicianComplaints'])->name('technician');
-            Route::post('/{id}/respond', [ComplaintController::class, 'respond'])->name('respond');
-        });
+    // Admin/Manager Routes - using permission-based middleware
+    Route::middleware('role_or_permission:reports.view')->group(function () {
+        Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/customer-report', [ReportController::class, 'customerReport'])->name('reports.customer');
+        Route::get('/report-summary', [ReportController::class, 'summary'])->name('reports.summary');
+        Route::get('/report-users', [ReportController::class, 'users'])->name('reports.users');
+        Route::get('/report-user/{userId}', [ReportController::class, 'userDetail'])->name('reports.user-detail');
     });
+
+    Route::get('/report-export', [ReportController::class, 'export'])
+        ->middleware('role_or_permission:reports.export')
+        ->name('reports.export');
 
     /*
     |--------------------------------------------------------------------------
-    | Reports Management
+    | Activities Routes (No Prefix)
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('reports')->name('reports.')->group(function () {
-        // User Routes
-        Route::get('/history', [ReportController::class, 'history'])
-            ->middleware('role_or_permission:reports.view_own')
-            ->name('history');
+    Route::get('/aktifitas', function () {
+        $user = auth()->user();
+        return view('activities.aktifitas', compact('user'));
+    })->name('activities.aktifitas');
 
-        // Admin/Manager Routes - using permission-based middleware
-        Route::middleware('role_or_permission:reports.view')->group(function () {
-            Route::get('/', [ReportController::class, 'index'])->name('index');
-            Route::get('/customer', [ReportController::class, 'customerReport'])->name('customer');
-            Route::get('/summary', [ReportController::class, 'summary'])->name('summary');
-            Route::get('/users', [ReportController::class, 'users'])->name('users');
-            Route::get('/user/{userId}', [ReportController::class, 'userDetail'])->name('user-detail');
-        });
-
-        Route::get('/export', [ReportController::class, 'export'])
-            ->middleware('role_or_permission:reports.export')
-            ->name('export');
-    });
+    Route::get('/izin', [ComplaintController::class, 'showIzinPage'])->name('activities.izin');
 
     /*
     |--------------------------------------------------------------------------
-    | Activities Routes
+    | Management Routes (No Prefix)
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('activities')->name('activities.')->group(function () {
-        Route::get('/aktifitas', function () {
-            $user = auth()->user();
-            return view('activities.aktifitas', compact('user'));
-        })->name('aktifitas');
-
-        Route::get('/izin', [ComplaintController::class, 'showIzinPage'])->name('izin');
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    | Management Routes
-    |--------------------------------------------------------------------------
-    */
-
-    Route::middleware(['role:admin,manager'])->prefix('management')->name('management.')->group(function () {
-        Route::get('/shift', [ShiftController::class, 'management'])->name('shift');
+    Route::middleware(['role:admin,manager'])->group(function () {
+        Route::get('/shift-management', [ShiftController::class, 'management'])->name('management.shift');
         Route::get('/pengaturan', function () {
             return view('management.pengaturan');
-        })->name('pengaturan');
+        })->name('management.pengaturan');
         
         // Permissions Management
-        Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions');
-        Route::get('/permissions/{permission}', [PermissionController::class, 'show'])->name('permissions.show');
+        Route::get('/permissions', [PermissionController::class, 'index'])->name('management.permissions');
+        Route::get('/permissions/{permission}', [PermissionController::class, 'show'])->name('management.permissions.show');
     });
 
     /*
     |--------------------------------------------------------------------------
-    | Admin Panel Routes
+    | Admin Panel Routes (No Prefix)
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth'])->group(function () {
         // Dashboard overview
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+        Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
             ->middleware('role_or_permission:dashboard.admin')
-            ->name('dashboard');
+            ->name('admin.dashboard');
 
         // User management
         Route::middleware('role_or_permission:users.view')->group(function () {
-            Route::get('/users', [UserController::class, 'index'])->name('users.index');
-            Route::get('/users/{user}/attendance', [UserController::class, 'showAttendance'])->name('users.attendance');
+            Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
+            Route::get('/admin/users/{user}/attendance', [UserController::class, 'showAttendance'])->name('admin.users.attendance');
         });
 
-        Route::get('/users/create', [UserController::class, 'create'])
+        Route::get('/admin/users/create', [UserController::class, 'create'])
             ->middleware('role_or_permission:users.create')
-            ->name('users.create');
-        Route::post('/users', [UserController::class, 'store'])
+            ->name('admin.users.create');
+        Route::post('/admin/users', [UserController::class, 'store'])
             ->middleware('role_or_permission:users.create')
-            ->name('users.store');
-        Route::get('/users/{user}/edit', [UserController::class, 'edit'])
+            ->name('admin.users.store');
+        Route::get('/admin/users/{user}/edit', [UserController::class, 'edit'])
             ->middleware('role_or_permission:users.edit')
-            ->name('users.edit');
-        Route::put('/users/{user}', [UserController::class, 'update'])
+            ->name('admin.users.edit');
+        Route::put('/admin/users/{user}', [UserController::class, 'update'])
             ->middleware('role_or_permission:users.edit')
-            ->name('users.update');
-        Route::delete('/users/{user}', [UserController::class, 'destroy'])
+            ->name('admin.users.update');
+        Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])
             ->middleware('role_or_permission:users.delete')
-            ->name('users.destroy');
+            ->name('admin.users.destroy');
 
         // Role assignment
-        Route::post('/users/{user}/roles', [UserController::class, 'assignRole'])->name('users.assign-role');
-        Route::delete('/users/{user}/roles/{role}', [UserController::class, 'removeRole'])->name('users.remove-role');
+        Route::post('/admin/users/{user}/roles', [UserController::class, 'assignRole'])->name('admin.users.assign-role');
+        Route::delete('/admin/users/{user}/roles/{role}', [UserController::class, 'removeRole'])->name('admin.users.remove-role');
 
         // Reports & Export
-        Route::get('/reports/export', [AdminReportController::class, 'exportForm'])->name('reports.export');
-        Route::get('/reports/preview', [AdminReportController::class, 'preview'])->name('reports.preview');
-        Route::get('/reports/download', [AdminReportController::class, 'download'])->name('reports.download');
-        Route::get('/export-attendance', [UserController::class, 'exportAttendance'])->name('export-attendance');
+        Route::get('/admin/reports/export', [AdminReportController::class, 'exportForm'])->name('admin.reports.export');
+        Route::get('/admin/reports/preview', [AdminReportController::class, 'preview'])->name('admin.reports.preview');
+        Route::get('/admin/reports/download', [AdminReportController::class, 'download'])->name('admin.reports.download');
+        Route::get('/admin/export-attendance', [UserController::class, 'exportAttendance'])->name('admin.export-attendance');
 
         // Shift management
         Route::middleware('role_or_permission:shifts.view')->group(function () {
-            Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.index');
+            Route::get('/admin/shifts', [ShiftController::class, 'index'])->name('admin.shifts.index');
         });
 
-        Route::get('/shifts/create', [ShiftController::class, 'create'])
+        Route::get('/admin/shifts/create', [ShiftController::class, 'create'])
             ->middleware('role_or_permission:shifts.create')
-            ->name('shifts.create');
-        Route::post('/shifts', [ShiftController::class, 'store'])
+            ->name('admin.shifts.create');
+        Route::post('/admin/shifts', [ShiftController::class, 'store'])
             ->middleware('role_or_permission:shifts.create')
-            ->name('shifts.store');
-        Route::get('/shifts/{shift}/edit', [ShiftController::class, 'edit'])
+            ->name('admin.shifts.store');
+        Route::get('/admin/shifts/{shift}/edit', [ShiftController::class, 'edit'])
             ->middleware('role_or_permission:shifts.edit')
-            ->name('shifts.edit');
-        Route::put('/shifts/{shift}', [ShiftController::class, 'update'])
+            ->name('admin.shifts.edit');
+        Route::put('/admin/shifts/{shift}', [ShiftController::class, 'update'])
             ->middleware('role_or_permission:shifts.edit')
-            ->name('shifts.update');
-        Route::delete('/shifts/{shift}', [ShiftController::class, 'destroy'])
+            ->name('admin.shifts.update');
+        Route::delete('/admin/shifts/{shift}', [ShiftController::class, 'destroy'])
             ->middleware('role_or_permission:shifts.delete')
-            ->name('shifts.destroy');
+            ->name('admin.shifts.destroy');
 
         // Shift assignment
-        Route::get('/shifts/{shift}/assign', [ShiftController::class, 'assignForm'])->name('shifts.assign-form');
-        Route::post('/shifts/{shift}/assign', [ShiftController::class, 'assignUsers'])->name('shifts.assign-users');
-        Route::delete('/shifts/{shift}/users/{user}', [ShiftController::class, 'removeUser'])->name('shifts.remove-user');
+        Route::get('/admin/shifts/{shift}/assign', [ShiftController::class, 'assignForm'])->name('admin.shifts.assign-form');
+        Route::post('/admin/shifts/{shift}/assign', [ShiftController::class, 'assignUsers'])->name('admin.shifts.assign-users');
+        Route::delete('/admin/shifts/{shift}/users/{user}', [ShiftController::class, 'removeUser'])->name('admin.shifts.remove-user');
 
         // Role Management
         Route::middleware('role_or_permission:roles.view')->group(function () {
-            Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
-            Route::get('/roles/{role}', [RoleController::class, 'show'])->name('roles.show');
+            Route::get('/admin/roles', [RoleController::class, 'index'])->name('admin.roles.index');
+            Route::get('/admin/roles/{role}', [RoleController::class, 'show'])->name('admin.roles.show');
         });
 
-        Route::get('/roles/create', [RoleController::class, 'create'])
+        Route::get('/admin/roles/create', [RoleController::class, 'create'])
             ->middleware('role_or_permission:roles.create')
-            ->name('roles.create');
-        Route::post('/roles', [RoleController::class, 'store'])
+            ->name('admin.roles.create');
+        Route::post('/admin/roles', [RoleController::class, 'store'])
             ->middleware('role_or_permission:roles.create')
-            ->name('roles.store');
-        Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])
+            ->name('admin.roles.store');
+        Route::get('/admin/roles/{role}/edit', [RoleController::class, 'edit'])
             ->middleware('role_or_permission:roles.edit')
-            ->name('roles.edit');
-        Route::put('/roles/{role}', [RoleController::class, 'update'])
+            ->name('admin.roles.edit');
+        Route::put('/admin/roles/{role}', [RoleController::class, 'update'])
             ->middleware('role_or_permission:roles.edit')
-            ->name('roles.update');
-        Route::delete('/roles/{role}', [RoleController::class, 'destroy'])
+            ->name('admin.roles.update');
+        Route::delete('/admin/roles/{role}', [RoleController::class, 'destroy'])
             ->middleware('role_or_permission:roles.delete')
-            ->name('roles.destroy');
+            ->name('admin.roles.destroy');
         
         // Role user assignment
-        Route::post('/roles/{role}/assign-users', [RoleController::class, 'assignUsers'])->name('roles.assign-users');
-        Route::delete('/roles/{role}/users/{user}', [RoleController::class, 'removeUser'])->name('roles.remove-user');
+        Route::post('/admin/roles/{role}/assign-users', [RoleController::class, 'assignUsers'])->name('admin.roles.assign-users');
+        Route::delete('/admin/roles/{role}/users/{user}', [RoleController::class, 'removeUser'])->name('admin.roles.remove-user');
 
         // Role permission assignment
         Route::middleware('role_or_permission:roles.assign_permissions')->group(function () {
-            Route::put('/roles/{role}/permissions', [RoleController::class, 'updatePermissions'])->name('roles.update-permissions');
-            Route::post('/roles/{role}/permissions', [RoleController::class, 'assignPermission'])->name('roles.assign-permission');
-            Route::delete('/roles/{role}/permissions/{permission}', [RoleController::class, 'removePermission'])->name('roles.remove-permission');
+            Route::put('/admin/roles/{role}/permissions', [RoleController::class, 'updatePermissions'])->name('admin.roles.update-permissions');
+            Route::post('/admin/roles/{role}/permissions', [RoleController::class, 'assignPermission'])->name('admin.roles.assign-permission');
+            Route::delete('/admin/roles/{role}/permissions/{permission}', [RoleController::class, 'removePermission'])->name('admin.roles.remove-permission');
         });
 
         // Permission Management
-        Route::get('/permissions', [AdminPermissionController::class, 'index'])->name('permissions.index');
-        Route::get('/permissions/matrix', [AdminPermissionController::class, 'matrix'])->name('permissions.matrix');
-        Route::get('/permissions/capabilities', [AdminPermissionController::class, 'capabilities'])->name('permissions.capabilities');
+        Route::get('/admin/permissions', [AdminPermissionController::class, 'index'])->name('admin.permissions.index');
+        Route::get('/admin/permissions/matrix', [AdminPermissionController::class, 'matrix'])->name('admin.permissions.matrix');
+        Route::get('/admin/permissions/capabilities', [AdminPermissionController::class, 'capabilities'])->name('admin.permissions.capabilities');
 
         // Complaints/Izin Management
-        Route::get('/complaints', [AdminComplaintController::class, 'index'])->name('complaints.index');
-        Route::get('/complaints/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
-        Route::post('/complaints/{complaint}/approve', [AdminComplaintController::class, 'approve'])->name('complaints.approve');
-        Route::post('/complaints/{complaint}/reject', [AdminComplaintController::class, 'reject'])->name('complaints.reject');
+        Route::get('/admin/complaints', [AdminComplaintController::class, 'index'])->name('admin.complaints.index');
+        Route::get('/admin/complaints/{complaint}', [AdminComplaintController::class, 'show'])->name('admin.complaints.show');
+        Route::post('/admin/complaints/{complaint}/approve', [AdminComplaintController::class, 'approve'])->name('admin.complaints.approve');
+        Route::post('/admin/complaints/{complaint}/reject', [AdminComplaintController::class, 'reject'])->name('admin.complaints.reject');
         
         // Work Leave Management
-        Route::prefix('work-leave')->name('work-leave.')->group(function () {
-            Route::get('/', [AdminDashboardController::class, 'workLeaveRequests'])->name('index');
-            Route::get('/{attendance}/detail', [AdminDashboardController::class, 'workLeaveDetail'])->name('detail');
-            Route::post('/{attendance}/approve', function($attendance) {
-                $attendanceModel = \App\Models\Attendance::findOrFail($attendance);
-                return app(AdminDashboardController::class)->workLeaveAction($attendanceModel, 'approve');
-            })->name('approve');
-            Route::post('/{attendance}/reject', function($attendance) {
-                $attendanceModel = \App\Models\Attendance::findOrFail($attendance);
-                return app(AdminDashboardController::class)->workLeaveAction($attendanceModel, 'reject');
-            })->name('reject');
-        });
+        Route::get('/admin/work-leave', [AdminDashboardController::class, 'workLeaveRequests'])->name('admin.work-leave.index');
+        Route::get('/admin/work-leave/{attendance}/detail', [AdminDashboardController::class, 'workLeaveDetail'])->name('admin.work-leave.detail');
+        Route::post('/admin/work-leave/{attendance}/approve', function($attendance) {
+            $attendanceModel = \App\Models\Attendance::findOrFail($attendance);
+            return app(AdminDashboardController::class)->workLeaveAction($attendanceModel, 'approve');
+        })->name('admin.work-leave.approve');
+        Route::post('/admin/work-leave/{attendance}/reject', function($attendance) {
+            $attendanceModel = \App\Models\Attendance::findOrFail($attendance);
+            return app(AdminDashboardController::class)->workLeaveAction($attendanceModel, 'reject');
+        })->name('admin.work-leave.reject');
     });
 
     /*
     |--------------------------------------------------------------------------
-    | Settings Routes
+    | Settings Routes (No Prefix)
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/notifications', function () {
-            return view('settings.notification-settings');
-        })->name('notifications');
-    });
+    Route::get('/notification-settings', function () {
+        return view('settings.notification-settings');
+    })->name('settings.notifications');
 
     /*
     |--------------------------------------------------------------------------
-    | API Routes (Internal)
+    | API Routes (Internal) (No Prefix)
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('api')->name('api.')->group(function () {
-        Route::get('/profile', [ProfileController::class, 'getProfile'])->name('profile');
-    });
+    Route::get('/api/profile', [ProfileController::class, 'getProfile'])->name('api.profile');
 
     // Reverse Geocode Proxy
     Route::get('/reverse-geocode', [LocationController::class, 'reverseGeocode'])->name('reverse-geocode');
@@ -362,37 +346,7 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Legacy Routes (Backward Compatibility)
+| Legacy Routes (Backward Compatibility) - REMOVED
+| Sudah tidak diperlukan karena route utama sudah tanpa prefix
 |--------------------------------------------------------------------------
 */
-
-Route::middleware('auth')->group(function () {
-    // Attendance
-    Route::get('/absensi', fn () => redirect()->route('attendance.absensi'))->name('absensi');
-    Route::get('/clock-in', fn () => redirect()->route('attendance.clock-in'));
-    Route::get('/clock-out', fn () => redirect()->route('attendance.clock-out'));
-    Route::get('/clock-overtime', fn () => redirect()->route('attendance.clock-overtime'));
-    Route::get('/qr-scan', fn () => redirect()->route('attendance.qr-scan'));
-    Route::get('/riwayat', fn () => redirect()->route('attendance.riwayat'));
-
-    // Complaints
-    Route::get('/complaint-form', fn () => redirect()->route('complaints.form'));
-    Route::get('/complaint-history', fn () => redirect()->route('complaints.history'));
-    Route::get('/technician-complaints', fn () => redirect()->route('complaints.technician'))->middleware(['role:admin,manager']);
-
-    // Reports
-    Route::get('/report-history', fn () => redirect()->route('reports.history'));
-    Route::get('/laporan', fn () => redirect()->route('reports.index'))->middleware('role_or_permission:reports.view');
-    Route::get('/customer-report', fn () => redirect()->route('reports.customer'))->middleware('role_or_permission:reports.view');
-
-    // Activities
-    Route::get('/aktifitas', fn () => redirect()->route('activities.aktifitas'));
-    Route::get('/izin', fn () => redirect()->route('activities.izin'));
-
-    // Management
-    Route::get('/shift-management', fn () => redirect()->route('management.shift'))->middleware(['role:admin,manager']);
-    Route::get('/pengaturan', fn () => redirect()->route('management.pengaturan'))->middleware(['role:admin,manager']);
-
-    // Settings
-    Route::get('/notification-settings', fn () => redirect()->route('settings.notifications'));
-});

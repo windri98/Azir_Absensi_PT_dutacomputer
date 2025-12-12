@@ -627,12 +627,12 @@
             border-top: 1px solid #e5e7eb;
         }
 
-        @media (min-width: 394px) {
+        /* @media (min-width: 394px) {
             .bottom-nav {
                 left: 50%;
                 transform: translateX(-50%);
             }
-        }
+        } */
 
         .nav-item {
             display: flex;

@@ -743,7 +743,7 @@
         }
 
         function requestWorkLeave() {
-            window.location.href = '{{ route("absensi") }}';
+            window.location.href = '{{ route("user.dashboard") }}';
         }
 
                 // Update greeting based on current time
