@@ -452,32 +452,38 @@
         <!-- Summary Section -->
         <div class="summary-section">
             <div class="summary-grid">
+                @php
+                    $totalHadir = $attendances->where('status', 'present')->count();
+                    $totalTerlambat = $attendances->where('status', 'late')->count();
+                    $totalIzin = $attendances->where('status', 'leave')->count();
+                    $totalAlpha = $attendances->where('status', 'absent')->count();
+                @endphp
                 <div class="summary-card">
                     <div class="summary-card-header">
                         <div class="summary-icon blue">✓</div>
                     </div>
-                    <div class="summary-value" id="totalHadir">22</div>
+                    <div class="summary-value" id="totalHadir">{{ $totalHadir }}</div>
                     <div class="summary-label">Hadir</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-card-header">
                         <div class="summary-icon orange">⏰</div>
                     </div>
-                    <div class="summary-value" id="totalTerlambat">2</div>
+                    <div class="summary-value" id="totalTerlambat">{{ $totalTerlambat }}</div>
                     <div class="summary-label">Terlambat</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-card-header">
                         <div class="summary-icon green">📝</div>
                     </div>
-                    <div class="summary-value" id="totalIzin">1</div>
+                    <div class="summary-value" id="totalIzin">{{ $totalIzin }}</div>
                     <div class="summary-label">Izin</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-card-header">
                         <div class="summary-icon red">✗</div>
                     </div>
-                    <div class="summary-value" id="totalAlpha">0</div>
+                    <div class="summary-value" id="totalAlpha">{{ $totalAlpha }}</div>
                     <div class="summary-label">Alpha</div>
                 </div>
             </div>
@@ -509,36 +515,37 @@
                         </tr>
                     </thead>
                     <tbody id="reportTableBody">
+                        @forelse($attendances as $attendance)
                         <tr>
-                            <td>01 Nov 2025</td>
-                            <td>08:00</td>
-                            <td>17:00</td>
-                            <td><span class="status-badge hadir">Hadir</span></td>
+                            <td>{{ \Carbon\Carbon::parse($attendance->date)->format('d M Y') }}</td>
+                            <td>{{ $attendance->clock_in ? date('H:i', strtotime($attendance->clock_in)) : '-' }}</td>
+                            <td>{{ $attendance->clock_out ? date('H:i', strtotime($attendance->clock_out)) : '-' }}</td>
+                            <td>
+                                @php
+                                    $status = $attendance->status;
+                                    $badgeClass = match($status) {
+                                        'present' => 'hadir',
+                                        'late' => 'terlambat',
+                                        'leave' => 'izin',
+                                        'absent' => 'alpha',
+                                        default => 'hadir',
+                                    };
+                                    $statusText = match($status) {
+                                        'present' => 'Hadir',
+                                        'late' => 'Terlambat',
+                                        'leave' => 'Izin',
+                                        'absent' => 'Alpha',
+                                        default => ucfirst($status),
+                                    };
+                                @endphp
+                                <span class="status-badge {{ $badgeClass }}">{{ $statusText }}</span>
+                            </td>
                         </tr>
+                        @empty
                         <tr>
-                            <td>31 Okt 2025</td>
-                            <td>08:15</td>
-                            <td>17:05</td>
-                            <td><span class="status-badge terlambat">Terlambat</span></td>
+                            <td colspan="4" class="text-center">Tidak ada data absensi</td>
                         </tr>
-                        <tr>
-                            <td>30 Okt 2025</td>
-                            <td>08:00</td>
-                            <td>17:00</td>
-                            <td><span class="status-badge hadir">Hadir</span></td>
-                        </tr>
-                        <tr>
-                            <td>29 Okt 2025</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td><span class="status-badge izin">Izin</span></td>
-                        </tr>
-                        <tr>
-                            <td>28 Okt 2025</td>
-                            <td>08:05</td>
-                            <td>17:00</td>
-                            <td><span class="status-badge hadir">Hadir</span></td>
-                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -647,14 +654,45 @@
         }
 
         function exportReport() {
-            // Simulate export
+            // Ambil filter
             const period = document.getElementById('periodFilter').value;
-            const periodText = document.getElementById('periodFilter').options[document.getElementById('periodFilter').selectedIndex].text;
-            
-            alert(`Laporan "${periodText}" sedang disiapkan untuk di-export.\n\nFormat: Excel (XLSX)\n\nFile akan diunduh dalam beberapa detik.`);
-            
-            // In real implementation, this would trigger actual file download
-            // For example: window.location.href = '/api/export-report?period=' + period;
+            const status = document.getElementById('statusFilter').value;
+            let params = [];
+            if (period === 'custom') {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                if (startDate) params.push('start_date=' + encodeURIComponent(startDate));
+                if (endDate) params.push('end_date=' + encodeURIComponent(endDate));
+            } else if (period === 'today') {
+                const today = new Date().toISOString().split('T')[0];
+                params.push('start_date=' + today);
+                params.push('end_date=' + today);
+            } else if (period === 'week') {
+                const now = new Date();
+                const first = now.getDate() - now.getDay();
+                const last = first + 6;
+                const start = new Date(now.setDate(first)).toISOString().split('T')[0];
+                const end = new Date(now.setDate(last)).toISOString().split('T')[0];
+                params.push('start_date=' + start);
+                params.push('end_date=' + end);
+            } else if (period === 'month') {
+                const now = new Date();
+                const y = now.getFullYear();
+                const m = now.getMonth() + 1;
+                const start = y + '-' + (m < 10 ? '0' + m : m) + '-01';
+                const end = y + '-' + (m < 10 ? '0' + m : m) + '-' + new Date(y, m, 0).getDate();
+                params.push('start_date=' + start);
+                params.push('end_date=' + end);
+            }
+            if (status && status !== 'all') params.push('status=' + encodeURIComponent(status));
+            // Download file dari route Laravel
+            let url = "{{ route('reports.export') }}" + (params.length ? ('?' + params.join('&')) : '');
+            if (url.includes('?')) {
+                url += '&format=csv';
+            } else {
+                url += '?format=csv';
+            }
+            window.location.href = url;
         }
 
         function goBack() {

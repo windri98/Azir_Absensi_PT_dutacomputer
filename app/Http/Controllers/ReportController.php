@@ -20,7 +20,18 @@ class ReportController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        $user = Auth::user();
         $query = Attendance::with('user');
+
+        // Jika bukan admin/superadmin, hanya boleh lihat data sendiri
+        if (! $user->hasRole('admin') && ! $user->hasRole('superadmin')) {
+            $query->where('user_id', $user->id);
+        } else {
+            // Admin bisa filter user_id jika diinginkan
+            if ($request->filled('user_id')) {
+                $query->where('user_id', $request->user_id);
+            }
+        }
 
         // Filter by date range
         if ($request->filled('start_date')) {
@@ -28,11 +39,6 @@ class ReportController extends Controller
         }
         if ($request->filled('end_date')) {
             $query->whereDate('date', '<=', $request->end_date);
-        }
-
-        // Filter by user
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
         }
 
         // Filter by status
@@ -43,7 +49,10 @@ class ReportController extends Controller
         $attendances = $query->orderBy('date', 'desc')
             ->paginate(20);
 
-        $users = User::orderBy('name')->get();
+        // Hanya admin/superadmin yang bisa melihat semua user untuk filter
+        $users = ($user->hasRole('admin') || $user->hasRole('superadmin'))
+            ? User::orderBy('name')->get()
+            : collect([$user]);
 
         return view('reports.laporan', compact('attendances', 'users'));
     }
@@ -115,6 +124,45 @@ class ReportController extends Controller
 
         $attendances = $query->orderBy('date', 'desc')->get();
 
+        // Jika ?format=csv maka export CSV, default JSON
+        if ($request->get('format') === 'csv') {
+            $filename = 'laporan-absensi-' . now()->format('Ymd_His') . '.csv';
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=\"$filename\"",
+            ];
+            $callback = function() use ($attendances) {
+                $handle = fopen('php://output', 'w');
+                // Header CSV tanpa kutip berlebih, delimiter koma
+                fputcsv($handle, ['Tanggal', 'Nama Pegawai', 'Jam Masuk', 'Jam Pulang', 'Status Kehadiran'], ',');
+                foreach ($attendances as $a) {
+                    $tanggal = \Carbon\Carbon::parse($a->date)->format('d-m-Y');
+                    $masuk = $a->clock_in ? date('H:i', strtotime($a->clock_in)) : '-';
+                    $pulang = $a->clock_out ? date('H:i', strtotime($a->clock_out)) : '-';
+                    $statusMap = [
+                        'present' => 'Hadir',
+                        'late' => 'Terlambat',
+                        'leave' => 'Izin',
+                        'absent' => 'Alpha',
+                        'sick' => 'Sakit',
+                        'overtime' => 'Lembur',
+                    ];
+                    $status = $statusMap[$a->status] ?? ucfirst($a->status);
+                    $nama = $a->user ? $a->user->name : '-';
+                    fputcsv($handle, [
+                        $tanggal,
+                        $nama,
+                        $masuk,
+                        $pulang,
+                        $status,
+                    ], ',');
+                }
+                fclose($handle);
+            };
+            return response()->stream($callback, 200, $headers);
+        }
+
+        // Default: JSON
         return response()->json([
             'success' => true,
             'data' => $attendances,

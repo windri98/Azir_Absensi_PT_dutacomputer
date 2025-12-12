@@ -63,10 +63,10 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     // Admin-only Registration (create users)
-    Route::middleware(['role_or_permission:users.create'])->group(function () {
-        Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-        Route::post('/register', [AuthController::class, 'register'])->name('register.post');
-    });
+    // Route::middleware(['role_or_permission:users.create'])->group(function () {
+    //     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    //     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+    // });
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -81,7 +81,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Profile Management (No Prefix)
+    | Profile Management
     |--------------------------------------------------------------------------
     */
 
@@ -98,7 +98,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Attendance Management (No Prefix)
+    | Attendance Management
     |--------------------------------------------------------------------------
     */
 
@@ -126,7 +126,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Complaints Management (No Prefix)
+    | Complaints Management
     |--------------------------------------------------------------------------
     */
 
@@ -144,7 +144,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Reports Management (No Prefix)
+    | Reports Management
     |--------------------------------------------------------------------------
     */
 
@@ -168,7 +168,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Activities Routes (No Prefix)
+    | Activities Routes
     |--------------------------------------------------------------------------
     */
 
@@ -181,7 +181,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Management Routes (No Prefix)
+    | Management Routes
     |--------------------------------------------------------------------------
     */
 
@@ -198,7 +198,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Admin Panel Routes (No Prefix)
+    | Admin Panel Routes
     |--------------------------------------------------------------------------
     */
     Route::middleware(['auth'])->group(function () {
@@ -324,7 +324,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Settings Routes (No Prefix)
+    | Settings Routes
     |--------------------------------------------------------------------------
     */
 
@@ -334,7 +334,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | API Routes (Internal) (No Prefix)
+    | API Routes (Internal)
     |--------------------------------------------------------------------------
     */
 

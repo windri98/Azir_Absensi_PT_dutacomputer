@@ -326,11 +326,11 @@
                 </a>
             @endif
             
-            @if(auth()->user()->hasPermission('users.create'))
+            {{-- @if(auth()->user()->hasPermission('users.create'))
                 <a href="{{ route('register') }}">
                     ➕ Tambah User
                 </a>
-            @endif
+            @endif --}}
         </aside>
         
         <main class="content">
