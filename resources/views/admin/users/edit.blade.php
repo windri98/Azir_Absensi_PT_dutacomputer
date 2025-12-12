@@ -43,6 +43,14 @@
         <label>Telepon<input type="text" name="phone" value="{{ old('phone',$user->phone) }}" placeholder="08123456789"></label>
         <label>Alamat<textarea name="address" rows="3" placeholder="Alamat lengkap">{{ old('address',$user->address) }}</textarea></label>
         <label>Tanggal Lahir<input type="date" name="birth_date" value="{{ old('birth_date',$user->birth_date) }}"></label>
+
+                <label>Jenis Kelamin *
+                    <select name="gender" required>
+                        <option value="">Pilih Jenis Kelamin</option>
+                        <option value="Laki-laki" {{ old('gender',$user->gender) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                        <option value="Perempuan" {{ old('gender',$user->gender) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                    </select>
+                </label>
         
         <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb">
         

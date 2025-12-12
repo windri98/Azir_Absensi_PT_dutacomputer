@@ -267,7 +267,7 @@
 <body>
     <div class="profile-header">
         <button class="back-btn" onclick="goBack()">←</button>
-        <div class="profile-avatar" style="background-image: url('{{ $user->photo ? asset('storage/' . $user->photo) : asset('assets/image/439605617_454358160308404_313339237371064683_n.png') }}');">
+        <div class="profile-avatar" style="background-image: url('{{ $user->photo ? asset('storage/' . $user->photo) : asset('assets/image/account-circle.svg') }}');">
             <button class="edit-avatar">📷</button>
         </div>
         <div class="profile-name" id="profileName">{{ $user->name }}</div>

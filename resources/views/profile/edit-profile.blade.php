@@ -86,7 +86,7 @@
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background-image: url('assets/image/439605617_454358160308404_313339237371064683_n.png');
+            background-image: url('assets/image/account-circle.svg');
             background-size: cover;
             background-position: center;
             border: 4px solid #e5e7eb;
@@ -274,7 +274,7 @@
         
         <div class="profile-photo-section">
             <div class="profile-photo-wrapper">
-                <div class="profile-photo" id="profilePhoto" style="background-image: url('{{ $user->photo ? asset('storage/' . $user->photo) : asset('assets/image/439605617_454358160308404_313339237371064683_n.png') }}');"></div>
+                <div class="profile-photo" id="profilePhoto" style="background-image: url('{{ $user->photo ? asset('storage/' . $user->photo) : asset('assets/image/account-circle.svg') }}');"></div>
                 <button type="button" class="change-photo-btn" onclick="changePhoto()">📷</button>
             </div>
             <div class="change-photo-text" onclick="changePhoto()">Ubah Foto Profile</div>

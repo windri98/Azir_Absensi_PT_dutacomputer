@@ -71,6 +71,7 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'birth_date' => 'nullable|date',
+            'gender' => 'required|in:Laki-laki,Perempuan',
             'roles' => 'array',
             'shifts' => 'array',
         ]);
@@ -82,6 +83,7 @@ class UserController extends Controller
             'phone' => $data['phone'] ?? null,
             'address' => $data['address'] ?? null,
             'birth_date' => $data['birth_date'] ?? null,
+            'gender' => $data['gender'],
         ]);
         if (! empty($data['roles'])) {
             $user->roles()->attach($data['roles']);
@@ -144,6 +146,7 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'birth_date' => 'nullable|date',
+            'gender' => 'required|in:Laki-laki,Perempuan',
             'annual_leave_quota' => 'required|integer|min:0|max:30',
             'sick_leave_quota' => 'required|integer|min:0|max:30',
             'special_leave_quota' => 'required|integer|min:0|max:30',
@@ -157,6 +160,7 @@ class UserController extends Controller
         $user->phone = $data['phone'] ?? null;
         $user->address = $data['address'] ?? null;
         $user->birth_date = $data['birth_date'] ?? null;
+        $user->gender = $data['gender'];
         $user->annual_leave_quota = $data['annual_leave_quota'];
         $user->sick_leave_quota = $data['sick_leave_quota'];
         $user->special_leave_quota = $data['special_leave_quota'];

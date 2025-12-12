@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('phone', 20)->nullable();
             $table->text('address')->nullable();
             $table->date('birth_date')->nullable();
+            $table->string('gender', 20)->nullable();
             $table->string('photo')->nullable();
             $table->integer('annual_leave_quota')->default(12);
             $table->integer('sick_leave_quota')->default(12);

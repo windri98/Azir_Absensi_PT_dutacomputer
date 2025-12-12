@@ -66,7 +66,7 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background-image: url('assets/image/439605617_454358160308404_313339237371064683_n.png');
+            background-image: url('assets/image/account-circle.svg');
             background-size: cover;
             background-position: center;
             border: 3px solid rgba(255, 255, 255, 0.3);
@@ -232,7 +232,7 @@
         <button class="back-btn" onclick="goBack()">←</button>
         
         <div class="profile-section">
-            <div class="profile-image" style="background-image: url('{{ $user->photo ? asset('storage/' . $user->photo) : asset('assets/image/439605617_454358160308404_313339237371064683_n.png') }}');"></div>
+            <div class="profile-image" style="background-image: url('{{ $user->photo ? asset('storage/' . $user->photo) : asset('assets/image/account-circle.svg') }}');"></div>
             <div class="profile-info">
                 <div class="employee-status">{{ $user->roles->first()->description ?? 'Karyawan' }}</div>
                 <div class="employee-name">{{ $user->name }}</div>

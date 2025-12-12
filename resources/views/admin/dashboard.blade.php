@@ -164,6 +164,7 @@
                 <tr style="border-bottom:2px solid #e5e7eb">
                     <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Tanggal</th>
                     <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Karyawan</th>
+                                    <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Jenis Kelamin</th>
                     <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Kategori</th>
                     <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Judul</th>
                     <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Prioritas</th>
@@ -179,6 +180,9 @@
                     <td style="padding:12px 8px;font-size:13px">
                         <strong>{{ $complaint->user->name }}</strong><br>
                         <small style="color:#6b7280">{{ $complaint->user->email }}</small>
+                    </td>
+                    <td style="padding:12px 8px;font-size:13px">
+                        {{ $complaint->user->gender ?? '-' }}
                     </td>
                     <td style="padding:12px 8px;font-size:13px">
                         @php

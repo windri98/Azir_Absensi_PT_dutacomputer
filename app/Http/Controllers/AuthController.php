@@ -94,6 +94,7 @@ class AuthController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'birth_date' => 'nullable|date',
+            'gender' => 'required|in:Laki-laki,Perempuan',
         ], [
             'employee_id.required' => 'ID Card wajib diisi',
             'employee_id.unique' => 'ID Card sudah terdaftar',
@@ -103,6 +104,8 @@ class AuthController extends Controller
             'email.unique' => 'Email sudah terdaftar',
             'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 6 karakter',
+            'gender.required' => 'Jenis kelamin wajib diisi',
+            'gender.in' => 'Jenis kelamin tidak valid',
         ]);
 
         if ($validator->fails()) {
@@ -120,6 +123,7 @@ class AuthController extends Controller
                 'phone' => $request->phone,
                 'address' => $request->address,
                 'birth_date' => $request->birth_date,
+                'gender' => $request->gender,
             ]);
 
             // Default new user role = employee (can be changed after creation)

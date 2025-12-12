@@ -28,6 +28,7 @@ class User extends Authenticatable
         'phone',
         'address',
         'birth_date',
+        'gender',
         'photo',
         'shift_id',
         'annual_leave_quota',
