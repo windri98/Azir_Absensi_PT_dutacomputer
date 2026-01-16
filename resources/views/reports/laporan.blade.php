@@ -1,729 +1,177 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#1ec7e6">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Laporan - Sistem Absensi</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        html {
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
-        }
+@extends('layouts.app')
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            width: 100%;
-            max-width: 393px;
-            min-height: 100vh;
-            margin: 0 auto;
-            overflow-y: auto;
-            padding-bottom: 80px;
-        }
-        
-        @media (min-width: 394px) {
-            body {
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            }
-        }
+@section('title', 'Laporan - Sistem Absensi')
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
-            color: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/reports.css') }}">
+@endpush
 
-        .back-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            font-size: 18px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 16px;
-        }
-
-        .header-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        /* Content */
-        .content {
-            padding: 20px;
-        }
-
-        /* Filter Section */
-        .filter-section {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .filter-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 16px;
-        }
-
-        .filter-group {
-            margin-bottom: 16px;
-        }
-
-        .filter-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .filter-label {
-            display: block;
-            font-size: 13px;
-            color: #6b7280;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .filter-select,
-        .filter-input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px;
-            background-color: white;
-            cursor: pointer;
-        }
-
-        .filter-select:focus,
-        .filter-input:focus {
-            outline: none;
-            border-color: #1ec7e6;
-            box-shadow: 0 0 0 3px rgba(30, 199, 230, 0.1);
-        }
-
-        .date-range {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .filter-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-reset {
-            background: #f3f4f6;
-            color: #6b7280;
-        }
-
-        .btn-reset:hover {
-            background: #e5e7eb;
-        }
-
-        .btn-apply {
-            background: #1ec7e6;
-            color: white;
-        }
-
-        .btn-apply:hover {
-            background: #0ea5e9;
-        }
-
-        /* Summary Cards */
-        .summary-section {
-            margin-bottom: 20px;
-        }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .summary-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .summary-card-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .summary-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            margin-right: 10px;
-        }
-
-        .summary-icon.blue { background: #dbeafe; }
-        .summary-icon.green { background: #dcfce7; }
-        .summary-icon.orange { background: #fed7aa; }
-        .summary-icon.red { background: #fee2e2; }
-
-        .summary-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #374151;
-            margin-bottom: 4px;
-        }
-
-        .summary-label {
-            font-size: 12px;
-            color: #6b7280;
-        }
-
-        /* Report Section */
-        .report-section {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .report-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .export-btn {
-            background: #1ec7e6;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .export-btn:hover {
-            background: #0ea5e9;
-        }
-
-        /* Report Table */
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .report-table th {
-            background: #f9fafb;
-            padding: 10px 8px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            color: #6b7280;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .report-table td {
-            padding: 12px 8px;
-            font-size: 13px;
-            color: #374151;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .report-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .status-badge.hadir {
-            background: #dcfce7;
-            color: #16a34a;
-        }
-
-        .status-badge.terlambat {
-            background: #fed7aa;
-            color: #ea580c;
-        }
-
-        .status-badge.izin {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .status-badge.alpha {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .empty-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.3;
-        }
-
-        .empty-text {
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 40px 20px;
-            display: none;
-        }
-
-        .loading.show {
-            display: block;
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f4f6;
-            border-top: 4px solid #1ec7e6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 393px;
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0 20px 0;
-            z-index: 100;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #9ca3af;
-            transition: color 0.2s ease;
-            padding: 8px 12px;
-        }
-
-        .nav-item.active {
-            color: #1ec7e6;
-        }
-
-        .nav-icon {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-
-        .nav-label {
-            font-size: 11px;
-            font-weight: 500;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <button class="back-btn" onclick="goBack()">←</button>
-        <div class="header-title">Laporan Absensi</div>
-    </div>
-
-    <div class="content">
-        <!-- Filter Section -->
-        <div class="filter-section">
-            <div class="filter-title">Filter Laporan</div>
-            
-            <div class="filter-group">
-                <label class="filter-label">Periode</label>
-                <select class="filter-select" id="periodFilter">
-                    <option value="today">Hari Ini</option>
-                    <option value="week">Minggu Ini</option>
-                    <option value="month" selected>Bulan Ini</option>
-                    <option value="custom">Custom</option>
-                </select>
-            </div>
-
-            <div class="filter-group" id="dateRangeGroup" style="display: none;">
-                <label class="filter-label">Rentang Tanggal</label>
-                <div class="date-range">
-                    <input type="date" class="filter-input" id="startDate">
-                    <input type="date" class="filter-input" id="endDate">
-                </div>
-            </div>
-
-            <div class="filter-group">
-                <label class="filter-label">Status Kehadiran</label>
-                <select class="filter-select" id="statusFilter">
-                    <option value="all">Semua Status</option>
-                    <option value="hadir">Hadir</option>
-                    <option value="terlambat">Terlambat</option>
-                    <option value="izin">Izin</option>
-                    <option value="alpha">Alpha</option>
-                </select>
-            </div>
-
-            <div class="filter-buttons">
-                <button class="btn btn-reset" onclick="resetFilters()">Reset</button>
-                <button class="btn btn-apply" onclick="applyFilters()">Terapkan</button>
+@section('content')
+    <div class="px-4 py-8 lg:px-8 max-w-6xl mx-auto">
+        <!-- Page Header -->
+        <div class="flex items-center gap-4 mb-8">
+            <button class="btn btn-secondary !p-2 shadow-sm" onclick="history.back()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div>
+                <h1 class="text-2xl font-bold text-main">Laporan Absensi</h1>
+                <p class="text-sm text-muted">Analisa kehadiran dan performa kerja tim</p>
             </div>
         </div>
 
-        <!-- Summary Section -->
-        <div class="summary-section">
-            <div class="summary-grid">
-                @php
-                    $totalHadir = $attendances->where('status', 'present')->count();
-                    $totalTerlambat = $attendances->where('status', 'late')->count();
-                    $totalIzin = $attendances->where('status', 'leave')->count();
-                    $totalAlpha = $attendances->where('status', 'absent')->count();
-                @endphp
-                <div class="summary-card">
-                    <div class="summary-card-header">
-                        <div class="summary-icon blue">✓</div>
-                    </div>
-                    <div class="summary-value" id="totalHadir">{{ $totalHadir }}</div>
-                    <div class="summary-label">Hadir</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-card-header">
-                        <div class="summary-icon orange">⏰</div>
-                    </div>
-                    <div class="summary-value" id="totalTerlambat">{{ $totalTerlambat }}</div>
-                    <div class="summary-label">Terlambat</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-card-header">
-                        <div class="summary-icon green">📝</div>
-                    </div>
-                    <div class="summary-value" id="totalIzin">{{ $totalIzin }}</div>
-                    <div class="summary-label">Izin</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-card-header">
-                        <div class="summary-icon red">✗</div>
-                    </div>
-                    <div class="summary-value" id="totalAlpha">{{ $totalAlpha }}</div>
-                    <div class="summary-label">Alpha</div>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Filter Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="modern-card">
+                    <h3 class="text-sm font-bold text-main mb-6 flex items-center gap-2">
+                        <i class="fas fa-filter text-primary-color"></i> Filter Data
+                    </h3>
+                    
+                    <form action="{{ route('reports.index') }}" method="GET" class="space-y-6">
+                        <div class="filter-group">
+                            <label class="filter-label">Periode</label>
+                            <select name="period" class="filter-select" id="periodFilter">
+                                <option value="today" {{ request('period') == 'today' ? 'selected' : '' }}>Hari Ini</option>
+                                <option value="week" {{ request('period') == 'week' ? 'selected' : '' }}>Minggu Ini</option>
+                                <option value="month" {{ !request('period') || request('period') == 'month' ? 'selected' : '' }}>Bulan Ini</option>
+                                <option value="custom" {{ request('period') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+                            </select>
+                        </div>
+
+                        <div id="dateRangeGroup" style="{{ request('period') == 'custom' ? '' : 'display: none;' }}">
+                            <div class="flex flex-col gap-4">
+                                <div class="filter-group">
+                                    <label class="filter-label">Mulai</label>
+                                    <input type="date" name="start_date" class="filter-input" value="{{ request('start_date') }}">
+                                </div>
+                                <div class="filter-group">
+                                    <label class="filter-label">Selesai</label>
+                                    <input type="date" name="end_date" class="filter-input" value="{{ request('end_date') }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Status</label>
+                            <select name="status" class="filter-select">
+                                <option value="">Semua Status</option>
+                                <option value="present" {{ request('status') == 'present' ? 'selected' : '' }}>Hadir</option>
+                                <option value="late" {{ request('status') == 'late' ? 'selected' : '' }}>Terlambat</option>
+                                <option value="leave" {{ request('status') == 'leave' ? 'selected' : '' }}>Izin / Cuti</option>
+                                <option value="absent" {{ request('status') == 'absent' ? 'selected' : '' }}>Alpa</option>
+                            </select>
+                        </div>
+
+                        <div class="pt-4 flex flex-col gap-3">
+                            <button type="submit" class="btn btn-primary w-full py-3 shadow-md">
+                                Terapkan
+                            </button>
+                            <a href="{{ route('reports.index') }}" class="btn btn-secondary w-full py-3">
+                                Reset
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div>
 
-        <!-- Loading State -->
-        <div class="loading" id="loadingState">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Memuat laporan...</div>
-        </div>
+            <!-- Main Content Area -->
+            <div class="lg:col-span-3">
+                <!-- Summary Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="modern-card !p-4 border-l-4 border-primary-color">
+                        <span class="text-[10px] font-bold text-light uppercase tracking-widest block mb-1">Hadir</span>
+                        <span class="text-2xl font-black text-main">{{ $attendances->where('status', 'present')->count() }}</span>
+                    </div>
+                    <div class="modern-card !p-4 border-l-4 border-warning">
+                        <span class="text-[10px] font-bold text-light uppercase tracking-widest block mb-1">Telat</span>
+                        <span class="text-2xl font-black text-main">{{ $attendances->where('status', 'late')->count() }}</span>
+                    </div>
+                    <div class="modern-card !p-4 border-l-4 border-info">
+                        <span class="text-[10px] font-bold text-light uppercase tracking-widest block mb-1">Izin</span>
+                        <span class="text-2xl font-black text-main">{{ $attendances->where('status', 'leave')->count() }}</span>
+                    </div>
+                    <div class="modern-card !p-4 border-l-4 border-danger">
+                        <span class="text-[10px] font-bold text-light uppercase tracking-widest block mb-1">Alpa</span>
+                        <span class="text-2xl font-black text-main">{{ $attendances->where('status', 'absent')->count() }}</span>
+                    </div>
+                </div>
 
-        <!-- Report Section -->
-        <div class="report-section" id="reportSection">
-            <div class="report-header">
-                <div class="report-title">Detail Laporan</div>
-                <button class="export-btn" onclick="exportReport()">
-                    <span>📥</span> Export
-                </button>
-            </div>
+                <!-- Table -->
+                <div class="modern-card !p-0 overflow-hidden shadow-sm">
+                    <div class="p-6 border-b border-color flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-main">Data Presensi</h3>
+                        <a href="{{ route('reports.export', ['format' => 'csv'] + request()->all()) }}" class="btn btn-secondary !py-2 !px-4 !text-xs font-bold text-success hover:!bg-success-light">
+                            <i class="fas fa-file-csv mr-2"></i> Export CSV
+                        </a>
+                    </div>
 
-            <div style="overflow-x: auto;">
-                <table class="report-table">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>Masuk</th>
-                            <th>Keluar</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reportTableBody">
-                        @forelse($attendances as $attendance)
-                        <tr>
-                            <td>{{ \Carbon\Carbon::parse($attendance->date)->format('d M Y') }}</td>
-                            <td>{{ $attendance->clock_in ? date('H:i', strtotime($attendance->clock_in)) : '-' }}</td>
-                            <td>{{ $attendance->clock_out ? date('H:i', strtotime($attendance->clock_out)) : '-' }}</td>
-                            <td>
-                                @php
-                                    $status = $attendance->status;
-                                    $badgeClass = match($status) {
-                                        'present' => 'hadir',
-                                        'late' => 'terlambat',
-                                        'leave' => 'izin',
-                                        'absent' => 'alpha',
-                                        default => 'hadir',
-                                    };
-                                    $statusText = match($status) {
-                                        'present' => 'Hadir',
-                                        'late' => 'Terlambat',
-                                        'leave' => 'Izin',
-                                        'absent' => 'Alpha',
-                                        default => ucfirst($status),
-                                    };
-                                @endphp
-                                <span class="status-badge {{ $badgeClass }}">{{ $statusText }}</span>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="4" class="text-center">Tidak ada data absensi</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Empty State (hidden by default) -->
-        <div class="report-section" id="emptyState" style="display: none;">
-            <div class="empty-state">
-                <div class="empty-icon">📊</div>
-                <div class="empty-text">Tidak ada data untuk ditampilkan</div>
+                    <div class="overflow-x-auto">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Nama Pegawai</th>
+                                    <th>Masuk</th>
+                                    <th>Keluar</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($attendances as $attendance)
+                                <tr>
+                                    <td class="font-bold text-xs">{{ \Carbon\Carbon::parse($attendance->date)->translatedFormat('d M Y') }}</td>
+                                    <td>
+                                        <div class="flex flex-col">
+                                            <span class="font-semibold text-main">{{ $attendance->user->name }}</span>
+                                            <span class="text-[10px] text-muted">{{ $attendance->user->employee_id }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-success font-bold">{{ $attendance->check_in ? date('H:i', strtotime($attendance->check_in)) : '--:--' }}</td>
+                                    <td class="{{ $attendance->check_out ? 'text-success font-bold' : 'text-light' }}">{{ $attendance->check_out ? date('H:i', strtotime($attendance->check_out)) : '--:--' }}</td>
+                                    <td>
+                                        <span class="status-badge {{ 
+                                            $attendance->status === 'present' ? 'status-present' : 
+                                            ($attendance->status === 'late' ? 'status-late' : 
+                                            ($attendance->status === 'leave' ? 'status-work_leave' : 'status-absent')) 
+                                        }}">
+                                            {{ 
+                                                $attendance->status === 'present' ? 'Hadir' : 
+                                                ($attendance->status === 'late' ? 'Terlambat' : 
+                                                ($attendance->status === 'leave' ? 'Izin' : 'Alpa')) 
+                                            }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="py-12 text-center">
+                                        <div class="empty-state">
+                                            <i class="fas fa-folder-open empty-state-icon"></i>
+                                            <p class="empty-state-text">Tidak ada data untuk filter ini</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    @if($attendances->hasPages())
+                    <div class="p-6 border-t border-color">
+                        {{ $attendances->links() }}
+                    </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
+@endsection
 
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-        <a href="{{ route('dashboard') }}" class="nav-item">
-            <div class="nav-icon">🏠</div>
-            <div class="nav-label">Home</div>
-        </a>
-        <a href="{{ route('attendance.riwayat') }}" class="nav-item">
-            <div class="nav-icon">📊</div>
-            <div class="nav-label">Riwayat</div>
-        </a>
-        <a href="{{ route('reports.index') }}" class="nav-item active">
-            <div class="nav-icon">📈</div>
-            <div class="nav-label">Laporan</div>
-        </a>
-        <a href="{{ route('profile.show') }}" class="nav-item">
-            <div class="nav-icon">👤</div>
-            <div class="nav-label">Profile</div>
-        </a>
-    </div>
-
+@push('scripts')
     <script>
-        // Period filter change handler
         document.getElementById('periodFilter').addEventListener('change', function() {
             const dateRangeGroup = document.getElementById('dateRangeGroup');
-            if (this.value === 'custom') {
-                dateRangeGroup.style.display = 'block';
-                setDefaultDateRange();
-            } else {
-                dateRangeGroup.style.display = 'none';
-            }
-        });
-
-        function setDefaultDateRange() {
-            const today = new Date();
-            const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-            
-            document.getElementById('endDate').value = today.toISOString().split('T')[0];
-            document.getElementById('startDate').value = lastMonth.toISOString().split('T')[0];
-        }
-
-        function resetFilters() {
-            document.getElementById('periodFilter').value = 'month';
-            document.getElementById('statusFilter').value = 'all';
-            document.getElementById('dateRangeGroup').style.display = 'none';
-            applyFilters();
-        }
-
-        function applyFilters() {
-            // Show loading
-            document.getElementById('loadingState').classList.add('show');
-            document.getElementById('reportSection').style.display = 'none';
-            document.getElementById('emptyState').style.display = 'none';
-
-            // Simulate API call
-            setTimeout(() => {
-                // Hide loading
-                document.getElementById('loadingState').classList.remove('show');
-                
-                // Show results
-                const hasData = true; // Change this based on actual data
-                if (hasData) {
-                    document.getElementById('reportSection').style.display = 'block';
-                    generateReportData();
-                } else {
-                    document.getElementById('emptyState').style.display = 'block';
-                }
-            }, 1000);
-        }
-
-        function generateReportData() {
-            // Sample data generation
-            const period = document.getElementById('periodFilter').value;
-            const status = document.getElementById('statusFilter').value;
-            
-            // Update summary based on filters
-            let hadir = 22, terlambat = 2, izin = 1, alpha = 0;
-            
-            if (status === 'hadir') {
-                terlambat = 0; izin = 0; alpha = 0;
-            } else if (status === 'terlambat') {
-                hadir = 0; izin = 0; alpha = 0;
-            } else if (status === 'izin') {
-                hadir = 0; terlambat = 0; alpha = 0;
-            } else if (status === 'alpha') {
-                hadir = 0; terlambat = 0; izin = 0;
-            }
-            
-            document.getElementById('totalHadir').textContent = hadir;
-            document.getElementById('totalTerlambat').textContent = terlambat;
-            document.getElementById('totalIzin').textContent = izin;
-            document.getElementById('totalAlpha').textContent = alpha;
-        }
-
-        function exportReport() {
-            // Ambil filter
-            const period = document.getElementById('periodFilter').value;
-            const status = document.getElementById('statusFilter').value;
-            let params = [];
-            if (period === 'custom') {
-                const startDate = document.getElementById('startDate').value;
-                const endDate = document.getElementById('endDate').value;
-                if (startDate) params.push('start_date=' + encodeURIComponent(startDate));
-                if (endDate) params.push('end_date=' + encodeURIComponent(endDate));
-            } else if (period === 'today') {
-                const today = new Date().toISOString().split('T')[0];
-                params.push('start_date=' + today);
-                params.push('end_date=' + today);
-            } else if (period === 'week') {
-                const now = new Date();
-                const first = now.getDate() - now.getDay();
-                const last = first + 6;
-                const start = new Date(now.setDate(first)).toISOString().split('T')[0];
-                const end = new Date(now.setDate(last)).toISOString().split('T')[0];
-                params.push('start_date=' + start);
-                params.push('end_date=' + end);
-            } else if (period === 'month') {
-                const now = new Date();
-                const y = now.getFullYear();
-                const m = now.getMonth() + 1;
-                const start = y + '-' + (m < 10 ? '0' + m : m) + '-01';
-                const end = y + '-' + (m < 10 ? '0' + m : m) + '-' + new Date(y, m, 0).getDate();
-                params.push('start_date=' + start);
-                params.push('end_date=' + end);
-            }
-            if (status && status !== 'all') params.push('status=' + encodeURIComponent(status));
-            // Download file dari route Laravel
-            let url = "{{ route('reports.export') }}" + (params.length ? ('?' + params.join('&')) : '');
-            if (url.includes('?')) {
-                url += '&format=csv';
-            } else {
-                url += '?format=csv';
-            }
-            window.location.href = url;
-        }
-
-        function goBack() {
-            if (typeof smartGoBack === 'function') {
-                smartGoBack('{{ route("dashboard") }}');
-            } else {
-                // Fallback navigation
-                if (window.history.length > 1 && document.referrer && 
-                    document.referrer !== window.location.href &&
-                    !document.referrer.includes('login')) {
-                    try {
-                        window.history.back();
-                    } catch (error) {
-                        window.location.href = '{{ route("dashboard") }}';
-                    }
-                } else {
-                    window.location.href = '{{ route("dashboard") }}';
-                }
-            }
-        }
-
-        // Initialize
-        window.addEventListener('DOMContentLoaded', function() {
-            // Load any saved filters from localStorage
-            const savedFilters = localStorage.getItem('reportFilters');
-            if (savedFilters) {
-                const filters = JSON.parse(savedFilters);
-                document.getElementById('periodFilter').value = filters.period || 'month';
-                document.getElementById('statusFilter').value = filters.status || 'all';
-            }
+            dateRangeGroup.style.display = (this.value === 'custom') ? 'block' : 'none';
         });
     </script>
-</body>
-</html>
+@endpush

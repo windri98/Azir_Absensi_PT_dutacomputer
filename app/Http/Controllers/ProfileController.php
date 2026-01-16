@@ -30,7 +30,7 @@ class ProfileController extends Controller
         $user = Auth::user();
         $stats = $this->buildAttendanceStats($user->id);
 
-        return view('profile.profil', compact('user', 'stats'));
+        return view('profile.profile', compact('user', 'stats'));
     }
 
     /**

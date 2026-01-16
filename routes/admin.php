@@ -1,0 +1,183 @@
+<?php
+
+use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\PermissionController as AdminPermissionController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\ShiftController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\PermissionController;
+use App\Models\Attendance;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Admin Panel Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    
+    // Dashboard
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+        ->middleware('role_or_permission:dashboard.admin')
+        ->name('dashboard');
+
+    /*
+    |--------------------------------------------------------------------------
+    | User Management
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role_or_permission:users.view')->group(function () {
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}/attendance', [UserController::class, 'showAttendance'])->name('users.attendance');
+    });
+
+    Route::get('/users/create', [UserController::class, 'create'])
+        ->middleware('role_or_permission:users.create')
+        ->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])
+        ->middleware('role_or_permission:users.create')
+        ->name('users.store');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])
+        ->middleware('role_or_permission:users.edit')
+        ->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])
+        ->middleware('role_or_permission:users.edit')
+        ->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])
+        ->middleware('role_or_permission:users.delete')
+        ->name('users.destroy');
+
+    // Role assignment
+    Route::post('/users/{user}/roles', [UserController::class, 'assignRole'])->name('users.assign-role');
+    Route::delete('/users/{user}/roles/{role}', [UserController::class, 'removeRole'])->name('users.remove-role');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Role Management
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role_or_permission:roles.view')->group(function () {
+        Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+        Route::get('/roles/{role}', [RoleController::class, 'show'])->name('roles.show');
+    });
+
+    Route::get('/roles/create', [RoleController::class, 'create'])
+        ->middleware('role_or_permission:roles.create')
+        ->name('roles.create');
+    Route::post('/roles', [RoleController::class, 'store'])
+        ->middleware('role_or_permission:roles.create')
+        ->name('roles.store');
+    Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])
+        ->middleware('role_or_permission:roles.edit')
+        ->name('roles.edit');
+    Route::put('/roles/{role}', [RoleController::class, 'update'])
+        ->middleware('role_or_permission:roles.edit')
+        ->name('roles.update');
+    Route::delete('/roles/{role}', [RoleController::class, 'destroy'])
+        ->middleware('role_or_permission:roles.delete')
+        ->name('roles.destroy');
+
+    // Role user & permission assignment
+    Route::post('/roles/{role}/assign-users', [RoleController::class, 'assignUsers'])->name('roles.assign-users');
+    Route::delete('/roles/{role}/users/{user}', [RoleController::class, 'removeUser'])->name('roles.remove-user');
+
+    Route::middleware('role_or_permission:roles.assign_permissions')->group(function () {
+        Route::put('/roles/{role}/permissions', [RoleController::class, 'updatePermissions'])->name('roles.update-permissions');
+        Route::post('/roles/{role}/permissions', [RoleController::class, 'assignPermission'])->name('roles.assign-permission');
+        Route::delete('/roles/{role}/permissions/{permission}', [RoleController::class, 'removePermission'])->name('roles.remove-permission');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Shift Management
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role_or_permission:shifts.view')->group(function () {
+        Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.index');
+    });
+
+    Route::get('/shifts/create', [ShiftController::class, 'create'])
+        ->middleware('role_or_permission:shifts.create')
+        ->name('shifts.create');
+    Route::post('/shifts', [ShiftController::class, 'store'])
+        ->middleware('role_or_permission:shifts.create')
+        ->name('shifts.store');
+    Route::get('/shifts/{shift}/edit', [ShiftController::class, 'edit'])
+        ->middleware('role_or_permission:shifts.edit')
+        ->name('shifts.edit');
+    Route::put('/shifts/{shift}', [ShiftController::class, 'update'])
+        ->middleware('role_or_permission:shifts.edit')
+        ->name('shifts.update');
+    Route::delete('/shifts/{shift}', [ShiftController::class, 'destroy'])
+        ->middleware('role_or_permission:shifts.delete')
+        ->name('shifts.destroy');
+
+    // Shift assignment
+    Route::get('/shifts/{shift}/assign', [ShiftController::class, 'assignForm'])->name('shifts.assign-form');
+    Route::post('/shifts/{shift}/assign', [ShiftController::class, 'assignUsers'])->name('shifts.assign-users');
+    Route::delete('/shifts/{shift}/users/{user}', [ShiftController::class, 'removeUser'])->name('shifts.remove-user');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Permission Management
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/permissions', [AdminPermissionController::class, 'index'])->name('permissions.index');
+    Route::get('/permissions/matrix', [AdminPermissionController::class, 'matrix'])->name('permissions.matrix');
+    Route::get('/permissions/capabilities', [AdminPermissionController::class, 'capabilities'])->name('permissions.capabilities');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Complaints Management
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/complaints', [AdminComplaintController::class, 'index'])->name('complaints.index');
+    Route::get('/complaints/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
+    Route::post('/complaints/{complaint}/approve', [AdminComplaintController::class, 'approve'])->name('complaints.approve');
+    Route::post('/complaints/{complaint}/reject', [AdminComplaintController::class, 'reject'])->name('complaints.reject');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Work Leave Management
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/work-leave', [AdminDashboardController::class, 'workLeaveRequests'])->name('work-leave.index');
+    Route::get('/work-leave/{attendance}/detail', [AdminDashboardController::class, 'workLeaveDetail'])->name('work-leave.detail');
+    Route::post('/work-leave/{attendance}/approve', function ($attendance) {
+        $attendanceModel = Attendance::findOrFail($attendance);
+        return app(AdminDashboardController::class)->workLeaveAction($attendanceModel, 'approve');
+    })->name('work-leave.approve');
+    Route::post('/work-leave/{attendance}/reject', function ($attendance) {
+        $attendanceModel = Attendance::findOrFail($attendance);
+        return app(AdminDashboardController::class)->workLeaveAction($attendanceModel, 'reject');
+    })->name('work-leave.reject');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reports & Export
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/reports/export', [AdminReportController::class, 'exportForm'])->name('reports.export');
+    Route::get('/reports/preview', [AdminReportController::class, 'preview'])->name('reports.preview');
+    Route::get('/reports/download', [AdminReportController::class, 'download'])->name('reports.download');
+    Route::get('/export-attendance', [UserController::class, 'exportAttendance'])->name('export-attendance');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Management Routes (Admin/Manager sidebar)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:admin,manager'])->group(function () {
+    Route::get('/shift-management', [ShiftController::class, 'management'])->name('management.shift');
+    Route::get('/pengaturan', function () {
+        return view('management.pengaturan');
+    })->name('management.pengaturan');
+
+    // Permissions view
+    Route::get('/permissions', [PermissionController::class, 'index'])->name('management.permissions');
+    Route::get('/permissions/{permission}', [PermissionController::class, 'show'])->name('management.permissions.show');
+});

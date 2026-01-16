@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class Attendance extends Model
 {
@@ -17,7 +18,7 @@ class Attendance extends Model
         'check_out_location',
         'notes',
         'work_hours',
-        'sick_letter_path',
+        'overtime_hours',
         'leave_letter_path',
         'document_filename',
         'document_uploaded_at',
@@ -36,6 +37,112 @@ class Attendance extends Model
         'admin_approved_at' => 'datetime',
         'admin_rejected_at' => 'datetime',
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Query Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Scope for specific month and year
+     */
+    public function scopeForMonth(Builder $query, int $month, ?int $year = null): Builder
+    {
+        $year = $year ?? now()->year;
+        return $query->whereMonth('date', $month)->whereYear('date', $year);
+    }
+
+    /**
+     * Scope for this month
+     */
+    public function scopeThisMonth(Builder $query): Builder
+    {
+        return $query->whereMonth('date', now()->month)->whereYear('date', now()->year);
+    }
+
+    /**
+     * Scope for this week
+     */
+    public function scopeThisWeek(Builder $query): Builder
+    {
+        return $query->whereBetween('date', [
+            now()->startOfWeek()->toDateString(),
+            now()->endOfWeek()->toDateString()
+        ]);
+    }
+
+    /**
+     * Scope for today
+     */
+    public function scopeToday(Builder $query): Builder
+    {
+        return $query->whereDate('date', now()->toDateString());
+    }
+
+    /**
+     * Scope for specific user
+     */
+    public function scopeForUser(Builder $query, int $userId): Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    /**
+     * Scope for present status
+     */
+    public function scopePresent(Builder $query): Builder
+    {
+        return $query->where('status', 'present');
+    }
+
+    /**
+     * Scope for late status
+     */
+    public function scopeLate(Builder $query): Builder
+    {
+        return $query->where('status', 'late');
+    }
+
+    /**
+     * Scope for work leave status
+     */
+    public function scopeWorkLeave(Builder $query): Builder
+    {
+        return $query->where('status', 'work_leave');
+    }
+
+    /**
+     * Scope for pending approval
+     */
+    public function scopePendingApproval(Builder $query): Builder
+    {
+        return $query->where('approval_status', 'pending');
+    }
+
+    /**
+     * Scope for approved
+     */
+    public function scopeApproved(Builder $query): Builder
+    {
+        return $query->where('approval_status', 'approved');
+    }
+
+    /**
+     * Scope for date range
+     */
+    public function scopeDateRange(Builder $query, string $startDate, string $endDate): Builder
+    {
+        return $query->whereBetween('date', [$startDate, $endDate]);
+    }
+
+    /**
+     * Scope with document
+     */
+    public function scopeWithDocument(Builder $query): Builder
+    {
+        return $query->whereNotNull('document_filename');
+    }
 
     /**
      * Relasi many-to-one dengan User
@@ -75,11 +182,11 @@ class Attendance extends Model
     }
 
     /**
-     * Check if attendance has a document (sick letter or leave letter)
+     * Check if attendance has a document (leave letter)
      */
     public function hasDocument(): bool
     {
-        return !empty($this->sick_letter_path) || !empty($this->leave_letter_path);
+        return !empty($this->leave_letter_path);
     }
 
     /**

@@ -1,0 +1,213 @@
+/* Profile Page - Modern Professional Styling using CSS Variables */
+
+.profile-header-section {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    padding: 4rem 1.5rem 6rem 1.5rem;
+    text-align: center;
+    color: var(--text-white);
+    position: relative;
+}
+
+.profile-avatar-container {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem;
+    position: relative;
+    z-index: 5;
+}
+
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 4px solid var(--text-white);
+    box-shadow: var(--shadow-lg);
+    object-fit: cover;
+    background-color: var(--bg-card);
+}
+
+.edit-avatar-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    background: var(--bg-card);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-main);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.edit-avatar-btn:hover {
+    background: var(--bg-body);
+    transform: scale(1.1);
+}
+
+.profile-header-info h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.025em;
+}
+
+.profile-header-info p {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+/* Stats Section Overlay */
+.profile-stats-container {
+    max-width: 800px;
+    margin: -3rem auto 2rem;
+    padding: 0 1.5rem;
+    position: relative;
+    z-index: 10;
+}
+
+.profile-stats-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+}
+
+.profile-stat-item {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.profile-stat-item:not(:last-child) {
+    border-right: 1px solid var(--border-color);
+}
+
+.profile-stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+.profile-stat-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+}
+
+/* Menu Sections */
+.profile-menu-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+}
+
+.menu-group-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 2rem 0 1rem 0.5rem;
+}
+
+.menu-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    transition: var(--transition);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.menu-link:last-child {
+    border-bottom: none;
+}
+
+.menu-link:hover {
+    background-color: var(--bg-body);
+}
+
+.menu-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    margin-right: 1.25rem;
+    transition: var(--transition);
+}
+
+.menu-link:hover .menu-icon-box {
+    transform: scale(1.1);
+}
+
+.menu-info {
+    flex: 1;
+}
+
+.menu-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: block;
+}
+
+.menu-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: block;
+}
+
+.menu-arrow {
+    color: var(--text-light);
+    font-size: 0.875rem;
+    transition: var(--transition);
+}
+
+.menu-link:hover .menu-arrow {
+    transform: translateX(4px);
+    color: var(--primary-color);
+}
+
+/* Color Variants for Icons */
+.icon-blue { background: #eff6ff; color: #3b82f6; }
+.icon-green { background: #ecfdf5; color: #10b981; }
+.icon-orange { background: #fff7ed; color: #f97316; }
+.icon-purple { background: #faf5ff; color: #a855f7; }
+.icon-red { background: #fef2f2; color: #ef4444; }
+.icon-gray { background: #f8fafc; color: #64748b; }
+
+@media (max-width: 640px) {
+    .profile-stats-card {
+        padding: 1rem;
+    }
+    
+    .profile-stat-value {
+        font-size: 1.25rem;
+    }
+    
+    .profile-stat-label {
+        font-size: 0.6rem;
+    }
+}

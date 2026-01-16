@@ -1,585 +1,191 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#1ec7e6">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Aktivitas - Sistem Absensi</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        html {
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
-        }
+@extends('layouts.app')
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            width: 100%;
-            max-width: 393px;
-            min-height: 100vh;
-            margin: 0 auto;
-            overflow-y: auto;
-            padding-bottom: env(safe-area-inset-bottom, 0px);
-        }
-        
-        @media (min-width: 394px) {
-            body {
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            }
-        }
+@section('title', 'Aktivitas - Sistem Absensi')
 
-        .header {
-            background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
-            color: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            pointer-events: auto;
-        }
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/activities.css') }}">
+@endpush
 
-        .back-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 1001;
-            transition: all 0.3s ease;
-            user-select: none;
-            pointer-events: auto;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-        }
-        .back-btn:active {
-            transform: scale(0.95);
-        }
-        .back-btn:focus {
-            outline: 2px solid rgba(255, 255, 255, 0.5);
-            outline-offset: 2px;
-        }
-
-        .header-title {
-            flex: 1;
-        }
-
-        .header-title h1 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .header-title p {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        .content {
-            padding: 20px;
-            padding-bottom: 100px;
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .menu-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            text-decoration: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            min-height: 140px;
-            justify-content: center;
-        }
-
-        .menu-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-        }
-
-        .menu-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-bottom: 4px;
-        }
-
-        .menu-card:nth-child(1) .menu-icon {
-            background: linear-gradient(135deg, #ec4899, #db2777);
-            color: white;
-        }
-
-        .menu-card:nth-child(2) .menu-icon {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-        }
-
-        .menu-card:nth-child(3) .menu-icon {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
-        }
-
-        .menu-card:nth-child(4) .menu-icon {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-        }
-
-        .menu-card:nth-child(5) .menu-icon {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-        }
-
-        .menu-card:nth-child(6) .menu-icon {
-            background: linear-gradient(135deg, #06b6d4, #0891b2);
-            color: white;
-        }
-
-        .menu-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #374151;
-            margin: 0;
-        }
-
-        .menu-subtitle {
-            font-size: 12px;
-            color: #6b7280;
-            margin: 0;
-        }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .recent-activity {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .activity-item {
-            display: flex;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .activity-item:first-child {
-            padding-top: 0;
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .activity-icon.absen {
-            background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
-            color: white;
-        }
-
-        .activity-icon.izin {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-        }
-
-        .activity-icon.laporan {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
-        }
-
-        .activity-icon.keluhan {
-            background: linear-gradient(135deg, #ec4899, #db2777);
-            color: white;
-        }
-
-        .activity-content {
-            flex: 1;
-        }
-
-        .activity-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 4px;
-        }
-
-        .activity-desc {
-            font-size: 12px;
-            color: #6b7280;
-            margin-bottom: 4px;
-        }
-
-        .activity-time {
-            font-size: 11px;
-            color: #9ca3af;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .empty-icon {
-            font-size: 64px;
-            margin-bottom: 12px;
-            opacity: 0.5;
-        }
-
-        .empty-text {
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            background: white;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 8px 0;
-            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
-            z-index: 9999;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        @media (max-width: 393px) {
-            .bottom-nav {
-                max-width: 100%;
-            }
-        }
-
-        @media (min-width: 394px) {
-            .bottom-nav {
-                max-width: 393px;
-                left: 50%;
-                transform: translateX(-50%);
-                border-radius: 12px 12px 0 0;
-                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.15);
-            }
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            color: #9ca3af;
-            font-size: 10px;
-            padding: 6px 8px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            font-weight: 500;
-            min-width: 60px;
-        }
-
-        .nav-item.active {
-            color: #1ec7e6;
-        }
-
-        .nav-item:hover {
-            color: #1ec7e6;
-        }
-
-        .nav-icon {
-            font-size: 22px;
-            margin-bottom: 2px;
-            line-height: 1;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <button class="back-btn" onclick="goBack()">←</button>
-        <div class="header-title">
-            <h1>Aktivitas</h1>
-            <p>Menu aktivitas karyawan</p>
+@section('content')
+    <div class="px-4 py-8 lg:px-8 max-w-5xl mx-auto">
+        <!-- Page Header -->
+        <div class="flex items-center gap-4 mb-8">
+            <button class="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors" onclick="history.back()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Pusat Aktivitas</h1>
+                <p class="text-sm text-gray-500">Akses cepat ke semua layanan dan fitur.</p>
+            </div>
         </div>
-    </div>
 
-    <div class="content">
-        <div class="menu-grid">
-            <a href="{{ route('attendance.riwayat') }}" class="menu-card">
-                <div class="menu-icon">📊</div>
-                <div>
-                    <div class="menu-title">Riwayat Absensi</div>
-                    <div class="menu-subtitle">Lihat rekam jejak</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <!-- Attendance History -->
+            <a href="{{ route('attendance.riwayat') }}" class="activity-card hover:scale-[1.02]">
+                <div class="activity-header">
+                    <div class="activity-icon bg-blue-100 text-blue-600">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div>
+                        <h3 class="activity-title">Riwayat Absensi</h3>
+                        <p class="activity-meta">Lihat rekam jejak kehadiran</p>
+                    </div>
+                </div>
+                <div class="w-full h-1 bg-gray-50 rounded-full overflow-hidden">
+                    <div class="w-full h-full bg-blue-500"></div>
                 </div>
             </a>
             
-            <a href="{{ route('activities.izin') }}" class="menu-card">
-                <div class="menu-icon">📝</div>
-                <div>
-                    <div class="menu-title">Pengajuan Izin</div>
-                    <div class="menu-subtitle">Cuti dan izin</div>
+            <!-- Leave Request -->
+            <a href="{{ route('leave.index') }}" class="activity-card hover:scale-[1.02]">
+                <div class="activity-header">
+                    <div class="activity-icon bg-red-100 text-red-600">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <div>
+                        <h3 class="activity-title">Pengajuan Izin</h3>
+                        <p class="activity-meta">Cuti, sakit, dan izin kerja</p>
+                    </div>
+                </div>
+                <div class="w-full h-1 bg-gray-50 rounded-full overflow-hidden">
+                    <div class="w-2/3 h-full bg-red-500"></div>
                 </div>
             </a>
             
+            <!-- Reports -->
             @if(auth()->check() && (auth()->user()->hasAnyRole(['admin', 'manager']) || auth()->user()->can('reports.view')))
-            <a href="{{ route('reports.index') }}" class="menu-card">
-                <div class="menu-icon">📈</div>
-                <div>
-                    <div class="menu-title">Laporan</div>
-                    <div class="menu-subtitle">Analisa kehadiran</div>
+            <a href="{{ route('reports.index') }}" class="activity-card hover:scale-[1.02]">
+                <div class="activity-header">
+                    <div class="activity-icon bg-emerald-100 text-emerald-600">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div>
+                        <h3 class="activity-title">Laporan</h3>
+                        <p class="activity-meta">Analisa dan ekspor data</p>
+                    </div>
                 </div>
-            </a>
-            @else
-            <a href="{{ route('reports.history') }}" class="menu-card">
-                <div class="menu-icon">📈</div>
-                <div>
-                    <div class="menu-title">Riwayat Laporan</div>
-                    <div class="menu-subtitle">Laporan pribadi</div>
+                <div class="w-full h-1 bg-gray-50 rounded-full overflow-hidden">
+                    <div class="w-full h-full bg-emerald-500"></div>
                 </div>
             </a>
             @endif
             
-            <a href="{{ route('complaints.form') }}" class="menu-card">
-                <div class="menu-icon">🔧</div>
-                <div>
-                    <div class="menu-title">Keluhan</div>
-                    <div class="menu-subtitle">Laporkan masalah</div>
+            <!-- Complaints -->
+            <a href="{{ route('complaints.form') }}" class="activity-card hover:scale-[1.02]">
+                <div class="activity-header">
+                    <div class="activity-icon bg-amber-100 text-amber-600">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div>
+                        <h3 class="activity-title">Pusat Keluhan</h3>
+                        <p class="activity-meta">Laporkan kendala sistem</p>
+                    </div>
+                </div>
+                <div class="w-full h-1 bg-gray-50 rounded-full overflow-hidden">
+                    <div class="w-1/3 h-full bg-amber-500"></div>
                 </div>
             </a>
-            
-            @if(auth()->check() && (auth()->user()->hasAnyRole(['admin', 'manager']) || auth()->user()->can('reports.view')))
-            <a href="{{ route('reports.customer') }}" class="menu-card">
-                <div class="menu-icon">💬</div>
-                <div>
-                    <div class="menu-title">Laporan Customer</div>
-                    <div class="menu-subtitle">Form khusus</div>
+
+            <!-- Profile -->
+            <a href="{{ route('profile.show') }}" class="activity-card hover:scale-[1.02]">
+                <div class="activity-header">
+                    <div class="activity-icon bg-indigo-100 text-indigo-600">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div>
+                        <h3 class="activity-title">Profil Saya</h3>
+                        <p class="activity-meta">Kelola informasi personal</p>
+                    </div>
+                </div>
+                <div class="w-full h-1 bg-gray-50 rounded-full overflow-hidden">
+                    <div class="w-full h-full bg-indigo-500"></div>
                 </div>
             </a>
-            @else
-            <a href="{{ route('absensi') }}" class="menu-card">
-                <div class="menu-icon">📱</div>
-                <div>
-                    <div class="menu-title">Absensi</div>
-                    <div class="menu-subtitle">Clock in/out</div>
-                </div>
-            </a>
-            @endif
-            
+
+            <!-- Shift Management (Admin/Manager Only) -->
             @if(auth()->check() && auth()->user()->hasAnyRole(['admin', 'manager']))
-            <a href="{{ route('management.shift') }}" class="menu-card">
-                <div class="menu-icon">🕐</div>
-                <div>
-                    <div class="menu-title">Shift</div>
-                    <div class="menu-subtitle">Kelola jadwal</div>
+            <a href="{{ route('management.shift') }}" class="activity-card hover:scale-[1.02]">
+                <div class="activity-header">
+                    <div class="activity-icon bg-purple-100 text-purple-600">
+                        <i class="fas fa-business-time"></i>
+                    </div>
+                    <div>
+                        <h3 class="activity-title">Manajemen Shift</h3>
+                        <p class="activity-meta">Kelola jadwal karyawan</p>
+                    </div>
                 </div>
-            </a>
-            @else
-            <a href="{{ route('profile.show') }}" class="menu-card">
-                <div class="menu-icon">👤</div>
-                <div>
-                    <div class="menu-title">Profile</div>
-                    <div class="menu-subtitle">Kelola profil</div>
+                <div class="w-full h-1 bg-gray-50 rounded-full overflow-hidden">
+                    <div class="w-full h-full bg-purple-500"></div>
                 </div>
             </a>
             @endif
         </div>
 
-        <div class="section-title">
-            ⚡ Aktivitas Terakhir
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-900">Aktivitas Terakhir</h3>
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Update Real-time</span>
         </div>
 
-        <div class="recent-activity" id="activityList">
-            <!-- Will be populated by JavaScript -->
+        <div class="modern-card bg-white p-0 overflow-hidden border-gray-100 shadow-sm">
+            <div id="activityList" class="divide-y divide-gray-50">
+                <!-- Will be populated by JavaScript -->
+                <div class="p-12 text-center text-gray-400">
+                    <i class="fas fa-circle-notch fa-spin mr-2"></i> Memuat aktivitas...
+                </div>
+            </div>
         </div>
     </div>
+@endsection
 
-    <div class="bottom-nav">
-        <a href="{{ route('dashboard') }}" class="nav-item">
-            <div class="nav-icon">🏠</div>
-            <div>Beranda</div>
-        </a>
-        <a href="{{ route('attendance.riwayat') }}" class="nav-item">
-            <div class="nav-icon">📊</div>
-            <div>History</div>
-        </a>
-        <a href="{{ route('activities.aktifitas') }}" class="nav-item active">
-            <div class="nav-icon">📈</div>
-            <div>Aktivitas</div>
-        </a>
-        <a href="{{ route('profile.show') }}" class="nav-item">
-            <div class="nav-icon">👤</div>
-            <div>Profile</div>
-        </a>
-    </div>
-
+@push('scripts')
     <script>
         function loadRecentActivity() {
             const activityList = document.getElementById('activityList');
-            
-            // Combine activities from different sources
             const activities = [];
             
-            // Add some sample activities if no data exists
+            // Mock data representing recent system events
             const today = new Date();
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
             
-            // Sample recent activities
             activities.push({
                 type: 'absen',
-                icon: '✓',
-                title: 'Clock In',
-                desc: 'Absen masuk hari ini',
-                time: today.toISOString(),
-                priority: 1
+                icon: 'fa-sign-in-alt',
+                color: 'text-emerald-500',
+                bg: 'bg-emerald-50',
+                title: 'Presensi Masuk',
+                desc: 'Anda telah berhasil melakukan absen masuk hari ini.',
+                time: today.toISOString()
             });
             
             activities.push({
                 type: 'izin',
-                icon: '📝',
+                icon: 'fa-file-alt',
+                color: 'text-red-500',
+                bg: 'bg-red-50',
                 title: 'Pengajuan Izin',
-                desc: 'Izin sakit - Menunggu persetujuan',
-                time: yesterday.toISOString(),
-                priority: 2
+                desc: 'Izin sakit sedang menunggu verifikasi HRD.',
+                time: yesterday.toISOString()
             });
-            
-            activities.push({
-                type: 'laporan',
-                icon: '📊',
-                title: 'Lihat Laporan',
-                desc: 'Mengecek laporan kehadiran bulan ini',
-                time: yesterday.toISOString(),
-                priority: 3
-            });
-            
-            // Get attendance history from storage
-            const attendanceHistory = JSON.parse(localStorage.getItem('attendanceHistory') || '[]');
-            attendanceHistory.slice(0, 3).forEach(record => {
-                activities.push({
-                    type: 'absen',
-                    icon: '✓',
-                    title: record.type === 'in' ? 'Clock In' : 'Clock Out',
-                    desc: `${record.location || 'Lokasi kantor'}`,
-                    time: record.timestamp || new Date().toISOString(),
-                    priority: 1
-                });
-            });
-            
-            // Get izin/cuti
-            const izinData = JSON.parse(localStorage.getItem('izinData') || '[]');
-            izinData.slice(0, 2).forEach(izin => {
-                activities.push({
-                    type: 'izin',
-                    icon: '📋',
-                    title: `${izin.type === 'izin' ? 'Izin' : 'Cuti'} - ${izin.status}`,
-                    desc: izin.alasan,
-                    time: izin.tanggalMulai,
-                    priority: 2
-                });
-            });
-            
-            // Get complaints
-            const complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
-            complaints.slice(0, 2).forEach(complaint => {
-                activities.push({
-                    type: 'keluhan',
-                    icon: '🔧',
-                    title: `Keluhan ${complaint.status}`,
-                    desc: complaint.title,
-                    time: complaint.createdAt,
-                    priority: 3
-                });
-            });
-            
-            // Get customer reports
-            const reports = JSON.parse(localStorage.getItem('customerReports') || '[]');
-            reports.slice(0, 2).forEach(report => {
-                activities.push({
-                    type: 'laporan',
-                    icon: '📝',
-                    title: `Laporan Customer - ${report.status}`,
-                    desc: report.subject,
-                    time: report.createdAt,
-                    priority: 4
-                });
-            });
-            
-            // Sort by time
-            activities.sort((a, b) => new Date(b.time) - new Date(a.time));
             
             if (activities.length === 0) {
                 activityList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📭</div>
-                        <div class="empty-text">Belum ada aktivitas terbaru</div>
+                    <div class="p-12 text-center">
+                        <p class="text-gray-400 text-sm">Belum ada aktivitas terbaru</p>
                     </div>
                 `;
             } else {
-                activityList.innerHTML = activities.slice(0, 10).map(activity => `
-                    <div class="activity-item">
-                        <div class="activity-icon ${activity.type}">
-                            ${activity.icon}
+                activityList.innerHTML = activities.map(activity => `
+                    <div class="p-4 hover:bg-gray-50 transition-colors flex gap-4">
+                        <div class="w-10 h-10 rounded-xl ${activity.bg} ${activity.color} flex items-center justify-center shrink-0">
+                            <i class="fas ${activity.icon}"></i>
                         </div>
-                        <div class="activity-content">
-                            <div class="activity-title">${activity.title}</div>
-                            <div class="activity-desc">${activity.desc}</div>
-                            <div class="activity-time">${formatDateTime(activity.time)}</div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="text-sm font-bold text-gray-800">${activity.title}</h4>
+                                <span class="text-[10px] font-medium text-gray-400 uppercase">${formatDateTime(activity.time)}</span>
+                            </div>
+                            <p class="text-xs text-gray-500">${activity.desc}</p>
                         </div>
                     </div>
                 `).join('');
@@ -587,59 +193,19 @@
         }
         
         function formatDateTime(dateString) {
-            if (!dateString) return 'Invalid Date';
-            
             const date = new Date(dateString);
-            
-            // Check if date is valid
-            if (isNaN(date.getTime())) {
-                return 'Invalid Date';
-            }
-            
             const now = new Date();
             const diff = now - date;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor(diff / (1000 * 60 * 60));
             const minutes = Math.floor(diff / (1000 * 60));
+            const hours = Math.floor(diff / (1000 * 60 * 60));
             
             if (minutes < 1) return 'Baru saja';
-            if (minutes < 60) return `${minutes} menit yang lalu`;
-            if (hours < 24) return `${hours} jam yang lalu`;
-            if (days < 7) return `${days} hari yang lalu`;
+            if (minutes < 60) return `${minutes}m yang lalu`;
+            if (hours < 24) return `${hours}j yang lalu`;
             
-            return date.toLocaleDateString('id-ID', { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-        
-        // Fallback function if popup.js fails to load
-        if (typeof smartGoBack === 'undefined') {
-            function smartGoBack(fallbackUrl) {
-                if (window.history.length > 1 && document.referrer && 
-                    document.referrer !== window.location.href &&
-                    !document.referrer.includes('login')) {
-                    try {
-                        window.history.back();
-                    } catch (error) {
-                        window.location.href = fallbackUrl;
-                    }
-                } else {
-                    window.location.href = fallbackUrl;
-                }
-            }
-        }
-
-        function goBack() {
-            smartGoBack('{{ route("dashboard") }}');
+            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
         }
         
         window.addEventListener('DOMContentLoaded', loadRecentActivity);
     </script>
-
-    <script src="{{ asset('components/popup.js') }}"></script>
-</body>
-</html>
+@endpush

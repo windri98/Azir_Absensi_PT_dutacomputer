@@ -1,566 +1,169 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat Absensi - Sistem Absensi</title>
-    <link rel="stylesheet" href="{{ asset('components/popup.css') }}">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            width: 100%;
-            max-width: 393px;
-            min-height: 100vh;
-            margin: 0 auto;
-            overflow-y: auto;
-            padding-bottom: 80px;
-        }
-        
-        @media (min-width: 394px) {
-            body {
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            }
-        }
-        
-        /* Header */
-                .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 50px 20px 30px 20px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .header-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            position: relative;
-            z-index: 11;
-        }
-        .back-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            font-size: 18px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 1000;
-            transition: all 0.3s ease;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            flex-shrink: 0;
-            text-decoration: none;
-        }
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-        }
-        .back-btn:active {
-            transform: scale(0.95);
-        }
-        .back-btn:focus {
-            outline: 2px solid rgba(255, 255, 255, 0.5);
-            outline-offset: 2px;
-        }
-        .header-title {
-            flex: 1;
-        }
-        .header-title h1 {
-            font-size: 20px;
-            font-weight: 600;
-        }
-        .header-title p {
-            font-size: 14px;
-            opacity: 0.8;
-            margin-top: 4px;
-        }
-        
-        /* Filter Section */
-        .filter-section {
-            background: white;
-            padding: 20px;
-            margin: 0 20px 20px 20px;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            margin-top: -10px;
-            position: relative;
-            z-index: 5;
-        }
-        .filter-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        .filter-tab {
-            padding: 8px 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 20px;
-            background: white;
-            color: #6b7280;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .filter-tab.active {
-            background: #1ec7e6;
-            color: white;
-            border-color: #1ec7e6;
-        }
-        .date-range {
-            display: flex;
-            gap: 12px;
-        }
-        .date-input {
-            flex: 1;
-            padding: 10px 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        
-        /* Summary Cards */
-        .summary-section {
-            padding: 0 20px 20px 20px;
-        }
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .summary-card {
-            background: white;
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        }
-        .summary-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1ec7e6;
-            margin-bottom: 4px;
-        }
-        .summary-label {
-            font-size: 12px;
-            color: #6b7280;
-        }
-        
-        /* History List */
-        .history-section {
-            padding: 0 20px;
-        }
-        .section-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 12px;
-        }
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .history-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            transition: transform 0.2s ease;
-        }
-        .history-card:hover {
-            transform: translateY(-2px);
-        }
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .history-date {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-        }
-        .history-status {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .status-present {
-            background: #dcfce7;
-            color: #16a34a;
-        }
-        .status-late {
-            background: #fef3c7;
-            color: #d97706;
-        }
-        .status-absent {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-        .status-work_leave {
-            background: #e0e7ff;
-            color: #3730a3;
-        }
-        .history-details {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-        .detail-item {
-            text-align: center;
-        }
-        .detail-label {
-            font-size: 11px;
-            color: #6b7280;
-            margin-bottom: 4px;
-        }
-        .detail-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        /* Document Actions */
-        .document-item {
-            grid-column: span 2;
-            border-top: 1px solid #f0f0f0;
-            padding-top: 12px;
-            margin-top: 12px;
-        }
-        
-        .document-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-        }
-        
-        .doc-btn {
-            padding: 6px 12px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        
-        .view-btn {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .view-btn:hover {
-            background: #bfdbfe;
-        }
-        
-        .download-btn {
-            background: #dcfce7;
-            color: #16a34a;
-        }
-        
-        .download-btn:hover {
-            background: #bbf7d0;
-        }
-        
-        /* Notes */
-        .notes-item {
-            grid-column: span 2;
-            text-align: left;
-            border-top: 1px solid #f0f0f0;
-            padding-top: 12px;
-            margin-top: 12px;
-        }
-        
-        .notes-text {
-            font-size: 13px;
-            font-weight: normal;
-            color: #6b7280;
-            line-height: 1.4;
-        }
-        
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
-            z-index: 100;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        @media (max-width: 393px) {
-            .bottom-nav {
-                max-width: 100%;
-            }
-        }
-        
-        @media (min-width: 394px) {
-            .bottom-nav {
-                max-width: 393px;
-                left: 50%;
-                transform: translateX(-50%);
-                border-radius: 12px 12px 0 0;
-                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.15);
-            }
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #9ca3af;
-            transition: color 0.2s ease;
-            padding: 6px 8px;
-            min-width: 60px;
-        }
-        .nav-item.active {
-            color: #1ec7e6;
-        }
-        .nav-icon {
-            font-size: 22px;
-            margin-bottom: 2px;
-        }
-        .nav-label {
-            font-size: 10px;
-            font-weight: 500;
-        }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #6b7280;
-        }
-        .empty-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-        .empty-text {
-            font-size: 16px;
-            margin-bottom: 8px;
-        }
-        .empty-subtext {
-            font-size: 14px;
-            opacity: 0.7;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-content">
-            <a href="{{ route('dashboard') }}" class="back-btn">←</a>
-            <div class="header-title">
-                <h1>Riwayat Absensi</h1>
-                <p>Lihat rekam jejak kehadiran Anda</p>
+@extends('layouts.app')
+
+@section('title', 'Riwayat Absensi - Sistem Absensi')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/riwayat.css') }}">
+@endpush
+
+@section('content')
+    <div class="px-4 py-8 lg:px-8 max-w-5xl mx-auto">
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+            <div class="flex items-center gap-4">
+                <button class="btn btn-secondary !p-2 shadow-sm" onclick="history.back()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div>
+                    <h1 class="text-2xl font-bold text-main">Riwayat Kehadiran</h1>
+                    <p class="text-sm text-muted">Pantau rekam jejak presensi Anda</p>
+                </div>
+            </div>
+            
+            <form method="GET" action="{{ route('attendance.riwayat') }}" id="filterForm">
+                <div class="filter-tabs shadow-sm">
+                    <button type="button" class="filter-tab {{ !request('period') || request('period') == 'week' ? 'active' : '' }}" onclick="filterBy('week')">Minggu</button>
+                    <button type="button" class="filter-tab {{ request('period') == 'month' ? 'active' : '' }}" onclick="filterBy('month')">Bulan</button>
+                    <button type="button" class="filter-tab {{ request('period') == 'custom' ? 'active' : '' }}" onclick="filterBy('custom')">Custom</button>
+                </div>
+                <input type="hidden" name="period" id="periodInput" value="{{ request('period', 'week') }}">
+            </form>
+        </div>
+
+        @if(request('period') == 'custom')
+        <div class="modern-card mb-8">
+            <form method="GET" action="{{ route('attendance.riwayat') }}" class="grid grid-cols-1 md:grid-cols-3 items-end gap-4">
+                <input type="hidden" name="period" value="custom">
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-bold text-light uppercase tracking-widest">Mulai</label>
+                    <input type="date" name="start_date" class="date-input" value="{{ request('start_date') }}">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-bold text-light uppercase tracking-widest">Sampai</label>
+                    <input type="date" name="end_date" class="date-input" value="{{ request('end_date') }}">
+                </div>
+                <button type="submit" class="btn btn-primary py-2.5">Filter Data</button>
+            </form>
+        </div>
+        @endif
+
+        <!-- Summary Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                <span class="text-3xl font-black text-primary-color">{{ $stats['total_days'] ?? 0 }}</span>
+                <span class="text-[10px] font-bold text-light uppercase tracking-widest mt-1">Total Hari</span>
+            </div>
+            <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                <span class="text-3xl font-black text-success">{{ $stats['present_days'] ?? 0 }}</span>
+                <span class="text-[10px] font-bold text-light uppercase tracking-widest mt-1">Hadir</span>
+            </div>
+            <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                <span class="text-3xl font-black text-warning">{{ $stats['late_days'] ?? 0 }}</span>
+                <span class="text-[10px] font-bold text-light uppercase tracking-widest mt-1">Terlambat</span>
+            </div>
+            <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                <span class="text-3xl font-black text-info">{{ number_format($stats['total_hours'] ?? 0, 1) }}h</span>
+                <span class="text-[10px] font-bold text-light uppercase tracking-widest mt-1">Total Jam</span>
             </div>
         </div>
-    </div>
 
-    <div class="filter-section">
-        <form method="GET" action="{{ route('attendance.riwayat') }}" id="filterForm">
-            <div class="filter-tabs">
-                <button type="button" class="filter-tab {{ !request('period') || request('period') == 'week' ? 'active' : '' }}" onclick="filterBy('week')">Minggu Ini</button>
-                <button type="button" class="filter-tab {{ request('period') == 'month' ? 'active' : '' }}" onclick="filterBy('month')">Bulan Ini</button>
-                <button type="button" class="filter-tab {{ request('period') == 'custom' ? 'active' : '' }}" onclick="filterBy('custom')">Custom</button>
-            </div>
-            <div class="date-range" id="dateRange" style="display: {{ request('period') == 'custom' ? 'flex' : 'none' }};">
-                <input type="date" class="date-input" id="startDate" name="start_date" value="{{ request('start_date') }}">
-                <input type="date" class="date-input" id="endDate" name="end_date" value="{{ request('end_date') }}">
-                <button type="submit" style="padding:8px 16px;background:#1ec7e6;color:white;border:none;border-radius:6px;margin-left:10px">Filter</button>
-            </div>
-            <input type="hidden" name="period" id="periodInput" value="{{ request('period', 'week') }}">
-        </form>
-    </div>
-
-    <div class="summary-section">
-        <div class="summary-grid">
-            <div class="summary-card">
-                <div class="summary-number" id="totalDays">{{ $stats['total_days'] ?? 0 }}</div>
-                <div class="summary-label">Total Hari</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-number" id="presentDays">{{ $stats['present_days'] ?? 0 }}</div>
-                <div class="summary-label">Hadir</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-number" id="lateDays">{{ $stats['late_days'] ?? 0 }}</div>
-                <div class="summary-label">Terlambat</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-number" id="totalHours">{{ number_format($stats['total_hours'] ?? 0, 1) }}h</div>
-                <div class="summary-label">Total Jam</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="history-section">
-        <h3 class="section-title">Detail Kehadiran</h3>
-        @if($attendances->count() > 0)
-        <div class="history-list">
-            @foreach($attendances as $attendance)
-                <div class="history-card">
-                    <div class="history-header">
-                        <div class="history-date">
-                            {{ \Carbon\Carbon::parse($attendance->date)->translatedFormat('l, d F Y') }}
-                        </div>
-                        <div class="history-status status-{{ $attendance->status ?? 'present' }}">
-                            @if($attendance->status === 'late') Terlambat
-                            @elseif($attendance->status === 'work_leave') Izin Kerja
-                            @else Hadir
-                            @endif
-                        </div>
-                    </div>
-                    <div class="history-details">
-                        <div class="detail-item">
-                            <div class="detail-label">Masuk</div>
-                            <div class="detail-value">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '--:--' }}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Keluar</div>
-                            <div class="detail-value">{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '--:--' }}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Durasi</div>
-                            <div class="detail-value">
-                                @if($attendance->check_in && $attendance->check_out)
-                                    @php
-                                        $start = \Carbon\Carbon::parse($attendance->check_in);
-                                        $end = \Carbon\Carbon::parse($attendance->check_out);
-                                        $diff = $end->diff($start);
-                                    @endphp
-                                    {{ $diff->h }}h {{ $diff->i }}m
-                                @else
-                                    --:--
-                                @endif
+        <!-- History List -->
+        <div class="space-y-6">
+            <h3 class="text-lg font-bold text-main">Detail Aktivitas</h3>
+            <div class="flex flex-col gap-4">
+                @forelse($attendances as $attendance)
+                    <div class="history-card shadow-sm">
+                        <div class="history-header">
+                            <div class="history-date">
+                                <i class="far fa-calendar-alt text-primary-color"></i>
+                                {{ \Carbon\Carbon::parse($attendance->date)->translatedFormat('l, d F Y') }}
                             </div>
+                            <span class="status-badge {{ 
+                                $attendance->status === 'present' ? 'status-present' : 
+                                ($attendance->status === 'late' ? 'status-late' : 
+                                ($attendance->status === 'work_leave' ? 'status-work_leave' : 'status-absent')) 
+                            }}">
+                                {{ 
+                                    $attendance->status === 'present' ? 'Hadir' : 
+                                    ($attendance->status === 'late' ? 'Terlambat' : 
+                                    ($attendance->status === 'work_leave' ? 'Izin Kerja' : 'Alpa')) 
+                                }}
+                            </span>
                         </div>
-                        
-                        @if($attendance->hasDocument())
-                        <div class="detail-item document-item">
-                            <div class="detail-label">{{ $attendance->getDocumentTypeLabel() }}</div>
-                            <div class="detail-value">
-                                <div class="document-actions">
-                                    <a href="{{ route('attendance.document.view', $attendance) }}" 
-                                       class="doc-btn view-btn" target="_blank" title="Lihat Dokumen">
-                                        👁️ Lihat
+                        <div class="history-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Check In</span>
+                                <span class="detail-value text-success">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '--:--' }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Check Out</span>
+                                <span class="detail-value {{ $attendance->check_out ? 'text-success' : 'text-light' }}">{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '--:--' }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Durasi</span>
+                                <span class="detail-value text-primary-color">
+                                    @if($attendance->check_in && $attendance->check_out)
+                                        @php
+                                            $start = \Carbon\Carbon::parse($attendance->check_in);
+                                            $end = \Carbon\Carbon::parse($attendance->check_out);
+                                            $diff = $end->diff($start);
+                                        @endphp
+                                        {{ $diff->h }}j {{ $diff->i }}m
+                                    @else
+                                        --
+                                    @endif
+                                </span>
+                            </div>
+
+                            @if($attendance->hasDocument())
+                            <div class="notes-item flex justify-between items-center bg-body p-3 rounded-lg border border-color">
+                                <span class="text-[10px] font-bold text-main uppercase">{{ $attendance->getDocumentTypeLabel() }}</span>
+                                <div class="flex gap-2">
+                                    <a href="{{ route('attendance.document.view', $attendance) }}" class="doc-btn view-btn" target="_blank">
+                                        <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('attendance.document.download', $attendance) }}" 
-                                       class="doc-btn download-btn" title="Download Dokumen">
-                                        💾 Download
+                                    <a href="{{ route('attendance.document.download', $attendance) }}" class="doc-btn download-btn">
+                                        <i class="fas fa-download"></i>
                                     </a>
                                 </div>
                             </div>
+                            @endif
+
+                            @if($attendance->notes)
+                            <div class="notes-item">
+                                <span class="detail-label">Catatan</span>
+                                <p class="notes-text mt-1 italic">"{{ $attendance->notes }}"</p>
+                            </div>
+                            @endif
                         </div>
-                        @endif
-                        
-                        @if($attendance->notes)
-                        <div class="detail-item notes-item">
-                            <div class="detail-label">Keterangan</div>
-                            <div class="detail-value notes-text">{{ $attendance->notes }}</div>
-                        </div>
-                        @endif
                     </div>
-                </div>
-            @endforeach
+                @empty
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times empty-state-icon"></i>
+                        <h3 class="font-bold text-main mb-1">Tidak ada riwayat</h3>
+                        <p class="text-sm text-muted">Belum ada data absensi untuk periode ini.</p>
+                    </div>
+                @endforelse
+            </div>
         </div>
-        @else
-        <div class="empty-state">
-            <div class="empty-icon">📅</div>
-            <div class="empty-text">Belum ada data absensi</div>
-            <div class="empty-subtext">Mulai catat kehadiran Anda hari ini</div>
+        
+        <div class="mt-8">
+            {{ $attendances->links() }}
         </div>
-        @endif
     </div>
+@endsection
 
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-        <a href="{{ route('dashboard') }}" class="nav-item">
-            <span class="nav-icon">🏠</span>
-            <span class="nav-label">Home</span>
-        </a>
-        <a href="{{ route('attendance.riwayat') }}" class="nav-item active">
-            <span class="nav-icon">📊</span>
-            <span class="nav-label">History</span>
-        </a>
-        <a href="{{ route('reports.index') }}" class="nav-item">
-            <span class="nav-icon">📈</span>
-            <span class="nav-label">Reports</span>
-        </a>
-        <a href="{{ route('profile.show') }}" class="nav-item">
-            <span class="nav-icon">👤</span>
-            <span class="nav-label">Profile</span>
-        </a>
-    </nav>
-
-    <script src="{{ asset('components/popup.js') }}"></script>
+@push('scripts')
     <script>
-        // Fallback function if popup.js fails to load
-        if (typeof smartGoBack === 'undefined') {
-            function smartGoBack(fallbackUrl) {
-                if (window.history.length > 1 && document.referrer && 
-                    document.referrer !== window.location.href &&
-                    !document.referrer.includes('login')) {
-                    try {
-                        window.history.back();
-                    } catch (error) {
-                        window.location.href = fallbackUrl;
-                    }
-                } else {
-                    window.location.href = fallbackUrl;
-                }
-            }
-        }
-
-        let currentFilter = 'week';
-
-        function goBack() {
-            smartGoBack('{{ route("dashboard") }}');
-        }
-
         function filterBy(period) {
-            // Update active tab
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Show/hide date range
-            const dateRange = document.getElementById('dateRange');
+            document.getElementById('periodInput').value = period;
             if (period === 'custom') {
-                dateRange.style.display = 'flex';
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('period', 'custom');
+                window.location.href = currentUrl.toString();
             } else {
-                dateRange.style.display = 'none';
-                // For non-custom periods, submit immediately
-                document.getElementById('periodInput').value = period;
                 document.getElementById('filterForm').submit();
             }
         }
-
-        // Form submission for custom date filter
-        document.getElementById('filterForm').addEventListener('submit', function(e) {
-            document.getElementById('periodInput').value = 'custom';
-        });
+    </script>
+@endpush

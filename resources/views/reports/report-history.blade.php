@@ -1,403 +1,16 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#1ec7e6">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Riwayat Laporan - Sistem Absensi</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        html {
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
-        }
+@extends('layouts.app')
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            width: 100%;
-            max-width: 393px;
-            min-height: 100vh;
-            margin: 0 auto;
-            overflow-y: auto;
-            padding-bottom: 80px;
-        }
-        
-        @media (min-width: 394px) {
-            body {
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            }
-        }
+@section('title', 'Riwayat Laporan - Sistem Absensi')
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
-            color: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+@php
+    $hideHeader = true;
+@endphp
 
-        .header-left {
-            display: flex;
-            align-items: center;
-        }
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/report-history.css') }}">
+@endpush
 
-        .back-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            font-size: 18px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 16px;
-        }
-
-        .header-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .add-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* Content */
-        .content {
-            padding: 20px;
-        }
-
-        /* Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .stat-number.pending { color: #f59e0b; }
-        .stat-number.process { color: #3b82f6; }
-        .stat-number.resolved { color: #10b981; }
-
-        .stat-label {
-            font-size: 12px;
-            color: #6b7280;
-        }
-
-        /* Filter Tabs */
-        .filter-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-
-        .filter-tabs::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .filter-tabs::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 4px;
-        }
-
-        .filter-tab {
-            background: white;
-            border: 2px solid #e5e7eb;
-            color: #6b7280;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-        }
-
-        .filter-tab.active {
-            background: #1ec7e6;
-            border-color: #1ec7e6;
-            color: white;
-        }
-
-        /* Report List */
-        .report-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .report-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .report-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-
-        .report-ticket {
-            font-size: 12px;
-            color: #6b7280;
-            font-family: monospace;
-        }
-
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .status-badge.pending {
-            background: #fef3c7;
-            color: #d97706;
-        }
-
-        .status-badge.process {
-            background: #dbeafe;
-            color: #2563eb;
-        }
-
-        .status-badge.resolved {
-            background: #d1fae5;
-            color: #059669;
-        }
-
-        .status-badge.rejected {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .report-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-
-        .report-meta {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 8px;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            color: #6b7280;
-        }
-
-        .priority-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .priority-indicator.low { background: #10b981; }
-        .priority-indicator.medium { background: #f59e0b; }
-        .priority-indicator.high { background: #ef4444; }
-
-        .report-description {
-            font-size: 13px;
-            color: #6b7280;
-            line-height: 1.5;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-            opacity: 0.3;
-        }
-
-        .empty-text {
-            font-size: 16px;
-            color: #6b7280;
-            margin-bottom: 8px;
-        }
-
-        .empty-subtext {
-            font-size: 14px;
-            color: #9ca3af;
-            margin-bottom: 24px;
-        }
-
-        .empty-btn {
-            background: #1ec7e6;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* Detail Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: flex-end;
-            justify-content: center;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px 20px 0 0;
-            width: 100%;
-            max-width: 393px;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-            }
-            to {
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 10;
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .close-btn {
-            background: #f3f4f6;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-size: 20px;
-            cursor: pointer;
-            color: #6b7280;
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .detail-section {
-            margin-bottom: 20px;
-        }
-
-        .detail-label {
-            font-size: 12px;
-            color: #6b7280;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-
-        .detail-value {
-            font-size: 14px;
-            color: #374151;
-        }
-
-        .detail-description {
-            font-size: 14px;
-            color: #374151;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-    </style>
-</head>
-<body>
+@section('content')
     <div class="header">
         <div class="header-left">
             <button class="back-btn" onclick="goBack()">←</button>
@@ -460,7 +73,10 @@
             </div>
         </div>
     </div>
+@endsection
 
+@push('scripts')
+    <script src="{{ asset('components/popup.js') }}"></script>
     <script>
         let currentFilter = 'all';
 
@@ -647,23 +263,25 @@
             window.location.href = '{{ route("reports.customer") }}';
         }
 
-        function goBack() {
-            if (typeof smartGoBack === 'function') {
-                smartGoBack('{{ route("dashboard") }}');
-            } else {
-                // Fallback navigation
+        // Fallback function if popup.js fails to load
+        if (typeof smartGoBack === 'undefined') {
+            function smartGoBack(fallbackUrl) {
                 if (window.history.length > 1 && document.referrer && 
                     document.referrer !== window.location.href &&
                     !document.referrer.includes('login')) {
                     try {
                         window.history.back();
                     } catch (error) {
-                        window.location.href = '{{ route("dashboard") }}';
+                        window.location.href = fallbackUrl;
                     }
                 } else {
-                    window.location.href = '{{ route("dashboard") }}';
+                    window.location.href = fallbackUrl;
                 }
             }
+        }
+
+        function goBack() {
+            smartGoBack('{{ route("dashboard") }}');
         }
 
         // Close modal when clicking outside
@@ -676,5 +294,4 @@
         // Load reports on page load
         window.addEventListener('DOMContentLoaded', loadReports);
     </script>
-</body>
-</html>
+@endpush

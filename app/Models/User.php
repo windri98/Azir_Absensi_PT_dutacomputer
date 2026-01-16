@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Helpers\QRCodeHelper;
@@ -240,5 +241,62 @@ class User extends Authenticatable
             'type' => 'attendance',
             'generated_at' => now()->toDateTimeString()
         ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Query Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Scope for users with specific role
+     */
+    public function scopeWithRole(Builder $query, string $roleName): Builder
+    {
+        return $query->whereHas('roles', function ($q) use ($roleName) {
+            $q->where('name', $roleName);
+        });
+    }
+
+    /**
+     * Scope for users with any of the given roles
+     */
+    public function scopeWithAnyRole(Builder $query, array $roleNames): Builder
+    {
+        return $query->whereHas('roles', function ($q) use ($roleNames) {
+            $q->whereIn('name', $roleNames);
+        });
+    }
+
+    /**
+     * Scope for active users (has attendance this month)
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->whereHas('attendances', function ($q) {
+            $q->thisMonth();
+        });
+    }
+
+    /**
+     * Scope for search by name, email, or employee_id
+     */
+    public function scopeSearch(Builder $query, string $search): Builder
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('employee_id', 'like', "%{$search}%")
+                ->orWhere('phone', 'like', "%{$search}%");
+        });
+    }
+
+    /**
+     * Scope ordered by name
+     */
+    public function scopeOrderByName(Builder $query, string $direction = 'asc'): Builder
+    {
+        return $query->orderBy('name', $direction);
     }
 }

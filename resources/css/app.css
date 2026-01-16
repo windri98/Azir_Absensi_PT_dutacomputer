@@ -1,3 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Import CSS files */
+@import url('../css/style.css');
+@import url('../css/components.css');
+@import url('../css/responsive.css');
