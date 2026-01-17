@@ -3,307 +3,260 @@
 @section('title', 'Admin Dashboard')
 
 @section('content')
-<div class="page-header">
-    <h2>Dashboard</h2>
-</div>
-
-<!-- Statistik Utama -->
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
-    <div class="card">
-        <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">Total User</h3>
-        <div style="font-size:32px;font-weight:700;color:#0ea5e9">{{ $userCount }}</div>
-    </div>
-    <div class="card">
-        <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">Total Admin</h3>
-        <div style="font-size:32px;font-weight:700;color:#10b981">{{ $adminCount }}</div>
-    </div>
-    <div class="card">
-        <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">Absensi Hari Ini</h3>
-        <div style="font-size:32px;font-weight:700;color:#8b5cf6">{{ $attendanceToday }}</div>
-    </div>
-    <div class="card">
-        <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">Terlambat Hari Ini</h3>
-        <div style="font-size:32px;font-weight:700;color:#ef4444">{{ $lateToday }}</div>
-    </div>
-</div>
-
-<!-- Statistik Keluhan (Technical Complaints) -->
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
-    <a href="{{ route('complaints.technician', ['status' => 'pending']) }}" style="text-decoration:none">
-        <div class="card" style="border-left:4px solid #ef4444;cursor:pointer;transition:transform .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">💬 Keluhan Pending</h3>
-            <div style="font-size:32px;font-weight:700;color:#ef4444">{{ $pendingComplaints }}</div>
-            <small style="color:#6b7280">Keluhan perlu ditangani</small>
-        </div>
-    </a>
-    <a href="{{ route('complaints.technician', ['status' => 'resolved']) }}" style="text-decoration:none">
-        <div class="card" style="border-left:4px solid #10b981;cursor:pointer;transition:transform .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">✅ Keluhan Resolved</h3>
-            <div style="font-size:32px;font-weight:700;color:#10b981">{{ $resolvedComplaints }}</div>
-            <small style="color:#6b7280">Keluhan terselesaikan</small>
-        </div>
-    </a>
-    <a href="{{ route('complaints.technician', ['status' => 'closed']) }}" style="text-decoration:none">
-        <div class="card" style="border-left:4px solid #6b7280;cursor:pointer;transition:transform .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">🔒 Keluhan Closed</h3>
-            <div style="font-size:32px;font-weight:700;color:#6b7280">{{ $closedComplaints }}</div>
-            <small style="color:#6b7280">Keluhan ditutup</small>
-        </div>
-    </a>
-</div>
-
-<!-- Statistik Izin Kerja -->
-<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px;">
-    <div class="card">
-        <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">📋 Izin Kerja Hari Ini</h3>
-        <div style="font-size:32px;font-weight:700;color:#3730a3">{{ $workLeaveToday }}</div>
-        <small style="color:#6b7280">Karyawan izin hari ini</small>
-    </div>
-    <div class="card">
-        <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">📊 Izin Kerja Bulan Ini</h3>
-        <div style="font-size:32px;font-weight:700;color:#7c3aed">{{ $workLeaveThisMonth }}</div>
-        <small style="color:#6b7280">Total izin bulan {{ now()->translatedFormat('F') }}</small>
-    </div>
-</div>
-
-<!-- Quick Access Menu -->
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:24px;">
-    <a href="{{ route('reports.users') }}" style="text-decoration:none">
-        <div class="card" style="border-left:4px solid #1ec7e6;cursor:pointer;transition:transform .2s;padding:20px" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="font-size:32px">👥</div>
-                <div>
-                    <h3 style="font-size:16px;color:#1f2937;margin-bottom:4px">Laporan Per User</h3>
-                    <p style="font-size:13px;color:#6b7280">Detail absensi setiap karyawan</p>
-                </div>
+<div class="space-y-8 animate-fade-in-up">
+    <!-- Welcome Section -->
+    <div class="bg-gradient-vibrant rounded-2xl p-8 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold mb-2 font-display">Admin Dashboard 🎯</h1>
+                <p class="text-white/80">Kelola sistem absensi dan data karyawan dengan mudah</p>
+            </div>
+            <div class="hidden md:block text-6xl opacity-20 animate-float">
+                <i class="fas fa-chart-line"></i>
             </div>
         </div>
-    </a>
-    <a href="{{ route('admin.users.index') }}" style="text-decoration:none">
-        <div class="card" style="border-left:4px solid #10b981;cursor:pointer;transition:transform .2s;padding:20px" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="font-size:32px">👤</div>
-                <div>
-                    <h3 style="font-size:16px;color:#1f2937;margin-bottom:4px">Kelola User</h3>
-                    <p style="font-size:13px;color:#6b7280">Manajemen pengguna sistem</p>
-                </div>
-            </div>
-        </div>
-    </a>
-    <a href="{{ route('complaints.technician') }}" style="text-decoration:none">
-        <div class="card" style="border-left:4px solid #ef4444;cursor:pointer;transition:transform .2s;padding:20px" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="font-size:32px">💬</div>
-                <div>
-                    <h3 style="font-size:16px;color:#1f2937;margin-bottom:4px">Kelola Keluhan</h3>
-                    <p style="font-size:13px;color:#6b7280">Review & respond keluhan karyawan</p>
-                </div>
-            </div>
-        </div>
-    </a>
-    <a href="{{ route('admin.complaints.index') }}" style="text-decoration:none">
-        <div class="card" style="border-left:4px solid #f59e0b;cursor:pointer;transition:transform .2s;padding:20px" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="font-size:32px">📋</div>
-                <div>
-                    <h3 style="font-size:16px;color:#1f2937;margin-bottom:4px">Kelola Pengajuan</h3>
-                    <p style="font-size:13px;color:#6b7280">Review izin dan cuti</p>
-                </div>
-            </div>
-        </div>
-    </a>
-    <a href="{{ route('admin.work-leave.index') }}" style="text-decoration:none">
-        <div class="card" style="border-left:4px solid #3730a3;cursor:pointer;transition:transform .2s;padding:20px" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="font-size:32px">🏢</div>
-                <div>
-                    <h3 style="font-size:16px;color:#1f2937;margin-bottom:4px">Kelola Izin Kerja</h3>
-                    <p style="font-size:13px;color:#6b7280">Review & approve izin kerja</p>
-                </div>
-            </div>
-        </div>
-    </a>
-</div>
-
-<!-- Statistik Pengajuan Izin/Cuti -->
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
-    <a href="{{ route('admin.complaints.index', ['status' => 'pending']) }}" style="text-decoration:none">
-        <div class="card" style="border-left:4px solid #f59e0b;cursor:pointer;transition:transform .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">⏳ Menunggu Persetujuan</h3>
-            <div style="font-size:32px;font-weight:700;color:#f59e0b">{{ $pendingLeaveRequests }}</div>
-            <small style="color:#6b7280">Pengajuan pending</small>
-        </div>
-    </a>
-    <a href="{{ route('admin.complaints.index', ['status' => 'approved']) }}" style="text-decoration:none">
-        <div class="card" style="border-left:4px solid #10b981;cursor:pointer;transition:transform .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">✅ Disetujui</h3>
-            <div style="font-size:32px;font-weight:700;color:#10b981">{{ $approvedLeaveRequests }}</div>
-            <small style="color:#6b7280">Total disetujui</small>
-        </div>
-    </a>
-    <a href="{{ route('admin.complaints.index', ['status' => 'rejected']) }}" style="text-decoration:none">
-        <div class="card" style="border-left:4px solid #ef4444;cursor:pointer;transition:transform .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">❌ Ditolak</h3>
-            <div style="font-size:32px;font-weight:700;color:#ef4444">{{ $rejectedLeaveRequests }}</div>
-            <small style="color:#6b7280">Total ditolak</small>
-        </div>
-    </a>
-</div>
-
-<!-- Pengajuan Terbaru yang Pending -->
-@if($recentComplaints->count() > 0)
-<div class="card" style="margin-bottom:24px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <h3>🔔 Pengajuan Baru (Menunggu Persetujuan)</h3>
-        <a href="{{ route('admin.complaints.index') }}" class="btn-secondary" style="padding:6px 12px;font-size:13px">Lihat Semua</a>
     </div>
-    
-    <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse">
-            <thead>
-                <tr style="border-bottom:2px solid #e5e7eb">
-                    <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Tanggal</th>
-                    <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Karyawan</th>
-                                    <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Jenis Kelamin</th>
-                    <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Kategori</th>
-                    <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Judul</th>
-                    <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Prioritas</th>
-                    <th style="text-align:center;padding:12px 8px;font-size:13px;color:#6b7280">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($recentComplaints as $complaint)
-                <tr style="border-bottom:1px solid #f3f4f6">
-                    <td style="padding:12px 8px;font-size:13px">
-                        {{ $complaint->created_at->format('d/m/Y H:i') }}
-                    </td>
-                    <td style="padding:12px 8px;font-size:13px">
-                        <strong>{{ $complaint->user->name }}</strong><br>
-                        <small style="color:#6b7280">{{ $complaint->user->email }}</small>
-                    </td>
-                    <td style="padding:12px 8px;font-size:13px">
-                        {{ $complaint->user->gender ?? '-' }}
-                    </td>
-                    <td style="padding:12px 8px;font-size:13px">
-                        @php
-                            $categoryBadge = [
-                                'cuti' => ['bg' => '#dbeafe', 'text' => '#1e40af', 'icon' => '🏖️'],
-                                'sakit' => ['bg' => '#fee2e2', 'text' => '#991b1b', 'icon' => '🤒'],
-                                'izin' => ['bg' => '#fef3c7', 'text' => '#92400e', 'icon' => '📝'],
-                                'lainnya' => ['bg' => '#f3f4f6', 'text' => '#374151', 'icon' => '💬'],
-                            ];
-                            $badge = $categoryBadge[$complaint->category] ?? $categoryBadge['lainnya'];
-                        @endphp
-                        <span style="background:{{ $badge['bg'] }};color:{{ $badge['text'] }};padding:4px 8px;border-radius:4px;font-size:12px;font-weight:600">
-                            {{ $badge['icon'] }} {{ ucfirst($complaint->category) }}
-                        </span>
-                    </td>
-                    <td style="padding:12px 8px;font-size:13px">{{ Str::limit($complaint->title, 40) }}</td>
-                    <td style="padding:12px 8px;font-size:13px">
-                        @php
-                            $priorityBadge = [
-                                'low' => ['bg' => '#d1fae5', 'text' => '#065f46', 'label' => 'Rendah'],
-                                'medium' => ['bg' => '#fef3c7', 'text' => '#92400e', 'label' => 'Sedang'],
-                                'high' => ['bg' => '#fee2e2', 'text' => '#991b1b', 'label' => 'Tinggi'],
-                            ];
-                            $priority = $priorityBadge[$complaint->priority] ?? $priorityBadge['medium'];
-                        @endphp
-                        <span style="background:{{ $priority['bg'] }};color:{{ $priority['text'] }};padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600">
-                            {{ $priority['label'] }}
-                        </span>
-                    </td>
-                    <td style="padding:12px 8px;text-align:center">
-                        <a href="{{ route('admin.complaints.show', $complaint->id) }}" class="btn-primary" style="padding:6px 12px;font-size:12px">
-                            👁️ Lihat & Review
+
+    <!-- Main Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total Users -->
+        <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-6 shadow-soft hover:shadow-card-hover transition-all duration-300 border border-primary-200 animate-fade-in-up" style="animation-delay: 0.1s;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-primary-700 uppercase tracking-wide">Total Pengguna</h3>
+                <div class="bg-gradient-primary rounded-lg p-3 text-white shadow-glow">
+                    <i class="fas fa-users text-lg"></i>
+                </div>
+            </div>
+            <div class="text-4xl font-bold text-primary-900 mb-2">{{ $userCount }}</div>
+            <p class="text-primary-700 text-sm font-medium">Karyawan terdaftar</p>
+        </div>
+
+        <!-- Total Admin -->
+        <div class="bg-gradient-to-br from-success-50 to-success-100 rounded-2xl p-6 shadow-soft hover:shadow-card-hover transition-all duration-300 border border-success-200 animate-fade-in-up" style="animation-delay: 0.2s;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-success-700 uppercase tracking-wide">Total Admin</h3>
+                <div class="bg-gradient-success rounded-lg p-3 text-white shadow-glow-success">
+                    <i class="fas fa-user-shield text-lg"></i>
+                </div>
+            </div>
+            <div class="text-4xl font-bold text-success-900 mb-2">{{ $adminCount }}</div>
+            <p class="text-success-700 text-sm font-medium">Admin aktif</p>
+        </div>
+
+        <!-- Attendance Today -->
+        <div class="bg-gradient-to-br from-accent-50 to-accent-100 rounded-2xl p-6 shadow-soft hover:shadow-card-hover transition-all duration-300 border border-accent-200 animate-fade-in-up" style="animation-delay: 0.3s;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-accent-700 uppercase tracking-wide">Hadir Hari Ini</h3>
+                <div class="bg-gradient-accent rounded-lg p-3 text-white shadow-glow-accent">
+                    <i class="fas fa-check-circle text-lg"></i>
+                </div>
+            </div>
+            <div class="text-4xl font-bold text-accent-900 mb-2">{{ $attendanceToday }}</div>
+            <p class="text-accent-700 text-sm font-medium">Karyawan hadir</p>
+        </div>
+
+        <!-- Late Today -->
+        <div class="bg-gradient-to-br from-warning-50 to-warning-100 rounded-2xl p-6 shadow-soft hover:shadow-card-hover transition-all duration-300 border border-warning-200 animate-fade-in-up" style="animation-delay: 0.4s;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-warning-700 uppercase tracking-wide">Terlambat</h3>
+                <div class="bg-gradient-warning rounded-lg p-3 text-white shadow-glow">
+                    <i class="fas fa-clock text-lg"></i>
+                </div>
+            </div>
+            <div class="text-4xl font-bold text-warning-900 mb-2">{{ $lateToday }}</div>
+            <p class="text-warning-700 text-sm font-medium">Karyawan terlambat</p>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Quick Access Section -->
+        <div class="lg:col-span-2 animate-fade-in-up" style="animation-delay: 0.2s;">
+            <div class="bg-white rounded-2xl shadow-soft hover:shadow-card-hover border border-gray-100 overflow-hidden transition-all duration-300">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                    <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fas fa-bolt text-primary-600"></i>
+                        Akses Cepat
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Kelola User -->
+                        <a href="{{ route('admin.users.index') }}" class="group bg-gradient-to-br from-success-50 to-success-100 rounded-xl p-4 border border-success-200 hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-gradient-success rounded-lg p-3 group-hover:scale-110 transition-transform text-white shadow-glow-success">
+                                    <i class="fas fa-user-plus text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Kelola User</h3>
+                                    <p class="text-sm text-gray-600">Manajemen pengguna</p>
+                                </div>
+                            </div>
                         </a>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-    
-    <!-- Pagination for Complaints -->
-    @if($recentComplaints->hasPages())
-    <div style="margin-top:16px;display:flex;justify-content:center">
-        {{ $recentComplaints->links() }}
-    </div>
-    @endif
-</div>
-@endif
 
-<!-- Pengajuan Izin Kerja Terbaru -->
-@if($recentWorkLeave->count() > 0)
-<div class="card" style="margin-bottom:24px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <h3>🏢 Pengajuan Izin Kerja Terbaru</h3>
-        <a href="{{ route('admin.work-leave.index') }}" class="btn-secondary" style="padding:6px 12px;font-size:13px">Lihat Semua</a>
-    </div>
-    
-    <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:14px">
-            <thead style="background:#f8fafc">
-                <tr>
-                    <th style="padding:12px 8px;text-align:left;border-bottom:1px solid #e5e7eb">Karyawan</th>
-                    <th style="padding:12px 8px;text-align:left;border-bottom:1px solid #e5e7eb">Tanggal</th>
-                    <th style="padding:12px 8px;text-align:left;border-bottom:1px solid #e5e7eb">Keterangan</th>
-                    <th style="padding:12px 8px;text-align:left;border-bottom:1px solid #e5e7eb">Dokumen</th>
-                    <th style="padding:12px 8px;text-align:center;border-bottom:1px solid #e5e7eb">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($recentWorkLeave as $workLeave)
-                <tr style="border-bottom:1px solid #f3f4f6">
-                    <td style="padding:12px 8px">
-                        <div style="display:flex;align-items:center;gap:8px">
-                            <div style="width:32px;height:32px;background:#e0e7ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#3730a3">
-                                {{ strtoupper(substr($workLeave->user->name, 0, 1)) }}
+                        <!-- Pengajuan Izin -->
+                        <a href="{{ route('admin.complaints.index') }}" class="group bg-gradient-to-br from-warning-50 to-warning-100 rounded-xl p-4 border border-warning-200 hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-gradient-warning rounded-lg p-3 group-hover:scale-110 transition-transform text-white shadow-glow">
+                                    <i class="fas fa-file-signature text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Pengajuan Izin</h3>
+                                    <p class="text-sm text-gray-600">Review izin & cuti</p>
+                                </div>
                             </div>
-                            <div>
-                                <div style="font-weight:600">{{ $workLeave->user->name }}</div>
-                                <div style="font-size:12px;color:#6b7280">{{ $workLeave->user->employee_id }}</div>
+                        </a>
+
+                        <!-- Laporan Kerja -->
+                        <a href="{{ route('reports.users') }}" class="group bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-4 border border-primary-200 hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-gradient-primary rounded-lg p-3 group-hover:scale-110 transition-transform text-white shadow-glow">
+                                    <i class="fas fa-chart-pie text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Laporan Kerja</h3>
+                                    <p class="text-sm text-gray-600">Analisa data harian</p>
+                                </div>
                             </div>
+                        </a>
+
+                        <!-- Jadwal Shift -->
+                        <a href="{{ route('admin.shifts.index') }}" class="group bg-gradient-to-br from-accent-50 to-accent-100 rounded-xl p-4 border border-accent-200 hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-gradient-accent rounded-lg p-3 group-hover:scale-110 transition-transform text-white shadow-glow-accent">
+                                    <i class="fas fa-calendar-alt text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Jadwal Shift</h3>
+                                    <p class="text-sm text-gray-600">Atur jam kerja</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leave Status Section -->
+        <div class="bg-white rounded-2xl shadow-soft hover:shadow-card-hover border border-gray-100 overflow-hidden transition-all duration-300 animate-fade-in-up" style="animation-delay: 0.3s;">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="fas fa-file-alt text-primary-600"></i>
+                    Status Izin & Cuti
+                </h2>
+            </div>
+            <div class="p-6 space-y-3">
+                <!-- Pending -->
+                <a href="{{ route('admin.complaints.index', ['status' => 'pending']) }}" class="block bg-gradient-to-r from-warning-50 to-warning-100 rounded-xl p-4 border border-warning-200 hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-warning-700 font-semibold">Pending</p>
+                            <p class="text-2xl font-bold text-warning-600">{{ $pendingLeaveRequests }}</p>
                         </div>
-                    </td>
-                    <td style="padding:12px 8px;font-size:13px">
-                        {{ \Carbon\Carbon::parse($workLeave->date)->translatedFormat('d F Y') }}
-                    </td>
-                    <td style="padding:12px 8px;font-size:13px">
-                        {{ Str::limit($workLeave->notes, 50) }}
-                    </td>
-                    <td style="padding:12px 8px;font-size:13px">
-                        @if($workLeave->hasDocument())
-                            <span style="background:#dcfce7;color:#16a34a;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600">
-                                📎 Ada Dokumen
-                            </span>
-                        @else
-                            <span style="background:#fee2e2;color:#dc2626;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600">
-                                📄 Tidak Ada
-                            </span>
-                        @endif
-                    </td>
-                    <td style="padding:12px 8px;text-align:center">
-                        <a href="{{ route('admin.work-leave.detail', $workLeave->id) }}" class="btn-primary" style="padding:6px 12px;font-size:12px">
-                            👁️ Review
-                        </a>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+                        <i class="fas fa-hourglass-half text-warning-300 text-2xl animate-pulse"></i>
+                    </div>
+                </a>
+
+                <!-- Approved -->
+                <a href="{{ route('admin.complaints.index', ['status' => 'approved']) }}" class="block bg-gradient-to-r from-success-50 to-success-100 rounded-xl p-4 border border-success-200 hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-success-700 font-semibold">Disetujui</p>
+                            <p class="text-2xl font-bold text-success-600">{{ $approvedLeaveRequests }}</p>
+                        </div>
+                        <i class="fas fa-check-circle text-success-300 text-2xl"></i>
+                    </div>
+                </a>
+
+                <!-- Rejected -->
+                <a href="{{ route('admin.complaints.index', ['status' => 'rejected']) }}" class="block bg-gradient-to-r from-danger-50 to-danger-100 rounded-xl p-4 border border-danger-200 hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-danger-700 font-semibold">Ditolak</p>
+                            <p class="text-2xl font-bold text-danger-600">{{ $rejectedLeaveRequests }}</p>
+                        </div>
+                        <i class="fas fa-times-circle text-danger-300 text-2xl"></i>
+                    </div>
+                </a>
+
+                <!-- Total This Month -->
+                <div class="bg-gradient-primary rounded-xl p-4 text-white mt-4 shadow-glow hover:shadow-glow-lg transition-all duration-300">
+                    <p class="text-sm opacity-90 font-semibold mb-1">Total Izin Bulan Ini</p>
+                    <p class="text-3xl font-bold">{{ $workLeaveThisMonth }}</p>
+                    <p class="text-sm opacity-75 mt-1">Pengajuan</p>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <!-- Pagination for Work Leave -->
-    @if($recentWorkLeave->hasPages())
-    <div style="margin-top:16px;display:flex;justify-content:center">
-        {{ $recentWorkLeave->links() }}
+
+    <!-- Recent Complaints Table -->
+    @if($recentComplaints->count() > 0)
+    <div class="bg-white rounded-2xl shadow-soft hover:shadow-card-hover border border-gray-100 overflow-hidden transition-all duration-300 animate-fade-in-up" style="animation-delay: 0.4s;">
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <i class="fas fa-inbox text-primary-600"></i>
+                Pengajuan Terbaru (Pending)
+            </h2>
+            <a href="{{ route('admin.complaints.index') }}" class="text-primary-600 hover:text-primary-700 text-sm font-semibold transition-colors">
+                Lihat Semua <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Tanggal</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Karyawan</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Kategori</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Judul</th>
+                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @foreach($recentComplaints as $complaint)
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-sm text-gray-600 font-medium">
+                            {{ $complaint->created_at->format('d M Y') }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-xs font-bold">
+                                    {{ strtoupper(substr($complaint->user->name, 0, 2)) }}
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900 text-sm">{{ $complaint->user->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ $complaint->user->employee_id }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            @php
+                                $badgeClass = match($complaint->category) {
+                                    'cuti' => 'bg-info-100 text-info-700',
+                                    'sakit' => 'bg-danger-100 text-danger-700',
+                                    'izin' => 'bg-warning-100 text-warning-700',
+                                    default => 'bg-success-100 text-success-700'
+                                };
+                            @endphp
+                            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold {{ $badgeClass }}">
+                                {{ ucfirst($complaint->category) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            {{ Str::limit($complaint->title, 40) }}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <a href="{{ route('admin.complaints.show', $complaint->id) }}" class="inline-block bg-primary-100 text-primary-600 hover:bg-primary-200 p-2 rounded-lg transition-colors">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
     @endif
-</div>
-@endif
-
-<div class="card">
-    <h3 style="margin-bottom:12px">Selamat Datang di Panel Admin</h3>
-    <p style="color:#6b7280">Gunakan menu sidebar untuk mengelola sistem absensi.</p>
 </div>
 @endsection

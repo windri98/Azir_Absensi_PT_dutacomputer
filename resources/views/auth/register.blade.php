@@ -3,618 +3,283 @@
 @section('title', 'Register - Sistem Absensi')
 
 @section('content')
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            overflow-x: hidden; /* Prevent horizontal scroll */
-        }
-        .header {
-            background: linear-gradient(135deg, #1ec7e6, #0ea5e9);
-            color: white;
-            text-align: center;
-            padding: 30px 20px 20px 20px;
-            position: relative;
-            flex-shrink: 0;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            font-weight: normal;
-            letter-spacing: 2px;
-            margin-top: 10px;
-        }
-        .illustration {
-            width: 100%;
-            height: 150px;
-            background-image: url('{{ asset('assets/image/register.png') }}');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            margin: 10px 0;
-            flex-shrink: 0;
-        }
-        .register-container {
-            flex: 1;
-            padding: 15px 20px 20px 20px;
-            display: flex;
-            flex-direction: column;
-        }
-        .register-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            margin-top: 0;
-        }
-        .input-group {
-            position: relative;
-            margin-bottom: 12px;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 15px 15px 15px 50px;
-            border: none;
-            border-radius: 25px;
-            background-color: #e5e5e5;
-            font-size: 15px;
-            color: #333;
-        }
-        .input-group input::placeholder {
-            color: #999;
-        }
-        .input-group input:focus {
-            outline: none;
-            background-color: #ddd;
-        }
-        .input-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #333;
-            font-size: 20px;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .input-icon svg {
-            width: 20px;
-            height: 20px;
-            fill: #333;
-        }
-        .register-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #22d3ee, #06b6d4);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 18px;
-            font-weight: 500;
-            cursor: pointer;
-            margin: 15px 0 20px 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(34, 211, 238, 0.3);
-        }
-        .register-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(34, 211, 238, 0.4);
-        }
-        .login-section {
-            text-align: center;
-            color: #666;
-            font-size: 15px;
-            margin-top: 10px;
-            margin-bottom: 15px;
-        }
-            margin-top: auto;
-            margin-bottom: 20px;
-        }
-        .login-link {
-            color: #ff4757;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .login-link:hover {
-            text-decoration: underline;
-        }
-
-        /* ===== RESPONSIVE DESIGN ===== */
-        
-        /* Mobile First - Base styles are for mobile */
-        
-        /* Tablet - Portrait (768px and up) */
-        @media (min-width: 768px) {
-            body {
-                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                min-height: 100vh;
-                padding: 0;
-                margin: 0;
-            }
-            
-            .header {
-                padding: 40px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                background: linear-gradient(135deg, #0ea5e9, #0284c7);
-            }
-            
-            .header h1 {
-                font-size: 32px;
-                font-weight: 600;
-                margin-bottom: 30px;
-            }
-            
-            .illustration {
-                width: 80%;
-                height: 250px;
-                margin: 0 auto;
-                background-size: contain;
-            }
-            
-            .register-container {
-                padding: 40px 50px;
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-                background: white;
-                box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-                overflow-y: auto;
-                max-height: 100vh;
-            }
-            
-            .register-title {
-                font-size: 32px;
-                text-align: center;
-                margin-bottom: 30px;
-            }
-            
-            .input-group {
-                margin-bottom: 20px;
-            }
-        }
-        
-        /* Desktop (1024px and up) */
-        @media (min-width: 1024px) {
-            .header {
-                padding: 60px 60px;
-            }
-            
-            .header h1 {
-                font-size: 36px;
-            }
-            
-            .illustration {
-                height: 300px;
-                width: 70%;
-            }
-            
-            .register-container {
-                padding: 60px 70px;
-            }
-            
-            .register-title {
-                font-size: 36px;
-                margin-bottom: 40px;
-            }
-            
-            .input-group input {
-                padding: 18px 18px 18px 55px;
-                font-size: 16px;
-            }
-            
-            .register-btn {
-                padding: 18px;
-                font-size: 18px;
-                margin: 20px 0 30px 0;
-            }
-        }
-        
-        /* Large Desktop (1440px and up) */
-        @media (min-width: 1440px) {
-            body {
-                grid-template-columns: 55% 45%;
-            }
-            
-            .header {
-                padding: 80px;
-            }
-            
-            .register-container {
-                padding: 80px 90px;
-            }
-        }
-        
-        /* Mobile Landscape & Small Height Devices */
-        @media (max-width: 767px) and (orientation: landscape), 
-               (max-height: 600px) and (max-width: 767px) {
-            .header {
-                padding: 15px 20px 10px 20px;
-            }
-            
-            .header h1 {
-                font-size: 20px;
-                margin-top: 5px;
-            }
-            
-            .illustration {
-                height: 80px;
-                margin: 5px 0;
-            }
-            
-            .register-container {
-                padding: 15px 20px 20px 20px;
-            }
-            
-            .register-title {
-                font-size: 22px;
-                margin-bottom: 15px;
-            }
-            
-            .input-group {
-                margin-bottom: 12px;
-            }
-            
-            .input-group input {
-                padding: 12px 12px 12px 45px;
-                font-size: 14px;
-            }
-            
-            .register-btn {
-                padding: 12px;
-                font-size: 16px;
-                margin: 12px 0 15px 0;
-            }
-            
-            .login-section {
-                margin-top: 5px;
-                margin-bottom: 10px;
-                font-size: 14px;
-            }
-        }
-    <!-- Auth Layout Container -->
-    <div class="auth-layout">
-        <!-- Header Section -->
-        <div class="auth-header">
-            <h1>REGISTER</h1>
-        </div>
-
-        <!-- Illustration -->
-        <div class="auth-illustration" style="background-image: url('{{ asset('assets/image/register.png') }}');"></div>
-
-        <!-- Register Container -->
-        <div class="auth-container">
-            <h2 class="auth-title">Register</h2>
-
-            @if(session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-2xl">
+        <!-- Card -->
+        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl animate-fade-in-up">
+            <!-- Brand -->
+            <div class="text-center mb-8">
+                <div class="inline-block mb-4">
+                    <div class="bg-gradient-primary rounded-2xl p-4 shadow-lg">
+                        <i class="fas fa-user-plus text-4xl text-white"></i>
+                    </div>
                 </div>
-            @endif
+                <h1 class="text-3xl font-bold text-white font-display mb-2">Azir Absensi</h1>
+                <p class="text-primary-100">Daftar Akun Baru</p>
+            </div>
 
+            <!-- Title -->
+            <div class="mb-8 text-center">
+                <h2 class="text-2xl font-bold text-white mb-2 font-display">Bergabunglah dengan Kami</h2>
+                <p class="text-primary-100">Buat akun untuk mulai menggunakan sistem absensi</p>
+            </div>
+
+            <!-- Error Messages -->
             @if($errors->any())
-                <div class="alert alert-error">
-                    <ul style="margin: 0; padding-left: 20px;">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                <div class="bg-danger-500/20 border border-danger-500/50 rounded-xl p-4 mb-6 backdrop-blur-sm animate-fade-in-down">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-exclamation-circle text-danger-400 text-lg mt-1 flex-shrink-0"></i>
+                        <div>
+                            <p class="text-danger-200 font-semibold mb-2">Pendaftaran Gagal</p>
+                            <ul class="list-none text-sm text-danger-100 space-y-1">
+                                @foreach($errors->all() as $error)
+                                    <li class="flex items-center gap-2">
+                                        <i class="fas fa-times text-xs"></i>
+                                        {{ $error }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('register.post') }}">
+            <!-- Success Message -->
+            @if(session('success'))
+                <div class="bg-success-500/20 border border-success-500/50 rounded-xl p-4 mb-6 backdrop-blur-sm animate-fade-in-down">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-check-circle text-success-400 text-lg mt-1 flex-shrink-0"></i>
+                        <div>
+                            <p class="text-success-200 font-semibold">{{ session('success') }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Form -->
+            <form method="POST" action="{{ route('register.post') }}" class="space-y-5">
                 @csrf
 
-                <div class="input-group">
-                    <span class="input-icon">
-                        <i class="fas fa-id-card"></i>
-                    </span>
-                    <input type="text" id="employee_id" name="employee_id" placeholder="ID Card" value="{{ old('employee_id') }}" required />
+                <!-- Row 1: Employee ID & Name -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Employee ID Field -->
+                    <div>
+                        <label for="employee_id" class="block text-sm font-semibold text-white mb-2">
+                            <i class="fas fa-id-card mr-2 text-primary-400"></i>ID Karyawan
+                        </label>
+                        <input 
+                            type="text" 
+                            id="employee_id" 
+                            name="employee_id" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-primary-200 focus:outline-none focus:border-primary-400 focus:bg-white/20 transition-all duration-300 @error('employee_id') border-danger-400 @enderror"
+                            placeholder="Masukkan ID Karyawan" 
+                            value="{{ old('employee_id') }}" 
+                            required 
+                        />
+                        @error('employee_id')
+                            <p class="text-danger-300 text-xs mt-1 flex items-center gap-1">
+                                <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    <!-- Name Field -->
+                    <div>
+                        <label for="name" class="block text-sm font-semibold text-white mb-2">
+                            <i class="fas fa-user mr-2 text-primary-400"></i>Nama Lengkap
+                        </label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-primary-200 focus:outline-none focus:border-primary-400 focus:bg-white/20 transition-all duration-300 @error('name') border-danger-400 @enderror"
+                            placeholder="Nama Lengkap Anda" 
+                            value="{{ old('name') }}" 
+                            required 
+                        />
+                        @error('name')
+                            <p class="text-danger-300 text-xs mt-1 flex items-center gap-1">
+                                <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                            </p>
+                        @enderror
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <span class="input-icon">
-                        <i class="fas fa-user"></i>
-                    </span>
-                    <input type="text" id="name" name="name" placeholder="Name" value="{{ old('name') }}" required />
+                <!-- Row 2: Email & Phone -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Email Field -->
+                    <div>
+                        <label for="email" class="block text-sm font-semibold text-white mb-2">
+                            <i class="fas fa-envelope mr-2 text-primary-400"></i>Email
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-primary-200 focus:outline-none focus:border-primary-400 focus:bg-white/20 transition-all duration-300 @error('email') border-danger-400 @enderror"
+                            placeholder="email@perusahaan.com" 
+                            value="{{ old('email') }}" 
+                            required 
+                        />
+                        @error('email')
+                            <p class="text-danger-300 text-xs mt-1 flex items-center gap-1">
+                                <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    <!-- Phone Field -->
+                    <div>
+                        <label for="phone" class="block text-sm font-semibold text-white mb-2">
+                            <i class="fas fa-phone mr-2 text-primary-400"></i>Nomor Telepon
+                        </label>
+                        <input 
+                            type="text" 
+                            id="phone" 
+                            name="phone" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-primary-200 focus:outline-none focus:border-primary-400 focus:bg-white/20 transition-all duration-300"
+                            placeholder="08xxxxxxxxxx" 
+                            value="{{ old('phone') }}" 
+                        />
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <span class="input-icon">
-                        <i class="fas fa-envelope"></i>
-                    </span>
-                    <input type="email" id="email" name="email" placeholder="Email" value="{{ old('email') }}" required />
+                <!-- Row 3: Password & Gender -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Password Field -->
+                    <div>
+                        <label for="password" class="block text-sm font-semibold text-white mb-2">
+                            <i class="fas fa-lock mr-2 text-primary-400"></i>Kata Sandi
+                        </label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-primary-200 focus:outline-none focus:border-primary-400 focus:bg-white/20 transition-all duration-300 @error('password') border-danger-400 @enderror"
+                            placeholder="••••••••" 
+                            required 
+                            autocomplete="new-password"
+                        />
+                        @error('password')
+                            <p class="text-danger-300 text-xs mt-1 flex items-center gap-1">
+                                <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    <!-- Gender Field -->
+                    <div>
+                        <label for="gender" class="block text-sm font-semibold text-white mb-2">
+                            <i class="fas fa-venus-mars mr-2 text-primary-400"></i>Jenis Kelamin
+                        </label>
+                        <select 
+                            id="gender" 
+                            name="gender" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-primary-400 focus:bg-white/20 transition-all duration-300 @error('gender') border-danger-400 @enderror"
+                            required
+                        >
+                            <option value="" class="bg-slate-900">Pilih Jenis Kelamin</option>
+                            <option value="Laki-laki" class="bg-slate-900" {{ old('gender') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                            <option value="Perempuan" class="bg-slate-900" {{ old('gender') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                        </select>
+                        @error('gender')
+                            <p class="text-danger-300 text-xs mt-1 flex items-center gap-1">
+                                <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                            </p>
+                        @enderror
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <span class="input-icon">
-                        <i class="fas fa-lock"></i>
-                    </span>
-                    <input type="password" id="password" name="password" placeholder="Password" required autocomplete="new-password" />
+                <!-- Row 4: Address & Birth Date -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Address Field -->
+                    <div>
+                        <label for="address" class="block text-sm font-semibold text-white mb-2">
+                            <i class="fas fa-map-marker-alt mr-2 text-primary-400"></i>Alamat
+                        </label>
+                        <input 
+                            type="text" 
+                            id="address" 
+                            name="address" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-primary-200 focus:outline-none focus:border-primary-400 focus:bg-white/20 transition-all duration-300"
+                            placeholder="Alamat Lengkap" 
+                            value="{{ old('address') }}" 
+                        />
+                    </div>
+
+                    <!-- Birth Date Field -->
+                    <div>
+                        <label for="birth_date" class="block text-sm font-semibold text-white mb-2">
+                            <i class="fas fa-calendar mr-2 text-primary-400"></i>Tanggal Lahir
+                        </label>
+                        <input 
+                            type="date" 
+                            id="birth_date" 
+                            name="birth_date" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-primary-400 focus:bg-white/20 transition-all duration-300"
+                            value="{{ old('birth_date') }}" 
+                        />
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <span class="input-icon">
-                        <i class="fas fa-phone"></i>
-                    </span>
-                    <input type="text" id="phone" name="phone" placeholder="Phone" value="{{ old('phone') }}" />
-                </div>
-
-                <div class="input-group">
-                    <span class="input-icon">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </span>
-                    <input type="text" id="address" name="address" placeholder="Address" value="{{ old('address') }}" />
-                </div>
-
-                <div class="input-group">
-                    <span class="input-icon">
-                        <i class="fas fa-calendar"></i>
-                    </span>
-                    <input type="date" id="birth_date" name="birth_date" placeholder="Birth Date" value="{{ old('birth_date') }}" />
-                </div>
-
-                <div class="input-group">
-                    <span class="input-icon">
-                        <i class="fas fa-venus-mars"></i>
-                    </span>
-                    <select id="gender" name="gender" required style="width: 100%; padding: 18px 18px 18px 55px; border: none; border-radius: 25px; background-color: #e5e5e5; font-size: 1rem; color: #1f2937;">
-                        <option value="">Pilih Jenis Kelamin</option>
-                        <option value="Laki-laki" {{ old('gender') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                        <option value="Perempuan" {{ old('gender') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="auth-btn">Register</button>
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    class="w-full bg-gradient-primary text-white font-semibold py-3 rounded-xl hover:shadow-glow transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 mt-8"
+                >
+                    <i class="fas fa-user-check"></i>Daftar Sekarang
+                </button>
             </form>
 
-            <div class="auth-footer">
-                Sudah punya akun? <a href="{{ route('login') }}" class="register-link">Login</a>
+            <!-- Footer -->
+            <div class="mt-8 pt-8 border-t border-white/10 text-center">
+                <p class="text-primary-200 text-sm">
+                    Sudah punya akun? 
+                    <a href="{{ route('login') }}" class="text-primary-100 font-semibold hover:text-white transition-colors">
+                        Masuk di sini
+                    </a>
+                </p>
             </div>
         </div>
+
+        <!-- Additional Info -->
+        <div class="mt-8 text-center">
+            <p class="text-primary-200 text-sm">
+                <i class="fas fa-shield-alt mr-2 text-success-400"></i>
+                Data Anda dilindungi dengan enkripsi tingkat enterprise
+            </p>
+        </div>
     </div>
-@endsection
+</div>
 
-@push('styles')
-<style>
-/* Register Page Specific Styles */
-.auth-layout {
-    min-height: 100vh;
-    background-color: #f5f5f5;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-}
-
-.auth-header {
-    padding: 20px;
-}
-
-.auth-header h1 {
-    font-size: 28px;
-    font-weight: normal;
-    letter-spacing: 2px;
-    margin-top: 10px;
-}
-
-.auth-illustration {
-    height: 150px;
-    margin: 10px 0;
-}
-
-.auth-container {
-    padding: 15px 20px 20px 20px;
-}
-
-.auth-title {
-    font-size: 28px;
-    margin-bottom: 15px;
-    margin-top: 0;
-}
-
-.input-group {
-    margin-bottom: 12px;
-}
-
-.input-group input,
-.input-group select {
-    padding: 15px 15px 15px 50px;
-    font-size: 15px;
-}
-
-/* Responsive Register Layout */
-@media (min-width: 768px) {
-    .auth-layout {
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        min-height: 100vh;
-    }
-
-    .auth-header {
-        padding: 40px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        background: linear-gradient(135deg, #0ea5e9, #0284c7);
-    }
-
-    .auth-header h1 {
-        font-size: 32px;
-        font-weight: 600;
-        margin-bottom: 30px;
-    }
-
-    .auth-illustration {
-        width: 80%;
-        height: 250px;
-        margin: 0 auto;
-        background-size: contain;
-    }
-
-    .auth-container {
-        padding: 40px 50px;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        background: white;
-        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-        overflow-y: auto;
-        max-height: 100vh;
-    }
-
-    .auth-title {
-        font-size: 32px;
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    .input-group {
-        margin-bottom: 20px;
-    }
-}
-
-@media (min-width: 1024px) {
-    .auth-header {
-        padding: 60px 60px;
-    }
-
-    .auth-header h1 {
-        font-size: 36px;
-    }
-
-    .auth-illustration {
-        height: 300px;
-        width: 70%;
-    }
-
-    .auth-container {
-        padding: 60px 70px;
-    }
-
-    .auth-title {
-        font-size: 36px;
-        margin-bottom: 40px;
-    }
-
-    .input-group input,
-    .input-group select {
-        padding: 18px 18px 18px 55px;
-        font-size: 16px;
-    }
-
-    .auth-btn {
-        padding: 18px;
-        font-size: 18px;
-        margin: 20px 0 30px 0;
-    }
-}
-
-@media (min-width: 1440px) {
-    .auth-layout {
-        grid-template-columns: 55% 45%;
-    }
-
-    .auth-header {
-        padding: 80px;
-    }
-
-    .auth-container {
-        padding: 80px 90px;
-    }
-}
-
-@media (max-width: 767px) and (orientation: landscape),
-       (max-height: 600px) and (max-width: 767px) {
-    .auth-header {
-        padding: 15px 20px 10px 20px;
-    }
-
-    .auth-header h1 {
-        font-size: 20px;
-        margin-top: 5px;
-    }
-
-    .auth-illustration {
-        height: 80px;
-        margin: 5px 0;
-    }
-
-    .auth-container {
-        padding: 15px 20px 20px 20px;
-    }
-
-    .auth-title {
-        font-size: 22px;
-        margin-bottom: 15px;
-    }
-
-    .input-group {
-        margin-bottom: 12px;
-    }
-
-    .input-group input,
-    .input-group select {
-        padding: 12px 12px 12px 45px;
-        font-size: 14px;
-    }
-
-    .auth-btn {
-        padding: 12px;
-        font-size: 16px;
-        margin: 12px 0 15px 0;
-    }
-
-    .auth-footer {
-        margin-top: 5px;
-        margin-bottom: 10px;
-        font-size: 14px;
-    }
-}
-</style>
-@endpush
-
-@section('scripts')
-    // Auto-hide success/error messages after 5 seconds
+@push('scripts')
+<script>
     document.addEventListener('DOMContentLoaded', function() {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
-            setTimeout(() => {
-                alert.style.display = 'none';
-            }, 5000);
-        });
-    });
-@endsection
+        const form = document.querySelector('form');
+        const inputs = form.querySelectorAll('input, select');
 
-    <script>
-        // Auto-hide success/error messages after 5 seconds
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('[style*="background-color"]');
-            alerts.forEach(alert => {
-                setTimeout(() => {
-                    alert.style.display = 'none';
-                }, 5000);
+        // Add real-time validation feedback
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() === '' && this.hasAttribute('required')) {
+                    this.classList.add('border-danger-400');
+                } else {
+                    this.classList.remove('border-danger-400');
+                }
+            });
+
+            input.addEventListener('focus', function() {
+                this.classList.remove('border-danger-400');
             });
         });
-    </script>
-</body>
-</html>
+
+        // Form submission animation
+        form.addEventListener('submit', function(e) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner animate-spin mr-2"></i>Mendaftar...';
+            submitBtn.disabled = true;
+        });
+    });
+</script>
+@endpush
+@endsection

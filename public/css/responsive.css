@@ -1,36 +1,410 @@
-/* Professional Responsive Adjustments */
+/* Professional Responsive Adjustments - Mobile First */
 
-/* Tablet & Up */
-@media (min-width: 768px) {
-    .md\:grid-cols-4 {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+/* Mobile First - Base styles are for mobile */
+
+/* Small Mobile (320px - 480px) */
+@media (max-width: 480px) {
+    /* Typography */
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1rem; }
+
+    /* Spacing */
+    .space-y-8 { gap: 1.5rem; }
+    .p-8 { padding: 1rem; }
+    .p-6 { padding: 1rem; }
+    .px-6 { padding-left: 1rem; padding-right: 1rem; }
+
+    /* Cards */
+    .card, .modern-card {
+        padding: 1rem;
+        border-radius: 1rem;
     }
 
-    .md\:grid-cols-5 {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+    /* Buttons */
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1.25rem;
+    }
+
+    /* Forms */
+    .form-input, .form-select, .form-textarea {
+        padding: 0.625rem 0.75rem;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    /* Grid */
+    .grid-cols-1 { grid-template-columns: 1fr; }
+
+    /* Tables */
+    .table-container {
+        font-size: 0.75rem;
+    }
+
+    .table th, .table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    /* Badges */
+    .badge {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.65rem;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        display: flex;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+    /* Action Grid */
+    .action-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .action-card {
+        padding: 1rem;
+    }
+
+    .action-card-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+
+    /* Sidebar */
+    .desktop-sidebar {
+        width: 240px;
+    }
+
+    /* Welcome Section */
+    .bg-gradient-primary, .bg-gradient-vibrant {
+        padding: 1.5rem;
+    }
+
+    /* Stats Cards */
+    .grid-cols-1 { grid-template-columns: 1fr; }
+
+    /* Quick Actions */
+    .space-y-3 { gap: 0.75rem; }
+
+    /* Modal/Popup */
+    .rounded-3xl {
+        border-radius: 1.5rem;
+    }
+
+    .p-8 {
+        padding: 1.5rem;
     }
 }
 
-/* Desktop & Up */
+/* Mobile (480px - 640px) */
+@media (min-width: 480px) and (max-width: 640px) {
+    /* Typography */
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.375rem; }
+
+    /* Spacing */
+    .space-y-8 { gap: 2rem; }
+
+    /* Cards */
+    .card, .modern-card {
+        padding: 1.25rem;
+    }
+
+    /* Grid */
+    .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+    /* Action Grid */
+    .action-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Tables */
+    .table th, .table td {
+        padding: 0.875rem;
+    }
+}
+
+/* Tablet - Portrait (640px - 768px) */
+@media (min-width: 640px) and (max-width: 768px) {
+    /* Typography */
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.5rem; }
+
+    /* Spacing */
+    .space-y-8 { gap: 2rem; }
+
+    /* Cards */
+    .card, .modern-card {
+        padding: 1.5rem;
+    }
+
+    /* Grid */
+    .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+    /* Action Grid */
+    .action-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Sidebar */
+    .desktop-sidebar {
+        display: none;
+    }
+
+    .mobile-header, .bottom-nav {
+        display: flex;
+    }
+}
+
+/* Tablet & Up (768px and above) */
+@media (min-width: 768px) {
+    /* Typography */
+    h1 { font-size: 2.25rem; }
+    h2 { font-size: 1.75rem; }
+
+    /* Spacing */
+    .space-y-8 { gap: 2rem; }
+
+    /* Cards */
+    .card, .modern-card {
+        padding: 1.5rem;
+    }
+
+    /* Grid */
+    .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+    /* Action Grid */
+    .action-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
+    /* Sidebar */
+    .mobile-header, .bottom-nav {
+        display: none;
+    }
+
+    .desktop-sidebar {
+        display: flex;
+    }
+
+    .main-content {
+        margin-left: var(--sidebar-width);
+    }
+
+    /* Welcome Section */
+    .bg-gradient-primary, .bg-gradient-vibrant {
+        padding: 2rem;
+    }
+
+    /* Tables */
+    .table th, .table td {
+        padding: 1rem;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 0.625rem 1.25rem;
+    }
+
+    .btn-lg {
+        padding: 0.875rem 1.75rem;
+    }
+}
+
+/* Desktop (1024px and above) */
 @media (min-width: 1024px) {
-    .lg\:grid-cols-3 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* Typography */
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 2rem; }
+
+    /* Spacing */
+    .space-y-8 { gap: 2rem; }
+
+    /* Cards */
+    .card, .modern-card {
+        padding: 1.5rem;
     }
 
-    .lg\:grid-cols-4 {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+    /* Grid */
+    .lg\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .lg\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .lg\:col-span-2 { grid-column: span 2 / span 2; }
+    .lg\:col-span-3 { grid-column: span 3 / span 3; }
+    .lg\:hidden { display: none !important; }
+
+    /* Action Grid */
+    .action-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     }
 
-    .lg\:col-span-2 {
-        grid-column: span 2 / span 2;
+    /* Welcome Section */
+    .bg-gradient-primary, .bg-gradient-vibrant {
+        padding: 2.5rem;
     }
 
-    .lg\:col-span-3 {
-        grid-column: span 3 / span 3;
+    /* Sidebar */
+    .desktop-sidebar {
+        width: var(--sidebar-width);
     }
 
-    .lg\:hidden {
-        display: none !important;
+    .main-content {
+        margin-left: var(--sidebar-width);
+    }
+}
+
+/* Large Desktop (1440px and above) */
+@media (min-width: 1440px) {
+    /* Typography */
+    h1 { font-size: 3rem; }
+    h2 { font-size: 2.25rem; }
+
+    /* Spacing */
+    .space-y-8 { gap: 2.5rem; }
+
+    /* Cards */
+    .card, .modern-card {
+        padding: 2rem;
+    }
+
+    /* Welcome Section */
+    .bg-gradient-primary, .bg-gradient-vibrant {
+        padding: 3rem;
+    }
+
+    /* Action Grid */
+    .action-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    .btn-lg {
+        padding: 1rem 2rem;
+        font-size: 1.125rem;
+    }
+}
+
+/* Extra Large Desktop (1920px and above) */
+@media (min-width: 1920px) {
+    /* Container max width */
+    .container {
+        max-width: 1400px;
+    }
+
+    /* Spacing */
+    .space-y-8 { gap: 3rem; }
+
+    /* Cards */
+    .card, .modern-card {
+        padding: 2.5rem;
+    }
+
+    /* Welcome Section */
+    .bg-gradient-primary, .bg-gradient-vibrant {
+        padding: 3.5rem;
+    }
+}
+
+/* Landscape Orientation */
+@media (orientation: landscape) and (max-height: 600px) {
+    /* Reduce vertical spacing on landscape mobile */
+    .space-y-8 { gap: 1rem; }
+    .space-y-6 { gap: 0.75rem; }
+    .space-y-4 { gap: 0.5rem; }
+
+    /* Reduce padding */
+    .p-8 { padding: 1rem; }
+    .p-6 { padding: 0.75rem; }
+
+    /* Reduce header height */
+    .mobile-header {
+        height: 50px;
+    }
+
+    /* Reduce sidebar width */
+    .desktop-sidebar {
+        width: 200px;
+    }
+
+    .main-content {
+        margin-left: 200px;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Increase touch target size */
+    .btn, button, a {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Remove hover effects on touch devices */
+    .btn:hover {
+        transform: none;
+    }
+
+    .card:hover {
+        transform: none;
+    }
+
+    /* Add active state instead */
+    .btn:active {
+        opacity: 0.8;
+    }
+
+    .card:active {
+        box-shadow: var(--shadow-lg);
+    }
+}
+
+/* Print Styles */
+@media print {
+    /* Hide navigation */
+    .desktop-sidebar, .mobile-header, .bottom-nav {
+        display: none;
+    }
+
+    /* Adjust main content */
+    .main-content {
+        margin-left: 0;
+        padding-top: 0;
+    }
+
+    /* Remove shadows and animations */
+    * {
+        box-shadow: none !important;
+        animation: none !important;
+        transition: none !important;
+    }
+
+    /* Optimize colors for print */
+    body {
+        background: white;
+        color: black;
+    }
+
+    .btn {
+        border: 1px solid black;
     }
 }
 
@@ -39,16 +413,37 @@
     display: none !important;
 }
 
-/* Form Responsiveness */
-@media (max-width: 640px) {
-    .filter-tabs {
-        width: 100%;
-        overflow-x: auto;
-        white-space: nowrap;
-        display: flex;
-    }
-    
-    .modern-card {
-        padding: 1.25rem;
-    }
+/* Prevent layout shift */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Ensure proper text rendering */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure images are responsive */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Ensure videos are responsive */
+video, iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Ensure tables are responsive */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Ensure forms are responsive */
+input, select, textarea {
+    max-width: 100%;
 }

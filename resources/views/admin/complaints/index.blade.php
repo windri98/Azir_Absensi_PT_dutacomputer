@@ -3,170 +3,149 @@
 @section('title', 'Kelola Pengajuan Izin/Cuti')
 
 @section('content')
-<div class="page-header">
-    <h2>Kelola Pengajuan Izin & Cuti</h2>
-    <a href="{{ route('admin.dashboard') }}" class="btn-secondary">← Kembali</a>
-</div>
-
-<!-- Filter & Search -->
-<div class="card" style="margin-bottom:20px">
-    <form method="GET" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
-        <div>
-            <label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">Status</label>
-            <select name="status" class="form-input" style="width:100%">
-                <option value="">Semua Status</option>
-                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
-                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
-            </select>
-        </div>
-        
-        <div>
-            <label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">Kategori</label>
-            <select name="category" class="form-input" style="width:100%">
-                <option value="">Semua Kategori</option>
-                <option value="cuti" {{ request('category') == 'cuti' ? 'selected' : '' }}>Cuti</option>
-                <option value="sakit" {{ request('category') == 'sakit' ? 'selected' : '' }}>Sakit</option>
-                <option value="izin" {{ request('category') == 'izin' ? 'selected' : '' }}>Izin</option>
-                <option value="lainnya" {{ request('category') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
-            </select>
-        </div>
-        
-        <div>
-            <label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">Karyawan</label>
-            <select name="user_id" class="form-input" style="width:100%">
-                <option value="">Semua Karyawan</option>
-                @foreach($users as $user)
-                    <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
-                        {{ $user->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-        
-        <div>
-            <label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">Cari</label>
-            <input type="text" name="search" class="form-input" placeholder="Cari judul..." value="{{ request('search') }}" style="width:100%">
-        </div>
-        
-        <div style="display:flex;align-items:end;gap:8px">
-            <button type="submit" class="btn-primary" style="flex:1">Filter</button>
-            <a href="{{ route('admin.complaints.index') }}" class="btn-secondary">Reset</a>
-        </div>
-    </form>
-</div>
-
-<!-- Statistics -->
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px">
-    <div class="card" style="border-left:4px solid #f59e0b">
-        <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">Menunggu</h3>
-        <div style="font-size:28px;font-weight:700;color:#f59e0b">
-            {{ $complaints->where('status', 'pending')->count() }}
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <h2 class="text-2xl font-bold text-main">Daftar Pengajuan</h2>
+        <div class="flex gap-2">
+            <div class="modern-card !p-2 !px-4 flex items-center gap-3 bg-warning-light border-warning/20">
+                <span class="text-xs font-bold text-warning uppercase">Menunggu</span>
+                <span class="text-lg font-black text-warning">{{ $complaints->where('status', 'pending')->count() }}</span>
+            </div>
+            <div class="modern-card !p-2 !px-4 flex items-center gap-3 bg-success-light border-success/20">
+                <span class="text-xs font-bold text-success uppercase">Disetujui</span>
+                <span class="text-lg font-black text-success">{{ $complaints->where('status', 'approved')->count() }}</span>
+            </div>
         </div>
     </div>
-    <div class="card" style="border-left:4px solid #10b981">
-        <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">Disetujui</h3>
-        <div style="font-size:28px;font-weight:700;color:#10b981">
-            {{ $complaints->where('status', 'approved')->count() }}
-        </div>
-    </div>
-    <div class="card" style="border-left:4px solid #ef4444">
-        <h3 style="font-size:13px;color:#6b7280;margin-bottom:8px">Ditolak</h3>
-        <div style="font-size:28px;font-weight:700;color:#ef4444">
-            {{ $complaints->where('status', 'rejected')->count() }}
-        </div>
-    </div>
-</div>
 
-<!-- Complaints Table -->
-<div class="card">
-    @if($complaints->count() > 0)
-        <div style="overflow-x:auto">
-            <table style="width:100%;border-collapse:collapse">
+    <!-- Filter & Search -->
+    <div class="modern-card">
+        <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="form-group !m-0">
+                <label class="text-[10px] font-bold text-light uppercase tracking-widest mb-1 block">Status</label>
+                <select name="status" class="form-input">
+                    <option value="">Semua Status</option>
+                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
+                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
+                </select>
+            </div>
+            
+            <div class="form-group !m-0">
+                <label class="text-[10px] font-bold text-light uppercase tracking-widest mb-1 block">Kategori</label>
+                <select name="category" class="form-input">
+                    <option value="">Semua Kategori</option>
+                    <option value="cuti" {{ request('category') == 'cuti' ? 'selected' : '' }}>Cuti</option>
+                    <option value="sakit" {{ request('category') == 'sakit' ? 'selected' : '' }}>Sakit</option>
+                    <option value="izin" {{ request('category') == 'izin' ? 'selected' : '' }}>Izin</option>
+                    <option value="lainnya" {{ request('category') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
+                </select>
+            </div>
+            
+            <div class="form-group !m-0 lg:col-span-2">
+                <label class="text-[10px] font-bold text-light uppercase tracking-widest mb-1 block">Cari Pengajuan</label>
+                <input type="text" name="search" class="form-input" placeholder="Cari berdasarkan judul atau deskripsi..." value="{{ request('search') }}">
+            </div>
+            
+            <div class="flex items-end gap-2">
+                <button type="submit" class="btn btn-primary flex-1 py-2.5">
+                    <i class="fas fa-filter mr-1"></i> Filter
+                </button>
+                <a href="{{ route('admin.complaints.index') }}" class="btn btn-secondary py-2.5" title="Reset">
+                    <i class="fas fa-undo"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Complaints Table -->
+    <div class="table-container shadow-sm">
+        @if($complaints->count() > 0)
+            <table class="table">
                 <thead>
-                    <tr style="border-bottom:2px solid #e5e7eb">
-                        <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Tanggal</th>
-                        <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Karyawan</th>
-                        <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Kategori</th>
-                        <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Judul</th>
-                        <th style="text-align:left;padding:12px 8px;font-size:13px;color:#6b7280">Prioritas</th>
-                        <th style="text-align:center;padding:12px 8px;font-size:13px;color:#6b7280">Status</th>
-                        <th style="text-align:center;padding:12px 8px;font-size:13px;color:#6b7280">Aksi</th>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Karyawan</th>
+                        <th>Kategori</th>
+                        <th>Judul Pengajuan</th>
+                        <th>Prioritas</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($complaints as $complaint)
-                    <tr style="border-bottom:1px solid #f3f4f6">
-                        <td style="padding:12px 8px;font-size:13px">
-                            {{ $complaint->created_at->format('d/m/Y H:i') }}
+                    <tr>
+                        <td class="text-xs font-bold text-muted">{{ $complaint->created_at->format('d/m/Y') }}</td>
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-primary-light text-primary-color flex items-center justify-center text-[10px] font-bold">
+                                    {{ strtoupper(substr($complaint->user->name, 0, 2)) }}
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-sm text-main">{{ $complaint->user->name }}</span>
+                                    <span class="text-[10px] text-light">{{ $complaint->user->employee_id }}</span>
+                                </div>
+                            </div>
                         </td>
-                        <td style="padding:12px 8px;font-size:13px">
-                            <strong>{{ $complaint->user->name }}</strong><br>
-                            <small style="color:#6b7280">{{ $complaint->user->email }}</small>
-                        </td>
-                        <td style="padding:12px 8px;font-size:13px">
+                        <td>
                             @php
-                                $categoryBadge = [
-                                    'cuti' => ['bg' => '#dbeafe', 'text' => '#1e40af', 'icon' => '🏖️'],
-                                    'sakit' => ['bg' => '#fee2e2', 'text' => '#991b1b', 'icon' => '🤒'],
-                                    'izin' => ['bg' => '#fef3c7', 'text' => '#92400e', 'icon' => '📝'],
-                                    'lainnya' => ['bg' => '#f3f4f6', 'text' => '#374151', 'icon' => '💬'],
-                                ];
-                                $badge = $categoryBadge[$complaint->category] ?? $categoryBadge['lainnya'];
+                                $catBadge = match($complaint->category) {
+                                    'cuti' => 'badge-info',
+                                    'sakit' => 'badge-danger',
+                                    'izin' => 'badge-warning',
+                                    default => 'badge-success'
+                                };
                             @endphp
-                            <span style="background:{{ $badge['bg'] }};color:{{ $badge['text'] }};padding:4px 8px;border-radius:4px;font-size:12px;font-weight:600">
-                                {{ $badge['icon'] }} {{ ucfirst($complaint->category) }}
+                            <span class="badge {{ $catBadge }}">{{ ucfirst($complaint->category) }}</span>
+                        </td>
+                        <td class="text-sm text-main">{{ Str::limit($complaint->title, 35) }}</td>
+                        <td>
+                            @php
+                                $priBadge = match($complaint->priority) {
+                                    'high', 'urgent' => 'text-danger font-black',
+                                    'medium' => 'text-warning font-bold',
+                                    default => 'text-muted'
+                                };
+                            @endphp
+                            <span class="text-[10px] uppercase tracking-tighter {{ $priBadge }}">
+                                {{ $complaint->priority ?: 'Normal' }}
                             </span>
                         </td>
-                        <td style="padding:12px 8px;font-size:13px">{{ Str::limit($complaint->title, 40) }}</td>
-                        <td style="padding:12px 8px;font-size:13px">
+                        <td class="text-center">
                             @php
-                                $priorityBadge = [
-                                    'low' => ['bg' => '#d1fae5', 'text' => '#065f46', 'label' => 'Rendah'],
-                                    'medium' => ['bg' => '#fef3c7', 'text' => '#92400e', 'label' => 'Sedang'],
-                                    'normal' => ['bg' => '#fef3c7', 'text' => '#92400e', 'label' => 'Normal'],
-                                    'high' => ['bg' => '#fee2e2', 'text' => '#991b1b', 'label' => 'Tinggi'],
-                                ];
-                                $priority = $priorityBadge[$complaint->priority] ?? $priorityBadge['medium'];
+                                $statusBadge = match($complaint->status) {
+                                    'pending' => 'badge-warning',
+                                    'approved' => 'badge-success',
+                                    'rejected' => 'badge-danger',
+                                    default => 'badge-info'
+                                };
                             @endphp
-                            <span style="background:{{ $priority['bg'] }};color:{{ $priority['text'] }};padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600">
-                                {{ $priority['label'] }}
+                            <span class="badge {{ $statusBadge }}">
+                                {{ ucfirst($complaint->status) }}
                             </span>
                         </td>
-                        <td style="padding:12px 8px;text-align:center">
-                            @if($complaint->status == 'pending')
-                                <span style="background:#fef3c7;color:#92400e;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">
-                                    ⏳ Pending
-                                </span>
-                            @elseif($complaint->status == 'approved')
-                                <span style="background:#d1fae5;color:#065f46;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">
-                                    ✅ Disetujui
-                                </span>
-                            @else
-                                <span style="background:#fee2e2;color:#991b1b;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">
-                                    ❌ Ditolak
-                                </span>
-                            @endif
-                        </td>
-                        <td style="padding:12px 8px;text-align:center">
-                            <a href="{{ route('admin.complaints.show', $complaint->id) }}" class="btn-primary" style="padding:6px 12px;font-size:12px">
-                                👁️ Detail
+                        <td class="text-center">
+                            <a href="{{ route('admin.complaints.show', $complaint->id) }}" class="btn btn-secondary !p-2 !rounded-lg hover:!text-primary-color">
+                                <i class="fas fa-eye"></i>
                             </a>
                         </td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
-        </div>
-        
-        <div style="margin-top:20px">
-            {{ $complaints->links() }}
-        </div>
-    @else
-        <div style="text-align:center;padding:40px;color:#6b7280">
-            <div style="font-size:48px;margin-bottom:16px;opacity:0.5">📝</div>
-            <div>Tidak ada pengajuan ditemukan</div>
-        </div>
+        @else
+            <div class="empty-state">
+                <i class="fas fa-file-invoice empty-state-icon"></i>
+                <p class="empty-state-text">Tidak ada pengajuan izin yang ditemukan</p>
+            </div>
+        @endif
+    </div>
+    
+    @if($complaints->hasPages())
+    <div class="mt-6">
+        {{ $complaints->links() }}
+    </div>
     @endif
 </div>
 @endsection

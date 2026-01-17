@@ -3,257 +3,271 @@
 @section('title', 'Dashboard - Sistem Absensi')
 
 @section('content')
-    <div class="px-4 py-8 lg:px-8">
-        <!-- Dashboard Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+<div class="space-y-8 animate-fade-in-up">
+    <!-- Welcome Section -->
+    <div class="bg-gradient-vibrant rounded-2xl p-8 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+        <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-main">
-                    @php
-                        $hour = date('H');
-                        if ($hour >= 5 && $hour < 11) echo 'Selamat Pagi';
-                        elseif ($hour >= 11 && $hour < 15) echo 'Selamat Siang';
-                        elseif ($hour >= 15 && $hour < 18) echo 'Selamat Sore';
-                        else echo 'Selamat Malam';
-                    @endphp, 
-                    {{ explode(' ', $user->name)[0] }}!
-                </h1>
-                <p class="text-muted text-sm mt-1">Hari ini {{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM YYYY') }}</p>
+                <h1 class="text-3xl font-bold mb-2 font-display">Selamat Datang, {{ $user->name }}! 👋</h1>
+                <p class="text-white/80">{{ now()->format('l, d F Y') }}</p>
             </div>
-            <div class="relative">
-                <button class="btn btn-secondary shadow-sm dropdown-btn" onclick="toggleDropdown()">
-                    <i class="fas fa-ellipsis-v mr-2"></i> Menu Cepat
-                </button>
-                <div class="dropdown-content" id="dropdownMenu">
-                    <a href="{{ route('profile.show') }}" class="dropdown-item">
-                        <i class="fas fa-user-circle text-muted"></i> Profil Saya
-                    </a>
-                    @if(auth()->check() && auth()->user()->hasPermission('dashboard.admin'))
-                        <a href="{{ route('admin.dashboard') }}" class="dropdown-item">
-                            <i class="fas fa-user-shield text-muted"></i> Panel Admin
-                        </a>
-                    @endif
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item text-danger" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        <i class="fas fa-sign-out-alt"></i> Keluar
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Attendance Status Overview -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Main Action Card -->
-            <div class="lg:col-span-2 modern-card flex flex-col sm:flex-row p-0 overflow-hidden">
-                <div class="p-6 flex-1 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center gap-2 mb-4">
-                            <span class="w-2 h-2 rounded-full {{ $todayAttendance ? 'bg-success' : 'bg-danger animate-pulse' }}"></span>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-light">Status Kehadiran</span>
-                        </div>
-                        <h2 class="text-xl font-bold text-main mb-1">
-                            {{ $todayAttendance ? ($todayAttendance->check_out ? 'Sudah Selesai Kerja' : 'Sedang Bekerja') : 'Belum Absen Masuk' }}
-                        </h2>
-                        <p class="text-sm text-muted">
-                            {{ $todayAttendance ? 'Tercatat masuk pada ' . \Carbon\Carbon::parse($todayAttendance->check_in)->format('H:i') : 'Silakan lakukan absensi masuk untuk mulai bekerja.' }}
-                        </p>
-                    </div>
-                    <div class="mt-8 flex flex-wrap gap-3">
-                        @if(!$todayAttendance)
-                            <a href="{{ route('attendance.clock-in') }}" class="btn btn-primary shadow-lg">
-                                <i class="fas fa-sign-in-alt"></i> Absen Masuk
-                            </a>
-                        @elseif(!$todayAttendance->check_out)
-                            <a href="{{ route('attendance.clock-out') }}" class="btn btn-danger shadow-lg">
-                                <i class="fas fa-sign-out-alt"></i> Absen Keluar
-                            </a>
-                        @endif
-                        <a href="{{ route('attendance.riwayat') }}" class="btn btn-secondary">
-                            <i class="fas fa-history"></i> Riwayat
-                        </a>
-                    </div>
-                </div>
-                <div class="bg-body p-6 border-t sm:border-t-0 sm:border-l border-color min-w-[200px] flex flex-col justify-center gap-6">
-                    <div class="text-center">
-                        <p class="text-xs font-medium text-light uppercase">Jam Masuk</p>
-                        <p class="text-xl font-bold text-main">{{ $todayAttendance ? \Carbon\Carbon::parse($todayAttendance->check_in)->format('H:i') : '--:--' }}</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-xs font-medium text-light uppercase">Jam Pulang</p>
-                        <p class="text-xl font-bold text-main">{{ $todayAttendance && $todayAttendance->check_out ? \Carbon\Carbon::parse($todayAttendance->check_out)->format('H:i') : '--:--' }}</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-xs font-medium text-light uppercase">Durasi Kerja</p>
-                        <p class="text-xl font-bold text-main">{{ $todayAttendance && $todayAttendance->work_hours ? number_format($todayAttendance->work_hours, 1) . ' Jam' : '0 Jam' }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stats Mini Cards -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="modern-card stats-card flex flex-col justify-center items-center text-center p-4" style="background-color: var(--info-light); border-color: #bfdbfe;">
-                    <div class="w-10 h-10 rounded-full bg-info text-white flex items-center justify-center mb-2 shadow-sm">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <p class="text-2xl font-bold" style="color: var(--info);">{{ $monthlyStats['present'] + $monthlyStats['late'] }}</p>
-                    <p class="text-xs font-medium" style="color: #2563eb;">Hadir</p>
-                    <i class="fas fa-calendar-check stats-card-bg"></i>
-                </div>
-                <div class="modern-card stats-card flex flex-col justify-center items-center text-center p-4" style="background-color: var(--warning-light); border-color: #fde68a;">
-                    <div class="w-10 h-10 rounded-full bg-warning text-white flex items-center justify-center mb-2 shadow-sm">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <p class="text-2xl font-bold" style="color: var(--warning);">{{ $monthlyStats['late'] }}</p>
-                    <p class="text-xs font-medium" style="color: #d97706;">Terlambat</p>
-                    <i class="fas fa-clock stats-card-bg"></i>
-                </div>
-                <div class="modern-card stats-card flex flex-col justify-center items-center text-center p-4" style="background-color: var(--success-light); border-color: #bbf7d0;">
-                    <div class="w-10 h-10 rounded-full bg-success text-white flex items-center justify-center mb-2 shadow-sm">
-                        <i class="fas fa-envelope-open-text"></i>
-                    </div>
-                    <p class="text-2xl font-bold" style="color: var(--success);">{{ $monthlyStats['work_leave'] ?? 0 }}</p>
-                    <p class="text-xs font-medium" style="color: #059669;">Izin/Cuti</p>
-                    <i class="fas fa-envelope-open-text stats-card-bg"></i>
-                </div>
-                <div class="modern-card stats-card flex flex-col justify-center items-center text-center p-4" style="background-color: #eef2ff; border-color: #e0e7ff;">
-                    <div class="w-10 h-10 rounded-full bg-primary-dark text-white flex items-center justify-center mb-2 shadow-sm">
-                        <i class="fas fa-business-time"></i>
-                    </div>
-                    <p class="text-2xl font-bold text-primary-dark">{{ number_format($monthlyStats['work_hours'] ?? 0, 0) }}</p>
-                    <p class="text-xs font-medium text-primary-color">Total Jam</p>
-                    <i class="fas fa-business-time stats-card-bg"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Features Grid -->
-        <h3 class="text-lg font-bold text-main mb-4 px-1">Layanan Cepat</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            <a href="{{ route('attendance.absensi') }}" class="action-card">
-                <div class="action-card-icon bg-primary-light text-primary-color">
-                    <i class="fas fa-fingerprint"></i>
-                </div>
-                <span class="action-card-title">Presensi</span>
-            </a>
-            <a href="{{ route('activities.aktifitas') }}" class="action-card">
-                <div class="action-card-icon bg-warning-light text-warning">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <span class="action-card-title">Aktivitas</span>
-            </a>
-            <a href="{{ route('leave.index') }}" class="action-card">
-                <div class="action-card-icon bg-danger-light text-danger">
-                    <i class="fas fa-file-alt"></i>
-                </div>
-                <span class="action-card-title">Izin & Cuti</span>
-            </a>
-            <a href="{{ route('reports.index') }}" class="action-card">
-                <div class="action-card-icon bg-info-light text-info">
-                    <i class="fas fa-chart-bar"></i>
-                </div>
-                <span class="action-card-title">Laporan</span>
-            </a>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- QR Code Card -->
-            <div class="modern-card flex flex-col sm:flex-row items-center gap-8">
-                <div class="qr-container border-4 border-body rounded-2xl overflow-hidden shrink-0 shadow-sm">
-                    {!! $user->getQRCode() !!}
-                </div>
-                <div class="text-center sm:text-left">
-                    <h3 class="text-lg font-bold text-main mb-2">QR Code Saya</h3>
-                    <p class="text-sm text-muted mb-4">Gunakan QR Code ini untuk verifikasi kehadiran atau keperluan administratif kantor.</p>
-                    <div class="flex flex-wrap gap-2 mb-4 justify-center sm:justify-start">
-                        <span class="badge badge-info">{{ $user->employee_id }}</span>
-                        <span class="badge badge-success">{{ strtoupper($user->roles->first()->name ?? 'Karyawan') }}</span>
-                    </div>
-                    <button onclick="downloadQRCode()" class="btn btn-secondary text-xs">
-                        <i class="fas fa-download"></i> Download QR
-                    </button>
-                </div>
-            </div>
-
-            <!-- Support Card -->
-            <div class="modern-card bg-main text-white relative overflow-hidden flex flex-col justify-center" style="background-color: var(--text-main);">
-                <div class="relative z-10">
-                    <span class="px-2 py-1 bg-white/10 text-white text-[10px] rounded font-bold uppercase tracking-widest mb-4 inline-block">Support System</span>
-                    <h3 class="text-xl font-bold mb-2">Butuh Bantuan?</h3>
-                    <p class="text-light text-sm mb-6 opacity-80">Jika Anda mengalami kendala saat melakukan absensi atau menemukan bug pada sistem, silakan hubungi tim IT.</p>
-                    <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('help') }}" class="btn btn-primary bg-white text-main hover:bg-white/90">
-                            Pusat Bantuan
-                        </a>
-                        <a href="{{ route('about') }}" class="btn bg-white/10 text-white border-white/20 hover:bg-white/20">
-                            Tentang App
-                        </a>
-                    </div>
-                </div>
-                <!-- Abstract Background Pattern -->
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-primary-color opacity-10 rounded-full" style="filter: blur(64px);"></div>
-                <div class="absolute -right-20 -top-20 w-60 h-60 bg-info opacity-10 rounded-full" style="filter: blur(64px);"></div>
+            <div class="hidden md:block text-6xl opacity-20 animate-float">
+                <i class="fas fa-fingerprint"></i>
             </div>
         </div>
     </div>
 
-    <!-- Hidden logout form -->
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-        @csrf
-    </form>
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Today's Status -->
+        <div class="bg-white rounded-2xl p-6 shadow-soft hover:shadow-card-hover transition-all duration-300 border border-gray-100 animate-fade-in-up" style="animation-delay: 0.1s;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Status Hari Ini</h3>
+                <div class="bg-gradient-primary rounded-lg p-3 text-white shadow-glow">
+                    <i class="fas fa-clock text-lg"></i>
+                </div>
+            </div>
+            @if($todayAttendance)
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 text-sm">Check-in:</span>
+                        <span class="font-semibold text-gray-900">{{ $todayAttendance->check_in ?? '-' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 text-sm">Check-out:</span>
+                        <span class="font-semibold text-gray-900">{{ $todayAttendance->check_out ?? '-' }}</span>
+                    </div>
+                    <div class="pt-2 border-t border-gray-200">
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold
+                            @if($todayAttendance->status === 'present')
+                                bg-success-100 text-success-700
+                            @elseif($todayAttendance->status === 'late')
+                                bg-warning-100 text-warning-700
+                            @else
+                                bg-gray-100 text-gray-700
+                            @endif
+                        ">
+                            {{ ucfirst($todayAttendance->status) }}
+                        </span>
+                    </div>
+                </div>
+            @else
+                <div class="text-center py-4">
+                    <p class="text-gray-500 text-sm mb-3">Belum ada absensi hari ini</p>
+                    <a href="{{ route('attendance.clock-in') }}" class="inline-block bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-700 transition-colors">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Check-in Sekarang
+                    </a>
+                </div>
+            @endif
+        </div>
+
+        <!-- Present Days -->
+        <div class="bg-gradient-to-br from-success-50 to-success-100 rounded-2xl p-6 shadow-soft hover:shadow-card-hover transition-all duration-300 border border-success-200 animate-fade-in-up" style="animation-delay: 0.2s;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-success-700 uppercase tracking-wide">Hadir Bulan Ini</h3>
+                <div class="bg-gradient-success rounded-lg p-3 text-white shadow-glow-success">
+                    <i class="fas fa-check-circle text-lg"></i>
+                </div>
+            </div>
+            <div class="text-4xl font-bold text-success-900 mb-2">{{ $monthlyStats['present'] }}</div>
+            <p class="text-success-700 text-sm font-medium">Hari kerja</p>
+        </div>
+
+        <!-- Late Days -->
+        <div class="bg-gradient-to-br from-warning-50 to-warning-100 rounded-2xl p-6 shadow-soft hover:shadow-card-hover transition-all duration-300 border border-warning-200 animate-fade-in-up" style="animation-delay: 0.3s;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-warning-700 uppercase tracking-wide">Terlambat Bulan Ini</h3>
+                <div class="bg-gradient-warning rounded-lg p-3 text-white shadow-glow">
+                    <i class="fas fa-clock text-lg"></i>
+                </div>
+            </div>
+            <div class="text-4xl font-bold text-warning-900 mb-2">{{ $monthlyStats['late'] }}</div>
+            <p class="text-warning-700 text-sm font-medium">Kali terlambat</p>
+        </div>
+
+        <!-- Work Leave -->
+        <div class="bg-gradient-to-br from-accent-50 to-accent-100 rounded-2xl p-6 shadow-soft hover:shadow-card-hover transition-all duration-300 border border-accent-200 animate-fade-in-up" style="animation-delay: 0.4s;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-accent-700 uppercase tracking-wide">Izin Kerja</h3>
+                <div class="bg-gradient-accent rounded-lg p-3 text-white shadow-glow-accent">
+                    <i class="fas fa-file-signature text-lg"></i>
+                </div>
+            </div>
+            <div class="text-4xl font-bold text-accent-900 mb-2">{{ $monthlyStats['work_leave'] }}</div>
+            <p class="text-accent-700 text-sm font-medium">Pengajuan bulan ini</p>
+        </div>
+    </div>
+
+    <!-- Admin Stats (if user is admin/manager) -->
+    @if($overallStats)
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-6 border border-primary-200 shadow-soft hover:shadow-card-hover transition-all duration-300 animate-fade-in-up" style="animation-delay: 0.1s;">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-primary-600 text-sm font-semibold uppercase tracking-wide mb-2">Total Karyawan</p>
+                    <p class="text-3xl font-bold text-primary-900">{{ $overallStats['total_users'] }}</p>
+                </div>
+                <div class="text-5xl text-primary-200 opacity-50 animate-float">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-success-50 to-success-100 rounded-2xl p-6 border border-success-200 shadow-soft hover:shadow-card-hover transition-all duration-300 animate-fade-in-up" style="animation-delay: 0.2s;">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-success-600 text-sm font-semibold uppercase tracking-wide mb-2">Hadir Hari Ini</p>
+                    <p class="text-3xl font-bold text-success-900">{{ $overallStats['today_present'] }}</p>
+                </div>
+                <div class="text-5xl text-success-200 opacity-50 animate-float" style="animation-delay: 0.5s;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-warning-50 to-warning-100 rounded-2xl p-6 border border-warning-200 shadow-soft hover:shadow-card-hover transition-all duration-300 animate-fade-in-up" style="animation-delay: 0.3s;">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-warning-600 text-sm font-semibold uppercase tracking-wide mb-2">Pengajuan Pending</p>
+                    <p class="text-3xl font-bold text-warning-900">{{ $overallStats['pending_complaints'] }}</p>
+                </div>
+                <div class="text-5xl text-warning-200 opacity-50 animate-pulse">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Recent Attendance & Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Recent Attendance -->
+        <div class="lg:col-span-2 animate-fade-in-up" style="animation-delay: 0.2s;">
+            <div class="bg-white rounded-2xl shadow-soft hover:shadow-card-hover border border-gray-100 overflow-hidden transition-all duration-300">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+                    <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fas fa-history text-primary-600"></i>
+                        Riwayat Absensi (7 Hari Terakhir)
+                    </h2>
+                    <a href="{{ route('attendance.riwayat') }}" class="text-primary-600 hover:text-primary-700 text-sm font-semibold transition-colors">
+                        Lihat Semua <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Tanggal</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Check-in</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Check-out</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse($recentAttendances as $attendance)
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 text-sm text-gray-900 font-medium">
+                                    {{ $attendance->date->format('d M Y') }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ $attendance->check_in ?? '-' }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ $attendance->check_out ?? '-' }}
+                                </td>
+                                <td class="px-6 py-4 text-sm">
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold
+                                        @if($attendance->status === 'present')
+                                            bg-success-100 text-success-700
+                                        @elseif($attendance->status === 'late')
+                                            bg-warning-100 text-warning-700
+                                        @elseif($attendance->status === 'absent')
+                                            bg-danger-100 text-danger-700
+                                        @else
+                                            bg-gray-100 text-gray-700
+                                        @endif
+                                    ">
+                                        {{ ucfirst($attendance->status) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                    <i class="fas fa-inbox text-3xl mb-2 block opacity-50"></i>
+                                    Belum ada data absensi
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="space-y-6 animate-fade-in-up" style="animation-delay: 0.3s;">
+            <!-- Main Actions -->
+            <div class="bg-white rounded-2xl shadow-soft hover:shadow-card-hover border border-gray-100 overflow-hidden transition-all duration-300">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                    <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fas fa-bolt text-primary-600"></i>
+                        Aksi Cepat
+                    </h2>
+                </div>
+                <div class="p-6 space-y-3">
+                    <a href="{{ route('attendance.clock-in') }}" class="block w-full bg-gradient-primary text-white px-4 py-3 rounded-xl font-semibold hover:shadow-glow hover:scale-105 transition-all duration-300 text-center active:scale-95">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Check-in
+                    </a>
+                    <a href="{{ route('attendance.clock-out') }}" class="block w-full bg-gradient-accent text-white px-4 py-3 rounded-xl font-semibold hover:shadow-glow-accent hover:scale-105 transition-all duration-300 text-center active:scale-95">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Check-out
+                    </a>
+                    <a href="{{ route('leave.index') }}" class="block w-full bg-gradient-success text-white px-4 py-3 rounded-xl font-semibold hover:shadow-glow-success hover:scale-105 transition-all duration-300 text-center active:scale-95">
+                        <i class="fas fa-file-signature mr-2"></i>Ajukan Izin
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pending Complaints -->
+            @if($pendingComplaints > 0)
+            <div class="bg-gradient-to-br from-warning-50 to-warning-100 rounded-2xl border border-warning-200 p-6 shadow-soft hover:shadow-medium transition-all duration-300 animate-fade-in-up" style="animation-delay: 0.4s;">
+                <div class="flex items-start gap-4">
+                    <div class="bg-gradient-warning rounded-lg p-3 flex-shrink-0 text-white shadow-glow">
+                        <i class="fas fa-exclamation-triangle text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-warning-900 mb-1">Pengajuan Pending</h3>
+                        <p class="text-warning-700 text-sm mb-3">Anda memiliki {{ $pendingComplaints }} pengajuan yang menunggu persetujuan.</p>
+                        <a href="{{ route('complaints.history') }}" class="text-warning-600 hover:text-warning-700 text-sm font-semibold transition-colors">
+                            Lihat Detail <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Info Card -->
+            <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl border border-primary-200 p-6 shadow-soft hover:shadow-medium transition-all duration-300 animate-fade-in-up" style="animation-delay: 0.5s;">
+                <h3 class="font-bold text-primary-900 mb-3 flex items-center gap-2">
+                    <i class="fas fa-lightbulb text-primary-600"></i>
+                    Tips & Trik
+                </h3>
+                <ul class="space-y-2 text-sm text-primary-800">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check text-primary-600 mt-1 flex-shrink-0"></i>
+                        <span>Jangan lupa check-in setiap hari kerja</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check text-primary-600 mt-1 flex-shrink-0"></i>
+                        <span>Gunakan QR code untuk check-in yang lebih cepat</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check text-primary-600 mt-1 flex-shrink-0"></i>
+                        <span>Ajukan izin sebelum tidak masuk kerja</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
-
-@push('scripts')
-<script>
-    function toggleDropdown() {
-        const dropdown = document.getElementById('dropdownMenu');
-        dropdown.classList.toggle('show');
-    }
-
-    // Close dropdown when clicking outside
-    window.onclick = function(event) {
-        if (!event.target.matches('.dropdown-btn') && !event.target.closest('.dropdown-btn')) {
-            const dropdowns = document.getElementsByClassName('dropdown-content');
-            for (let i = 0; i < dropdowns.length; i++) {
-                const openDropdown = dropdowns[i];
-                if (openDropdown.classList.contains('show')) {
-                    openDropdown.classList.remove('show');
-                }
-            }
-        }
-    }
-
-    // Download QR Code function
-    function downloadQRCode() {
-        const svgElement = document.querySelector('.qr-container svg');
-        if (!svgElement) {
-            alert('QR Code tidak ditemukan');
-            return;
-        }
-
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const svgData = new XMLSerializer().serializeToString(svgElement);
-        const img = new Image();
-
-        img.onload = function() {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
-
-            canvas.toBlob(function(blob) {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'qrcode_{{ $user->employee_id }}.png';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            });
-        };
-
-        img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
-    }
-</script>
-@endpush

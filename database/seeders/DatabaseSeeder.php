@@ -15,8 +15,10 @@ class DatabaseSeeder extends Seeder
         // Seed roles, permissions, shifts, dan users with roles
         $this->call([
             RoleSeeder::class,
-            PermissionSeeder::class,  // Tambahkan permission seeder
+            PermissionSeeder::class,
             ShiftSeeder::class,
+            DepartmentSeeder::class,
+            LeaveTypeSeeder::class,
             UserWithRoleSeeder::class,
         ]);
         
