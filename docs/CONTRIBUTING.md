@@ -1,6 +1,6 @@
-# Contributing to Sistem Absensi Karyawan
+# Contributing to PT DUTA COMPUTER
 
-First off, thank you for considering contributing to Sistem Absensi Karyawan! It's people like you that make this project better.
+First off, thank you for considering contributing to PT DUTA COMPUTER Sistem Manajemen Absensi! It's people like you that make this project better.
 
 ## How Can I Contribute?
 

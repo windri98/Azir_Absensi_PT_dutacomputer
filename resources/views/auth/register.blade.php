@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Register - Sistem Absensi')
+@section('title', 'Register - PT DUTA COMPUTER')
 
 @section('content')
 <div class="min-h-screen flex items-center justify-center px-4 py-12">
@@ -14,7 +14,7 @@
                         <i class="fas fa-user-plus text-4xl text-white"></i>
                     </div>
                 </div>
-                <h1 class="text-3xl font-bold text-white font-display mb-2">Azir Absensi</h1>
+                <h1 class="text-3xl font-bold text-white font-display mb-2">PT DUTA COMPUTER</h1>
                 <p class="text-primary-100">Daftar Akun Baru</p>
             </div>
 

@@ -1,7 +1,7 @@
 <template>
   <aside class="w-64 bg-gray-900 text-white">
     <div class="p-6">
-      <h1 class="text-2xl font-bold">Absensiku</h1>
+      <h1 class="text-2xl font-bold">PT DUTA COMPUTER</h1>
     </div>
 
     <nav class="mt-6">

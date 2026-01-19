@@ -13,8 +13,8 @@
                         <div>
                             <h3 class="font-semibold text-gray-900 mb-2">Email</h3>
                             <p class="text-gray-600">
-                                <a href="mailto:support@azir-absensi.com" class="text-indigo-600 hover:text-indigo-700">
-                                    support@azir-absensi.com
+                                <a href="mailto:support@dutacomputer.com" class="text-indigo-600 hover:text-indigo-700">
+                                    support@dutacomputer.com
                                 </a>
                             </p>
                         </div>

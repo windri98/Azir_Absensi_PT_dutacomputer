@@ -36,7 +36,7 @@ export const LoginScreen = ({ navigation }) => {
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Azir Absensi</Text>
+          <Text style={styles.title}>PT DUTA COMPUTER</Text>
           <Text style={styles.subtitle}>Sistem Manajemen Absensi Karyawan</Text>
         </View>
 

@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
-    "description": "Sistem Absensi Karyawan - Aplikasi manajemen kehadiran karyawan dengan role-based authentication",
+    "description": "PT DUTA COMPUTER - Sistem Manajemen Absensi Karyawan dengan role-based authentication dan fitur lengkap",
     "keywords": ["laravel", "framework", "attendance", "employee", "absensi", "hrm"],
     "license": "MIT",
     "require": {

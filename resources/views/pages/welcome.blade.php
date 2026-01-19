@@ -20,7 +20,7 @@
                     </div>
                 </div>
                 <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 font-display">
-                    Azir Absensi
+                    PT DUTA COMPUTER
                 </h1>
                 <p class="text-xl md:text-2xl text-primary-100 mb-8 max-w-2xl mx-auto">
                     Sistem Manajemen Absensi Karyawan yang Modern, Aman, dan Terpercaya

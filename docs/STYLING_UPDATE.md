@@ -1,8 +1,8 @@
-# 🎨 UI/UX Styling Update - Azir Absensi
+# 🎨 UI/UX Styling Update - PT DUTA COMPUTER
 
 ## ✅ Perubahan yang Telah Dilakukan
 
-Aplikasi Azir Absensi telah diupdate dengan **styling modern, vibrant, dan menarik**. Berikut adalah ringkasan lengkap dari semua perubahan:
+Aplikasi PT DUTA COMPUTER telah diupdate dengan **styling modern, vibrant, dan menarik**. Berikut adalah ringkasan lengkap dari semua perubahan:
 
 ### 📋 File-File yang Diubah
 

@@ -1,7 +1,7 @@
 {
-  "name": "azir-absensi-mobile",
+  "name": "pt-duta-computer-mobile",
   "version": "1.0.0",
-  "description": "Azir Absensi - Mobile App untuk Sistem Manajemen Absensi Karyawan",
+  "description": "PT DUTA COMPUTER - Mobile App untuk Sistem Manajemen Absensi Karyawan",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",

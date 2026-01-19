@@ -1,4 +1,4 @@
-# Quick Start Guide - Sistem Absensi Karyawan
+# Quick Start Guide - PT DUTA COMPUTER Sistem Manajemen Absensi
 
 ## 🚀 Mulai dalam 5 Menit
 
@@ -31,7 +31,7 @@ Edit `.env`:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=azir_absensi
+DB_DATABASE=dutacomputer_absensi
 DB_USERNAME=root
 DB_PASSWORD=
 ```

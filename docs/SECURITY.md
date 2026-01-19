@@ -10,7 +10,7 @@ Currently supported versions with security updates:
 
 ## Reporting a Vulnerability
 
-We take the security of Sistem Absensi Karyawan seriously. If you have discovered a security vulnerability, please follow these steps:
+We take the security of PT DUTA COMPUTER Sistem Manajemen Absensi seriously. If you have discovered a security vulnerability, please follow these steps:
 
 ### 1. **DO NOT** disclose the vulnerability publicly
 

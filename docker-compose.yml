@@ -5,16 +5,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: absensi-app
+    container_name: dutacomputer-app
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
       - ./storage:/var/www/html/storage
       - ./public/uploads:/var/www/html/public/uploads
-    ports:
-      - "8000:80"
+    # ports:
+    #   - "8000:80"
     environment:
-      - APP_NAME=Sistem Absensi Karyawan
+      - APP_NAME=PT DUTA COMPUTER - Sistem Manajemen Absensi
       - APP_ENV=production
       - APP_DEBUG=false
       - APP_URL=http://localhost:8000
@@ -37,7 +37,7 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: absensi-db
+    container_name: dutacomputer-db
     restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=rootpassword
@@ -47,8 +47,8 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3306:3306"
     command: --default-authentication-plugin=mysql_native_password
     networks:
       - absensi-network
@@ -59,7 +59,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: absensi-redis
+    container_name: dutacomputer-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -79,14 +79,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: absensi-queue-worker
+    container_name: dutacomputer-queue-worker
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
       - ./storage:/var/www/html/storage
       - ./public/uploads:/var/www/html/public/uploads
     environment:
-      - APP_NAME=Sistem Absensi Karyawan
+      - APP_NAME=PT DUTA COMPUTER - Sistem Manajemen Absensi
       - APP_ENV=production
       - APP_DEBUG=false
       - DB_CONNECTION=mysql
@@ -111,14 +111,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: absensi-scheduler
+    container_name: dutacomputer-scheduler
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
       - ./storage:/var/www/html/storage
       - ./public/uploads:/var/www/html/public/uploads
     environment:
-      - APP_NAME=Sistem Absensi Karyawan
+      - APP_NAME=PT DUTA COMPUTER - Sistem Manajemen Absensi
       - APP_ENV=production
       - APP_DEBUG=false
       - DB_CONNECTION=mysql

@@ -1,4 +1,4 @@
-# User Guide - Sistem Absensi Karyawan
+# User Guide - PT DUTA COMPUTER Sistem Manajemen Absensi
 
 ## Daftar Isi
 1. [Pengenalan](#pengenalan)
@@ -12,7 +12,7 @@
 
 ## Pengenalan
 
-Sistem Absensi Karyawan adalah aplikasi web dan mobile untuk mengelola kehadiran karyawan dengan fitur-fitur modern seperti:
+PT DUTA COMPUTER Sistem Manajemen Absensi adalah aplikasi web dan mobile untuk mengelola kehadiran karyawan dengan fitur-fitur modern seperti:
 - Check-in/Check-out dengan GPS
 - Riwayat absensi
 - Laporan kehadiran

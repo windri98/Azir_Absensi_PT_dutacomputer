@@ -10,7 +10,7 @@
                 <div class="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition">
                     <div class="text-3xl mb-4">📖</div>
                     <h3 class="text-xl font-bold text-gray-900 mb-3">Getting Started</h3>
-                    <p class="text-gray-600 mb-4">Learn the basics of using Azir Absensi system</p>
+                    <p class="text-gray-600 mb-4">Learn the basics of using PT DUTA COMPUTER system</p>
                     <ul class="space-y-2 text-gray-600">
                         <li>• Account setup and login</li>
                         <li>• Profile configuration</li>

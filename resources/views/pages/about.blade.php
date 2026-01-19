@@ -4,12 +4,12 @@
 <div class="min-h-screen bg-gray-50">
     <div class="container mx-auto px-4 py-16">
         <div class="max-w-3xl mx-auto">
-            <h1 class="text-4xl font-bold text-gray-900 mb-8">About Azir Absensi</h1>
+            <h1 class="text-4xl font-bold text-gray-900 mb-8">About PT DUTA COMPUTER</h1>
 
             <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
                 <p class="text-gray-600 mb-4">
-                    Azir Absensi is a modern attendance management system designed to streamline employee tracking and leave management for organizations of all sizes. We believe in making attendance management simple, transparent, and efficient.
+                    PT DUTA COMPUTER adalah sistem manajemen absensi modern yang dirancang untuk menyederhanakan pelacakan karyawan dan manajemen cuti untuk organisasi dari semua ukuran. Kami percaya dalam membuat manajemen absensi sederhana, transparan, dan efisien.
                 </p>
             </div>
 

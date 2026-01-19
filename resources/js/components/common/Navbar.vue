@@ -5,7 +5,7 @@
         <!-- Logo -->
         <div class="flex items-center">
           <div class="flex-shrink-0 flex items-center">
-            <span class="text-2xl font-bold text-primary-600">Absensiku</span>
+            <span class="text-2xl font-bold text-primary-600">PT DUTA COMPUTER</span>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-# Deployment Guide - Sistem Absensi Karyawan
+# Deployment Guide - PT DUTA COMPUTER Sistem Manajemen Absensi
 
 Panduan lengkap untuk deploy aplikasi ke production server.
 
@@ -39,9 +39,9 @@ sudo apt install -y nodejs
 
 ```bash
 cd /var/www
-sudo git clone https://github.com/your-username/laravel-absensi.git absensi
-cd absensi
-sudo chown -R www-data:www-data /var/www/absensi
+sudo git clone https://github.com/your-username/dutacomputer-absensi.git dutacomputer
+cd dutacomputer
+sudo chown -R www-data:www-data /var/www/dutacomputer
 ```
 
 ## 3. Install Dependencies
@@ -70,7 +70,7 @@ nano .env
 Update `.env` with production values:
 
 ```env
-APP_NAME="Sistem Absensi Karyawan"
+APP_NAME="PT DUTA COMPUTER - Sistem Manajemen Absensi"
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://yourdomain.com
@@ -78,8 +78,8 @@ APP_URL=https://yourdomain.com
 DB_CONNECTION=mysql
 DB_HOST=localhost
 DB_PORT=3306
-DB_DATABASE=absensi_production
-DB_USERNAME=absensi_user
+DB_DATABASE=dutacomputer_production
+DB_USERNAME=dutacomputer_user
 DB_PASSWORD=your_secure_password
 
 SESSION_DRIVER=database

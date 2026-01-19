@@ -1,8 +1,8 @@
-# Azir Absensi API Documentation
+# PT DUTA COMPUTER API Documentation
 
 ## Base URL
 ```
-https://api.azir-absensi.local/api/v1
+https://api.dutacomputer.local/api/v1
 ```
 
 ## Authentication

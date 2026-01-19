@@ -37,7 +37,7 @@ return [
         'default' => 3600, // 1 hour
     ],
 
-    'prefix' => env('CACHE_PREFIX', 'azir_absensi_'),
+    'prefix' => env('CACHE_PREFIX', 'dutacomputer_'),
 
     'key_patterns' => [
         'user:*',

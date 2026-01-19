@@ -1,6 +1,6 @@
-# 📱 Sistem Absensi Karyawan
+# 📱 PT DUTA COMPUTER - Sistem Manajemen Absensi Karyawan
 
-Aplikasi web untuk manajemen absensi karyawan dengan fitur role-based authentication, tracking kehadiran, complaints, dan reporting.
+Aplikasi web untuk manajemen absensi karyawan PT DUTA COMPUTER dengan fitur role-based authentication, tracking kehadiran, complaints, dan reporting.
 
 ## ✨ Fitur Utama
 

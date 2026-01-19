@@ -15,7 +15,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: azir_absensi_test
+          MYSQL_DATABASE: dutacomputer_test
         options: >-
           --health-cmd="mysqladmin ping"
           --health-interval=10s
@@ -67,7 +67,7 @@ jobs:
         DB_CONNECTION: mysql
         DB_HOST: 127.0.0.1
         DB_PORT: 3306
-        DB_DATABASE: azir_absensi_test
+        DB_DATABASE: dutacomputer_test
         DB_USERNAME: root
         DB_PASSWORD: root
 
@@ -77,7 +77,7 @@ jobs:
         DB_CONNECTION: mysql
         DB_HOST: 127.0.0.1
         DB_PORT: 3306
-        DB_DATABASE: azir_absensi_test
+        DB_DATABASE: dutacomputer_test
         DB_USERNAME: root
         DB_PASSWORD: root
 

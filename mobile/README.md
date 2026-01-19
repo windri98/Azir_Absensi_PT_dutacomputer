@@ -1,6 +1,6 @@
-# Azir Absensi - Mobile App
+# PT DUTA COMPUTER - Mobile App
 
-Aplikasi mobile untuk Sistem Manajemen Absensi Karyawan PT Duta Computer.
+Aplikasi mobile untuk Sistem Manajemen Absensi Karyawan PT DUTA COMPUTER.
 
 ## Fitur
 

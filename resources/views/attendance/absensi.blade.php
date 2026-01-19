@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Presensi - Sistem Absensi')
+@section('title', 'Presensi - PT DUTA COMPUTER')
 
 @section('content')
     <div class="px-4 py-8 lg:px-8 max-w-5xl mx-auto">
