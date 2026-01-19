@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y \
     nodejs \
     npm \
     default-mysql-client \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -68,15 +69,21 @@ while ! mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWO
 done\n\
 echo "Database is ready!"\n\
 \n\
-# Run migrations\n\
-php artisan migrate --force\n\
+# Run migrations only on first deployment or if explicitly requested\n\
+# In production, migrations should be run manually for safety\n\
+if [ "$APP_ENV" != "production" ] || [ "$RUN_MIGRATIONS" = "true" ]; then\n\
+    echo "Running migrations..."\n\
+    php artisan migrate --force\n\
+fi\n\
 \n\
-# Seed database if requested\n\
-if [ "$DB_SEED" = "true" ]; then\n\
+# Seed database if explicitly requested (not automatic in production)\n\
+if [ "$DB_SEED" = "true" ] && [ "$APP_ENV" != "production" ]; then\n\
+    echo "Seeding database..."\n\
     php artisan db:seed --force\n\
 fi\n\
 \n\
 # Clear and cache config\n\
+echo "Caching configuration..."\n\
 php artisan config:cache\n\
 php artisan route:cache\n\
 php artisan view:cache\n\
@@ -94,6 +101,10 @@ RUN chmod +x /usr/local/bin/start.sh
 
 # Expose port 80
 EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost/api/health || exit 1
 
 # Start the application
 CMD ["/usr/local/bin/start.sh"]

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\HealthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +18,14 @@ use App\Http\Controllers\Api\V1\UserController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// Health check routes - no auth required, not logged
+Route::middleware('throttle:health')->group(function () {
+    Route::get('/health', [HealthController::class, 'check']);
+    Route::get('/health/ready', [HealthController::class, 'readiness']);
+    Route::get('/health/live', [HealthController::class, 'liveness']);
+    Route::get('/health/ping', [HealthController::class, 'simple']);
+});
 
 Route::prefix('v1')->group(function () {
     // Public routes

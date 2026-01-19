@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +22,51 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->configureRateLimiting();
+    }
+
+    /**
+     * Configure the rate limiters for the application.
+     */
+    protected function configureRateLimiting(): void
+    {
+        // Default API rate limiting: 60 requests per minute per user/IP
+        RateLimiter::for('api', function (Request $request) {
+            $limit = (int) config('app.rate_limit', 60);
+            return Limit::perMinute($limit)->by(
+                $request->user()?->id ?: $request->ip()
+            );
+        });
+
+        // Health check rate limiting: 120 requests per minute per IP (more lenient)
+        RateLimiter::for('health', function (Request $request) {
+            return Limit::perMinute(120)->by($request->ip());
+        });
+
+        // Authentication rate limiting: 5 attempts per minute per IP
+        RateLimiter::for('auth', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
+        // Complaint creation rate limiting: 3 per minute per user
+        RateLimiter::for('complaints', function (Request $request) {
+            return Limit::perMinute(3)->by(
+                $request->user()?->id ?: $request->ip()
+            );
+        });
+
+        // File upload rate limiting: 10 per minute per user
+        RateLimiter::for('uploads', function (Request $request) {
+            return Limit::perMinute(10)->by(
+                $request->user()?->id ?: $request->ip()
+            );
+        });
+
+        // Export operations rate limiting: 5 per minute per user
+        RateLimiter::for('exports', function (Request $request) {
+            return Limit::perMinute(5)->by(
+                $request->user()?->id ?: $request->ip()
+            );
+        });
     }
 }
