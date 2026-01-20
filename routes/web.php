@@ -61,11 +61,8 @@ Route::middleware('auth')->group(function () {
         ->middleware('role_or_permission:dashboard.view')
         ->name('user.dashboard');
 
-    // Activities
-    Route::get('/aktifitas', function () {
-        $user = auth()->user();
-        return view('activities.aktifitas', compact('user'));
-    })->name('activities.aktifitas');
+    // Activities - Redirect to leave management
+    Route::redirect('/aktifitas', '/leave', 301)->name('activities.aktifitas');
 
     // Legacy route - redirect to new location
     Route::get('/activities/izin', function () {

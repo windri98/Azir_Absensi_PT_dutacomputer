@@ -146,13 +146,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     */
     Route::get('/work-leave', [AdminDashboardController::class, 'workLeaveRequests'])->name('work-leave.index');
     Route::get('/work-leave/{attendance}/detail', [AdminDashboardController::class, 'workLeaveDetail'])->name('work-leave.detail');
-    Route::post('/work-leave/{attendance}/approve', function ($attendance) {
-        $attendanceModel = Attendance::findOrFail($attendance);
-        return app(AdminDashboardController::class)->workLeaveAction($attendanceModel, 'approve');
+    Route::post('/work-leave/{attendance}/approve', function (Attendance $attendance) {
+        return app(AdminDashboardController::class)->workLeaveAction($attendance, 'approve');
     })->name('work-leave.approve');
-    Route::post('/work-leave/{attendance}/reject', function ($attendance) {
-        $attendanceModel = Attendance::findOrFail($attendance);
-        return app(AdminDashboardController::class)->workLeaveAction($attendanceModel, 'reject');
+    Route::post('/work-leave/{attendance}/reject', function (Attendance $attendance) {
+        return app(AdminDashboardController::class)->workLeaveAction($attendance, 'reject');
     })->name('work-leave.reject');
 
     /*

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Services\AttendanceService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,165 +12,61 @@ use Illuminate\Support\Facades\Storage;
 
 class AttendanceController extends Controller
 {
+    private AttendanceService $attendanceService;
+
+    public function __construct(AttendanceService $attendanceService)
+    {
+        $this->attendanceService = $attendanceService;
+    }
+
     /**
-     * Display riwayat absensi
+     * Display riwayat absensi - OPTIMIZED with service
      */
     public function index(Request $request)
     {
-        \Log::info('Attendance index method called', [
-            'user_id' => Auth::id(),
-            'request_params' => $request->all()
-        ]);
-
-        $query = Attendance::with('user');
-
-        // For attendance riwayat page, always show current user's data only
-        // (Admin can view other users' data through different routes if needed)
-        $query->where('user_id', Auth::id());
-
-        // Filter by period or date range
-        $period = $request->get('period', 'week');
-        
-        if ($period === 'week') {
-            $startOfWeek = Carbon::now()->startOfWeek();
-            $endOfWeek = Carbon::now()->endOfWeek();
-            $query->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()]);
-        } elseif ($period === 'month') {
-            $startOfMonth = Carbon::now()->startOfMonth();
-            $endOfMonth = Carbon::now()->endOfMonth();
-            $query->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()]);
-        } elseif ($period === 'custom') {
-            if ($request->filled('start_date')) {
-                $query->where('date', '>=', $request->start_date);
-            }
-            if ($request->filled('end_date')) {
-                $query->where('date', '<=', $request->end_date);
-            }
-        }
-
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $attendances = $query->orderBy('date', 'desc')
-            ->orderBy('check_in', 'desc')
-            ->paginate(15);
-
-        // Calculate statistics - for regular users, always filter to their data only
-        // For admin/managers in attendance history, show only their own data unless explicitly viewing someone else's
-        $baseStatsQuery = Attendance::query();
-        
-        // Always filter by current user for this page (even admin sees their own stats)
-        $baseStatsQuery->where('user_id', Auth::id());
-
-        // Apply same filters to statistics base query
-        if ($period === 'week') {
-            $startOfWeek = Carbon::now()->startOfWeek();
-            $endOfWeek = Carbon::now()->endOfWeek();
-            $baseStatsQuery->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()]);
-        } elseif ($period === 'month') {
-            $startOfMonth = Carbon::now()->startOfMonth();
-            $endOfMonth = Carbon::now()->endOfMonth();
-            $baseStatsQuery->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()]);
-        } elseif ($period === 'custom') {
-            if ($request->filled('start_date')) {
-                $baseStatsQuery->where('date', '>=', $request->start_date);
-            }
-            if ($request->filled('end_date')) {
-                $baseStatsQuery->where('date', '<=', $request->end_date);
-            }
-        }
-        if ($request->filled('status')) {
-            $baseStatsQuery->where('status', $request->status);
-        }
-
-        // Calculate statistics using separate queries to avoid conflicts
-        $stats = [
-            'total_days' => (clone $baseStatsQuery)->count(),
-            'present_days' => (clone $baseStatsQuery)->whereIn('status', ['present', 'late'])->count(),
-            'late_days' => (clone $baseStatsQuery)->where('status', 'late')->count(),
-            'total_hours' => (clone $baseStatsQuery)->sum('work_hours') ?? 0,
+        $userId = Auth::id();
+        $filters = [
+            'period' => $request->get('period', 'week'),
+            'status' => $request->get('status'),
+            'start_date' => $request->get('start_date'),
+            'end_date' => $request->get('end_date'),
         ];
 
-        // Debug info
-        \Log::info('Attendance Statistics Debug', [
-            'period' => $period,
-            'user_id' => Auth::id(),
-            'is_admin' => Auth::user()->hasAnyRole(['admin', 'manager']),
-            'week_start' => $period === 'week' ? Carbon::now()->startOfWeek()->toDateString() : null,
-            'week_end' => $period === 'week' ? Carbon::now()->endOfWeek()->toDateString() : null,
-            'stats' => $stats,
-            'attendances_count' => $attendances->total()
+        // Get attendance history using optimized service
+        $attendances = $this->attendanceService->getHistory($userId, $filters);
+        $stats = $this->attendanceService->getHistoryStats($userId, $filters);
+
+        Log::info('Attendance history loaded', [
+            'user_id' => $userId,
+            'filters' => $filters,
+            'total_records' => $attendances->total()
         ]);
 
         return view('attendance.riwayat', compact('attendances', 'stats'));
     }
 
     /**
-     * Check in absensi
+     * Check in absensi - OPTIMIZED with service
      */
     public function checkIn(Request $request)
     {
-        Log::info('Check-in request received', [
-            'user_id' => Auth::id(),
-            'request_data' => $request->all(),
-        ]);
-
         $request->validate([
             'location' => 'required',
             'note' => 'nullable|string|max:500',
         ]);
 
-        $today = Carbon::today();
+        $data = [
+            'location' => $request->location,
+            'note' => $request->note,
+        ];
 
-        // Check apakah sudah check in hari ini
-        $existingAttendance = Attendance::where('user_id', Auth::id())
-            ->whereDate('date', $today)
-            ->first();
+        $result = $this->attendanceService->processCheckIn($data);
 
-        if ($existingAttendance && $existingAttendance->check_in) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda sudah melakukan check-in hari ini',
-            ], 400);
-        }
-
-        $checkInTime = Carbon::now();
-        $workStartTime = Carbon::createFromTime(8, 0, 0); // 08:00 AM
-
-        $status = 'present';
-        if ($checkInTime->gt($workStartTime)) {
-            $status = 'late';
-        }
-
-        // Format location string
-        $locationString = is_array($request->location)
-            ? json_encode($request->location)
-            : $request->location;
-
-        $attendance = Attendance::updateOrCreate(
-            [
-                'user_id' => Auth::id(),
-                'date' => $today,
-            ],
-            [
-                'check_in' => $checkInTime->format('H:i:s'),
-                'check_in_location' => $locationString,
-                'status' => $status,
-                'notes' => $request->note,
-            ]
-        );
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Check-in berhasil',
-            'data' => $attendance,
-        ]);
+        return response()->json($result, $result['success'] ? 200 : 400);
     }
 
     /**
-     * Check out absensi
+     * Check out absensi - OPTIMIZED with service
      */
     public function checkOut(Request $request)
     {
@@ -178,71 +75,31 @@ class AttendanceController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $today = Carbon::today();
+        $data = [
+            'location' => $request->location,
+            'notes' => $request->notes,
+        ];
 
-        $attendance = Attendance::where('user_id', Auth::id())
-            ->whereDate('date', $today)
-            ->first();
+        $result = $this->attendanceService->processCheckOut($data);
 
-        if (! $attendance || ! $attendance->check_in) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda belum melakukan check-in hari ini',
-            ], 400);
-        }
-
-        if ($attendance->check_out) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda sudah melakukan check-out hari ini',
-            ], 400);
-        }
-
-        // Format location string
-        $locationString = is_array($request->location)
-            ? json_encode($request->location)
-            : $request->location;
-
-        $checkOutTime = Carbon::now();
-        $attendance->check_out = $checkOutTime->format('H:i:s');
-        $attendance->check_out_location = $locationString;
-        $attendance->notes = $request->notes;
-
-        // Hitung work hours
-        // Recalculate work hours in minutes/decimal hours
-        $attendance->calculateWorkHours();
-        $attendance->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Check-out berhasil',
-            'data' => $attendance,
-        ]);
+        return response()->json($result, $result['success'] ? 200 : 400);
     }
 
     /**
-     * Get status absensi hari ini
+     * Get status absensi hari ini - OPTIMIZED lightweight endpoint
      */
     public function todayStatus()
     {
-        $today = Carbon::today();
-
-        $attendance = Attendance::where('user_id', Auth::id())
-            ->whereDate('date', $today)
-            ->first();
+        $status = $this->attendanceService->getTodayStatus();
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'has_checked_in' => $attendance && $attendance->check_in ? true : false,
-                'has_checked_out' => $attendance && $attendance->check_out ? true : false,
-                'attendance' => $attendance,
-            ],
+            'data' => $status,
         ]);
     }
 
     /**
-     * Submit izin/sakit
+     * Submit izin/sakit - delegated to LeaveService
      */
     public function submitLeave(Request $request)
     {
@@ -250,58 +107,29 @@ class AttendanceController extends Controller
             'date' => 'required|date',
             'type' => 'required|in:work_leave',
             'notes' => 'required|string',
-            'work_leave_document' => 'nullable|file|mimes:jpeg,jpg,png,pdf|max:5120', // 5MB
+            'work_leave_document' => 'nullable|file|mimes:jpeg,jpg,png,pdf|max:5120',
         ]);
 
-        $attendanceData = [
-            'user_id' => Auth::id(),
+        $data = [
             'date' => $request->date,
-            'status' => $request->type,
             'notes' => $request->notes,
+            'document' => $request->file('work_leave_document'),
         ];
 
-        // Handle file upload for work leave
-        if ($request->type === 'work_leave' && $request->hasFile('work_leave_document')) {
-            $file = $request->file('work_leave_document');
-            $filename = time() . '_work_leave_' . $file->getClientOriginalName();
-            $path = $file->storeAs('attendance/work-leave-documents', $filename, 'public');
-            
-            $attendanceData['leave_letter_path'] = $path;
-            $attendanceData['document_filename'] = $file->getClientOriginalName();
-            $attendanceData['document_uploaded_at'] = now();
-        }
+        $result = app(\App\Services\LeaveService::class)->submitWorkLeave($data);
 
-        $attendance = Attendance::create($attendanceData);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Pengajuan izin berhasil',
-            'data' => $attendance,
-            'has_document' => $attendance->hasDocument(),
-        ]);
+        return response()->json($result, $result['success'] ? 200 : 400);
     }
 
     /**
-     * Get statistik absensi (untuk dashboard)
+     * Get statistik absensi - OPTIMIZED using aggregation
      */
     public function statistics(Request $request)
     {
-        $userId = Auth::id();
         $month = $request->get('month', Carbon::now()->month);
         $year = $request->get('year', Carbon::now()->year);
 
-        $query = Attendance::where('user_id', $userId)
-            ->whereMonth('date', $month)
-            ->whereYear('date', $year);
-
-        // Clone query per status untuk mencegah mixing conditions
-        $statistics = [
-            'total_days' => (clone $query)->count(),
-            'total_present' => (clone $query)->where('status', 'present')->count(),
-            'total_late' => (clone $query)->where('status', 'late')->count(),
-            'total_work_leave' => (clone $query)->where('status', 'work_leave')->count(),
-            'total_work_hours' => (clone $query)->sum('work_hours'),
-        ];
+        $statistics = $this->attendanceService->getStatistics(Auth::id(), $month, $year);
 
         return response()->json([
             'success' => true,
@@ -310,69 +138,54 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Show absensi page
+     * Show absensi page - OPTIMIZED
      */
     public function showAbsensi()
     {
-        $user = Auth::user();
+        try {
+            \Log::debug('showAbsensi entry', ['user_id' => Auth::id()]);
+            $user = Auth::user();
+            $userShift = $this->attendanceService->getUserActiveShift($user);
+            $todayAttendance = $this->attendanceService->getTodayStatus()['attendance'] ?? null;
 
-        // Ambil shift user yang sedang aktif (hari ini dalam range start_date dan end_date)
-        $today = Carbon::today();
-        $userShift = $user->shifts()
-            ->where(function ($query) use ($today) {
-                $query->where(function ($q) {
-                    // Permanent shift (tidak ada tanggal)
-                    $q->whereNull('shift_user.start_date')
-                        ->whereNull('shift_user.end_date');
-                })
-                    ->orWhere(function ($q) use ($today) {
-                        // Shift dengan start_date <= today dan (end_date >= today atau null)
-                        $q->where('shift_user.start_date', '<=', $today)
-                            ->where(function ($query) use ($today) {
-                                $query->whereNull('shift_user.end_date')
-                                    ->orWhere('shift_user.end_date', '>=', $today);
-                            });
-                    });
-            })
-            ->first();
+            // Get recent attendance history (last 7 days)
+            $attendances = Attendance::where('user_id', Auth::id())
+                ->orderBy('date', 'desc')
+                ->orderBy('check_in', 'desc')
+                ->limit(7)
+                ->get();
 
-        $todayAttendance = Attendance::where('user_id', Auth::id())
-            ->whereDate('date', Carbon::today())
-            ->first();
+            \Log::debug('showAbsensi success', ['attendances_count' => $attendances->count()]);
 
-        // Ambil riwayat absensi user, urut terbaru
-        $attendances = Attendance::where('user_id', Auth::id())
-            ->orderBy('date', 'desc')
-            ->orderBy('check_in', 'desc')
-            ->get();
-
-        return view('attendance.absensi', compact('user', 'todayAttendance', 'attendances', 'userShift'));
+            return view('attendance.absensi', compact('user', 'todayAttendance', 'attendances', 'userShift'));
+        } catch (\Exception $e) {
+            \Log::error('showAbsensi error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     /**
-     * Show clock-in page
+     * Show clock-in page - OPTIMIZED
      */
     public function showClockIn()
     {
         $user = Auth::user();
-        $todayAttendance = Attendance::where('user_id', Auth::id())
-            ->whereDate('date', Carbon::today())
-            ->first();
+        $todayStatus = $this->attendanceService->getTodayStatus();
+        $todayAttendance = $todayStatus['attendance'] ?? null;
 
         return view('attendance.clock-in', compact('user', 'todayAttendance'));
     }
 
     /**
-     * Show clock-out page
+     * Show clock-out page - OPTIMIZED
      */
     public function showClockOut()
     {
         $user = Auth::user();
-        $todayAttendance = Attendance::where('user_id', Auth::id())
-            ->whereDate('date', Carbon::today())
-            ->first();
+        $todayStatus = $this->attendanceService->getTodayStatus();
+        $todayAttendance = $todayStatus['attendance'] ?? null;
 
-        if (! $todayAttendance || ! $todayAttendance->check_in) {
+        if (!$todayAttendance || !$todayStatus['has_checked_in']) {
             return redirect()->route('attendance.absensi')->with('error', 'Anda belum check-in hari ini');
         }
 
@@ -388,14 +201,13 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Show clock overtime page
+     * Show clock overtime page - OPTIMIZED
      */
     public function showClockOvertime()
     {
         $user = Auth::user();
-        $todayAttendance = Attendance::where('user_id', Auth::id())
-            ->whereDate('date', Carbon::today())
-            ->first();
+        $todayStatus = $this->attendanceService->getTodayStatus();
+        $todayAttendance = $todayStatus['attendance'] ?? null;
 
         return view('attendance.clock-overtime', compact('user', 'todayAttendance'));
     }

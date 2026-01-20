@@ -3,124 +3,201 @@
 @section('title', 'Presensi - PT DUTA COMPUTER')
 
 @section('content')
-    <div class="px-4 py-8 lg:px-8 max-w-5xl mx-auto">
+    <div class="px-4 py-8 lg:px-8 max-w-6xl mx-auto">
         <!-- Page Header -->
         <div class="flex items-center gap-4 mb-8">
             <button class="btn btn-secondary !p-2 shadow-sm" onclick="goBack()">
                 <i class="fas fa-chevron-left"></i>
             </button>
             <div>
-                <h1 class="text-2xl font-bold text-main">Presensi Kerja</h1>
-                <p class="text-sm text-muted">Lakukan pencatatan kehadiran harian Anda</p>
+                <h1 class="text-3xl font-bold text-gray-900">Presensi Kerja</h1>
+                <p class="text-sm text-gray-600">Kelola kehadiran dan jam kerja Anda</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Clock Card -->
+            <!-- MAIN CLOCK & ACTIONS -->
             <div class="lg:col-span-2">
-                <div class="modern-card flex flex-col items-center text-center p-10 bg-card border-color">
-                    <span class="badge badge-info mb-4">Waktu Saat Ini</span>
-                    <h2 class="text-5xl font-black text-main mb-2 tracking-tighter" id="currentTime">00:00:00</h2>
-                    <p class="text-muted font-medium mb-10" id="currentDate">Memuat tanggal...</p>
+                <!-- Digital Clock -->
+                <div class="bg-white rounded-2xl shadow-soft border border-gray-100 p-10 mb-6 text-center">
+                    <span class="inline-block px-4 py-1 rounded-full text-xs font-bold bg-primary-100 text-primary-700 uppercase tracking-wide mb-6">Waktu Saat Ini</span>
+                    <h2 class="text-7xl font-black text-gray-900 mb-3 tracking-tighter font-mono" id="currentTime">00:00:00</h2>
+                    <p class="text-lg text-gray-600 font-semibold mb-8" id="currentDate">Memuat tanggal...</p>
                     
-                    <div class="w-full flex justify-between p-4 bg-body rounded-xl mb-10">
+                    <!-- Shift Info -->
+                    <div class="grid grid-cols-2 gap-4 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl mb-8">
                         <div class="text-left">
-                            <span class="text-[10px] font-bold text-light uppercase tracking-widest block mb-1">Shift</span>
-                            <span class="text-sm font-bold text-main">{{ $userShift ? $userShift->name : 'Reguler' }}</span>
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2">Shift Anda</span>
+                            <span class="text-lg font-bold text-gray-900">{{ $userShift ? $userShift->name : 'Reguler' }}</span>
                         </div>
-                        <div class="text-right">
-                            <span class="text-[10px] font-bold text-light uppercase tracking-widest block mb-1">Jadwal</span>
-                            <span class="text-sm font-bold text-main">
+                        <div class="text-right border-l border-gray-200 pl-4">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2">Jadwal Kerja</span>
+                            <span class="text-lg font-bold text-gray-900">
                                 {{ $userShift ? \Carbon\Carbon::parse($userShift->start_time)->format('H:i') . ' - ' . \Carbon\Carbon::parse($userShift->end_time)->format('H:i') : '08:00 - 17:00' }}
                             </span>
                         </div>
                     </div>
 
-                    <div class="w-full flex flex-col gap-4">
+                    <!-- Attendance Actions -->
+                    <div class="space-y-3">
                         @if(!$todayAttendance || !$todayAttendance->check_in)
-                            <div class="flex gap-3">
-                                <button class="btn btn-primary flex-1 py-4 text-lg shadow-lg" onclick="goToClockIn()">
-                                    <i class="fas fa-sign-in-alt"></i> Absen Masuk
+                            <!-- Not Checked In Yet -->
+                            <div class="grid grid-cols-3 gap-3">
+                                <a href="{{ route('attendance.clock-in') }}" class="group bg-gradient-success text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2">
+                                    <i class="fas fa-sign-in-alt text-2xl"></i>
+                                    <span>Check-in</span>
+                                </a>
+                                <button class="bg-gray-200 text-gray-600 px-6 py-4 rounded-xl font-bold hover:bg-gray-300 transition-colors disabled opacity-50 cursor-not-allowed" disabled>
+                                    <i class="fas fa-sign-out-alt text-2xl"></i>
                                 </button>
-                                <button class="btn btn-secondary px-5" onclick="scanQR()" title="Scan QR">
-                                    <i class="fas fa-qrcode text-xl"></i>
+                                <button class="bg-gray-200 text-gray-600 px-6 py-4 rounded-xl font-bold hover:bg-gray-300 transition-colors disabled opacity-50 cursor-not-allowed" disabled>
+                                    <i class="fas fa-briefcase text-2xl"></i>
                                 </button>
                             </div>
+                            <p class="text-sm text-gray-600">Mulai dengan Check-in untuk mencatat waktu masuk Anda</p>
                         @elseif($todayAttendance && $todayAttendance->check_in && !$todayAttendance->check_out)
-                            <button class="btn btn-danger py-4 text-lg shadow-lg" onclick="goToClockOut()">
-                                <i class="fas fa-sign-out-alt"></i> Absen Keluar
-                            </button>
-                            <button class="btn btn-secondary py-3" onclick="goToOvertime()">
-                                <i class="fas fa-business-time"></i> Mulai Lembur
-                            </button>
+                            <!-- Checked In, Not Checked Out -->
+                            <div class="grid grid-cols-3 gap-3">
+                                <button class="bg-success-100 text-success-700 px-6 py-4 rounded-xl font-bold disabled opacity-50 cursor-not-allowed flex items-center justify-center gap-2" disabled>
+                                    <i class="fas fa-check-circle text-2xl"></i>
+                                    <span>Checked In</span>
+                                </button>
+                                <a href="{{ route('attendance.clock-out') }}" class="group bg-gradient-danger text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2">
+                                    <i class="fas fa-sign-out-alt text-2xl"></i>
+                                    <span>Check-out</span>
+                                </a>
+                                <a href="{{ route('attendance.clock-overtime') }}" class="group bg-gradient-warning text-white px-6 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2">
+                                    <i class="fas fa-business-time text-2xl"></i>
+                                    <span>Lembur</span>
+                                </a>
+                            </div>
+                            <p class="text-sm text-success-700 font-semibold"><i class="fas fa-clock mr-2"></i>Anda sudah check-in. Jangan lupa untuk check-out!</p>
                         @else
-                            <div class="p-6 bg-success-light border border-success rounded-2xl text-success font-bold flex flex-col items-center gap-2">
-                                <i class="fas fa-check-circle text-3xl"></i>
-                                <span>Tugas Hari Ini Selesai</span>
+                            <!-- Checked In & Out -->
+                            <div class="p-8 bg-gradient-to-br from-success-50 to-success-100 rounded-xl border border-success-200">
+                                <div class="flex items-center gap-3 justify-center mb-3">
+                                    <i class="fas fa-check-circle text-success-600 text-4xl"></i>
+                                </div>
+                                <p class="text-lg font-bold text-success-900">Tugas Hari Ini Selesai</p>
+                                <p class="text-sm text-success-700 mt-2">Anda sudah melakukan check-in dan check-out hari ini.</p>
                             </div>
                         @endif
-                        
-                        <a href="{{ route('leave.index') }}" class="btn btn-secondary py-3 text-muted border-dashed">
-                            <i class="fas fa-file-signature"></i> Ajukan Izin / Cuti
-                        </a>
                     </div>
+
+                    <!-- Leave Application Button -->
+                    <a href="{{ route('leave.index') }}" class="w-full mt-6 block bg-primary-100 text-primary-700 hover:bg-primary-200 px-6 py-3 rounded-xl font-semibold transition-colors">
+                        <i class="fas fa-file-signature mr-2"></i> Ajukan Izin / Cuti
+                    </a>
                 </div>
             </div>
 
-            <!-- Status & History -->
+            <!-- SIDEBAR: STATUS & HISTORY -->
             <div class="flex flex-col gap-6">
-                <!-- Current Status -->
-                <div class="modern-card bg-main text-white p-6" style="background-color: var(--text-main);">
-                    <h3 class="text-xs font-bold uppercase tracking-widest opacity-60 mb-6">Status Hari Ini</h3>
+                <!-- TODAY'S DETAILED STATUS -->
+                <div class="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <i class="fas fa-chart-bar text-primary-600"></i>
+                        Status Hari Ini
+                    </h3>
+
                     @if($todayAttendance)
                         <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm opacity-70">Jam Masuk</span>
-                                <span class="font-bold text-primary-color">{{ \Carbon\Carbon::parse($todayAttendance->check_in)->format('H:i') }}</span>
+                            <!-- Check-in Time -->
+                            <div class="flex items-start gap-4 p-4 bg-success-50 rounded-xl border border-success-200">
+                                <div class="w-12 h-12 rounded-lg bg-success-100 text-success-600 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-sign-in-alt text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-bold text-success-700 uppercase tracking-wide">Check-in</p>
+                                    <p class="text-2xl font-bold text-success-900">{{ $todayAttendance->check_in ? \Carbon\Carbon::parse($todayAttendance->check_in)->format('H:i') : '--:--' }}</p>
+                                    @if($todayAttendance->check_in)
+                                        <p class="text-xs text-success-600 mt-1"><i class="fas fa-check-circle mr-1"></i>Recorded</p>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm opacity-70">Jam Keluar</span>
-                                <span class="font-bold {{ $todayAttendance->check_out ? 'text-success' : 'opacity-30' }}">
-                                    {{ $todayAttendance->check_out ? \Carbon\Carbon::parse($todayAttendance->check_out)->format('H:i') : '--:--' }}
-                                </span>
+
+                            <!-- Check-out Time -->
+                            <div class="flex items-start gap-4 p-4 @if($todayAttendance->check_out) bg-accent-50 border border-accent-200 @else bg-gray-50 border border-gray-200 @endif rounded-xl">
+                                <div class="w-12 h-12 rounded-lg @if($todayAttendance->check_out) bg-accent-100 text-accent-600 @else bg-gray-100 text-gray-400 @endif flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-sign-out-alt text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-bold @if($todayAttendance->check_out) text-accent-700 @else text-gray-600 @endif uppercase tracking-wide">Check-out</p>
+                                    <p class="text-2xl font-bold @if($todayAttendance->check_out) text-accent-900 @else text-gray-400 @endif">{{ $todayAttendance->check_out ? \Carbon\Carbon::parse($todayAttendance->check_out)->format('H:i') : '--:--' }}</p>
+                                    @if($todayAttendance->check_out)
+                                        <p class="text-xs text-accent-600 mt-1"><i class="fas fa-check-circle mr-1"></i>Recorded</p>
+                                    @else
+                                        <p class="text-xs text-gray-500 mt-1"><i class="fas fa-clock mr-1"></i>Pending</p>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="pt-4 border-t border-white/10 flex justify-between items-center">
-                                <span class="text-sm opacity-70">Durasi Kerja</span>
-                                <span class="font-bold text-warning">{{ $todayAttendance->work_hours ? number_format($todayAttendance->work_hours, 1) . ' Jam' : '0.0 Jam' }}</span>
+
+                            <!-- Work Duration -->
+                            <div class="flex items-start gap-4 p-4 bg-primary-50 rounded-xl border border-primary-200">
+                                <div class="w-12 h-12 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-hourglass-half text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-bold text-primary-700 uppercase tracking-wide">Durasi Kerja</p>
+                                    <p class="text-2xl font-bold text-primary-900">
+                                        @if($todayAttendance->work_hours)
+                                            {{ number_format($todayAttendance->work_hours, 1) }} jam
+                                        @else
+                                            0.0 jam
+                                        @endif
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     @else
-                        <div class="text-center py-6 opacity-40">
-                            <i class="fas fa-user-clock text-4xl mb-3"></i>
-                            <p class="text-xs">Belum ada aktivitas hari ini</p>
+                        <div class="text-center py-8">
+                            <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-600 font-semibold">Belum ada data hari ini</p>
+                            <p class="text-xs text-gray-500 mt-1">Mulai dengan check-in untuk mencatat kehadiran Anda</p>
                         </div>
                     @endif
                 </div>
 
-                <!-- History -->
-                <div class="modern-card p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-sm font-bold text-main">Riwayat Terakhir</h3>
-                        <a href="{{ route('attendance.riwayat') }}" class="text-[10px] font-bold text-primary-color uppercase tracking-widest hover:underline">Semua</a>
+                <!-- RECENT HISTORY -->
+                <div class="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <i class="fas fa-history text-primary-600"></i>
+                            Riwayat Terbaru
+                        </h3>
+                        <a href="{{ route('attendance.riwayat') }}" class="text-xs font-bold text-primary-600 uppercase tracking-wide hover:text-primary-700">Lihat Semua</a>
                     </div>
                     <div class="flex flex-col gap-3">
-                        @forelse($attendances->take(4) as $attendance)
-                            <div class="flex items-center justify-between p-3 bg-body rounded-xl hover:bg-primary-light transition-colors">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg {{ $attendance->status === 'late' ? 'bg-warning-light text-warning' : 'bg-success-light text-success' }} flex items-center justify-center text-[10px]">
-                                        <i class="fas {{ $attendance->status === 'late' ? 'fa-clock' : 'fa-check' }}"></i>
+                        @forelse($attendances->take(5) as $attendance)
+                            <div class="flex items-center justify-between p-3 bg-gray-50 hover:bg-primary-50 rounded-lg transition-colors border border-gray-100 hover:border-primary-200">
+                                <div class="flex items-center gap-3 flex-1">
+                                    <div class="w-10 h-10 rounded-lg 
+                                        @if($attendance->status === 'late') bg-warning-100 text-warning-600
+                                        @elseif($attendance->status === 'present') bg-success-100 text-success-600
+                                        @else bg-gray-100 text-gray-600
+                                        @endif
+                                        flex items-center justify-center flex-shrink-0">
+                                        <i class="fas @if($attendance->status === 'late') fa-exclamation-circle @else fa-check-circle @endif"></i>
                                     </div>
                                     <div>
-                                        <p class="text-xs font-bold text-main">{{ \Carbon\Carbon::parse($attendance->date)->translatedFormat('d M') }}</p>
-                                        <p class="text-[10px] text-muted">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '--:--' }}</p>
+                                        <p class="text-sm font-bold text-gray-900">{{ \Carbon\Carbon::parse($attendance->date)->translatedFormat('d MMM Y') }}</p>
+                                        <p class="text-xs text-gray-600">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '--:--' }} - {{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '--:--' }}</p>
                                     </div>
                                 </div>
-                                <span class="text-[9px] font-extrabold uppercase tracking-tighter px-2 py-0.5 rounded {{ $attendance->status === 'late' ? 'bg-warning text-white' : 'bg-success text-white' }}">
-                                    {{ $attendance->status }}
+                                <span class="text-xs font-bold px-3 py-1 rounded-full
+                                    @if($attendance->status === 'late') bg-warning-100 text-warning-700
+                                    @elseif($attendance->status === 'present') bg-success-100 text-success-700
+                                    @else bg-gray-100 text-gray-700
+                                    @endif
+                                ">
+                                    @if($attendance->status === 'present') Hadir
+                                    @elseif($attendance->status === 'late') Terlambat
+                                    @else {{ ucfirst($attendance->status) }}
+                                    @endif
                                 </span>
                             </div>
                         @empty
-                            <p class="text-center text-xs text-light py-4">Belum ada data</p>
+                            <p class="text-center text-sm text-gray-500 py-6">Belum ada riwayat absensi</p>
                         @endforelse
                     </div>
                 </div>
@@ -139,34 +216,18 @@
         }
     }
 
-    function goToClockIn() { window.location.href = "{{ route('attendance.clock-in') }}"; }
-    function goToClockOut() { window.location.href = "{{ route('attendance.clock-out') }}"; }
-    function scanQR() { window.location.href = "{{ route('attendance.qr-scan') }}"; }
-    
-    function goToOvertime() {
-        if (typeof showInfoPopup !== 'undefined') {
-            showInfoPopup({
-                title: 'Scan QR Code',
-                message: 'Silakan scan QR code di lokasi untuk memulai lembur.',
-                buttonText: 'Mulai Scan',
-                onClose: () => { window.location.href = "{{ route('attendance.qr-scan') }}"; }
-            });
-        } else {
-            window.location.href = "{{ route('attendance.qr-scan') }}";
-        }
-    }
-
-    function updateTime() {
+    // Update clock setiap detik
+    function updateClock() {
         const now = new Date();
-        const timeStr = now.toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+        const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const dateString = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         
-        document.getElementById('currentTime').textContent = timeStr;
-        document.getElementById('currentDate').textContent = dateStr;
+        document.getElementById('currentTime').textContent = timeString;
+        document.getElementById('currentDate').textContent = dateString;
     }
 
-    setInterval(updateTime, 1000);
-    updateTime();
+    // Update immediately and then every second
+    updateClock();
+    setInterval(updateClock, 1000);
 </script>
-<script src="{{ asset('components/popup.js') }}"></script>
 @endpush

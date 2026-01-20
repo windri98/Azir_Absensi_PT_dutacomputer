@@ -4,31 +4,32 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Services\AttendanceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
+    private AttendanceService $attendanceService;
+
+    public function __construct(AttendanceService $attendanceService)
+    {
+        $this->attendanceService = $attendanceService;
+    }
+
     /**
-     * Get all attendances for authenticated user
+     * Get all attendances for authenticated user - OPTIMIZED
      */
     public function index(Request $request)
     {
-        $query = Attendance::where('user_id', Auth::id());
+        $filters = [
+            'period' => $request->get('period', 'month'),
+            'status' => $request->get('status'),
+            'start_date' => $request->get('start_date'),
+            'end_date' => $request->get('end_date'),
+        ];
 
-        // Filter by date range
-        if ($request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('date', [$request->start_date, $request->end_date]);
-        }
-
-        // Filter by month
-        if ($request->has('month') && $request->has('year')) {
-            $query->forMonth($request->month, $request->year);
-        }
-
-        // Limit results
-        $limit = $request->get('limit', 30);
-        $attendances = $query->orderBy('date', 'desc')->paginate($limit);
+        $attendances = $this->attendanceService->getHistory(Auth::id(), $filters);
 
         return response()->json([
             'success' => true,
@@ -52,12 +53,12 @@ class AttendanceController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $attendance,
+            'data' => $this->formatAttendanceResponse($attendance),
         ]);
     }
 
     /**
-     * Check-in
+     * Check-in - OPTIMIZED with service
      */
     public function checkIn(Request $request)
     {
@@ -65,40 +66,21 @@ class AttendanceController extends Controller
             'location' => 'nullable|string',
         ]);
 
-        $today = now()->toDateString();
-        $user = Auth::user();
+        $data = [
+            'location' => $request->location,
+            'note' => $request->get('note'),
+        ];
 
-        // Check if already checked in today
-        $existing = Attendance::where('user_id', $user->id)
-            ->whereDate('date', $today)
-            ->first();
+        $result = $this->attendanceService->processCheckIn($data);
 
-        if ($existing && $existing->check_in) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda sudah check-in hari ini',
-            ], 400);
-        }
-
-        $attendance = $existing ?? new Attendance([
-            'user_id' => $user->id,
-            'date' => $today,
-        ]);
-
-        $attendance->check_in = now()->format('H:i:s');
-        $attendance->check_in_location = $request->location;
-        $attendance->status = 'present';
-        $attendance->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Check-in berhasil',
-            'data' => $attendance,
-        ]);
+        return response()->json(
+            array_merge($result, ['data' => $this->formatAttendanceResponse($result['data'])]),
+            $result['success'] ? 200 : 400
+        );
     }
 
     /**
-     * Check-out
+     * Check-out - OPTIMIZED with service
      */
     public function checkOut(Request $request)
     {
@@ -106,37 +88,17 @@ class AttendanceController extends Controller
             'location' => 'nullable|string',
         ]);
 
-        $today = now()->toDateString();
-        $user = Auth::user();
+        $data = [
+            'location' => $request->location,
+            'notes' => $request->get('notes'),
+        ];
 
-        $attendance = Attendance::where('user_id', $user->id)
-            ->whereDate('date', $today)
-            ->firstOrFail();
+        $result = $this->attendanceService->processCheckOut($data);
 
-        if (!$attendance->check_in) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda belum check-in hari ini',
-            ], 400);
-        }
-
-        if ($attendance->check_out) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda sudah check-out hari ini',
-            ], 400);
-        }
-
-        $attendance->check_out = now()->format('H:i:s');
-        $attendance->check_out_location = $request->location;
-        $attendance->calculateWorkHours();
-        $attendance->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Check-out berhasil',
-            'data' => $attendance,
-        ]);
+        return response()->json(
+            array_merge($result, ['data' => $this->formatAttendanceResponse($result['data'])]),
+            $result['success'] ? 200 : 400
+        );
     }
 
     /**
@@ -160,50 +122,70 @@ class AttendanceController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Attendance updated successfully',
-            'data' => $attendance,
+            'data' => $this->formatAttendanceResponse($attendance),
         ]);
     }
 
     /**
-     * Get today's attendance
+     * Get today's attendance - LIGHTWEIGHT response
      */
     public function today()
     {
-        $attendance = Attendance::where('user_id', Auth::id())
-            ->whereDate('date', now()->toDateString())
-            ->first();
+        $status = $this->attendanceService->getTodayStatus();
 
         return response()->json([
             'success' => true,
-            'data' => $attendance,
+            'data' => [
+                'has_checked_in' => $status['has_checked_in'],
+                'has_checked_out' => $status['has_checked_out'],
+                'attendance' => $status['attendance'] ? $this->formatLightweightAttendance($status['attendance']) : null,
+            ],
         ]);
     }
 
     /**
-     * Get attendance statistics
+     * Get attendance statistics - OPTIMIZED with aggregation
      */
     public function statistics(Request $request)
     {
         $month = $request->get('month', now()->month);
         $year = $request->get('year', now()->year);
 
-        $attendances = Attendance::where('user_id', Auth::id())
-            ->forMonth($month, $year)
-            ->get();
-
-        $stats = [
-            'total_days' => $attendances->count(),
-            'present' => $attendances->where('status', 'present')->count(),
-            'late' => $attendances->where('status', 'late')->count(),
-            'absent' => $attendances->where('status', 'absent')->count(),
-            'work_leave' => $attendances->where('status', 'work_leave')->count(),
-            'total_work_hours' => $attendances->sum('work_hours'),
-            'total_overtime_hours' => $attendances->sum('overtime_hours'),
-        ];
+        $stats = $this->attendanceService->getStatistics(Auth::id(), $month, $year);
 
         return response()->json([
             'success' => true,
             'data' => $stats,
         ]);
+    }
+
+    /**
+     * Format attendance response - remove unnecessary fields
+     */
+    private function formatAttendanceResponse(Attendance $attendance): array
+    {
+        return [
+            'id' => $attendance->id,
+            'date' => $attendance->date?->toDateString(),
+            'check_in' => $attendance->check_in,
+            'check_out' => $attendance->check_out,
+            'status' => $attendance->status,
+            'work_hours' => $attendance->work_hours,
+            'notes' => $attendance->notes,
+        ];
+    }
+
+    /**
+     * Format lightweight attendance for mobile
+     */
+    private function formatLightweightAttendance(Attendance $attendance): array
+    {
+        return [
+            'id' => $attendance->id,
+            'check_in' => $attendance->check_in,
+            'check_out' => $attendance->check_out,
+            'status' => $attendance->status,
+            'work_hours' => $attendance->work_hours,
+        ];
     }
 }

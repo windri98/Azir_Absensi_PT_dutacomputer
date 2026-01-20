@@ -201,45 +201,38 @@ class ComplaintController extends Controller
     }
 
     /**
-     * Show izin/cuti page (mobile-friendly)
+     * Show izin/cuti page - OPTIMIZED (mobile-friendly)
      */
     public function showIzinPage()
     {
         try {
-            \Log::info('showIzinPage called');
+            \Log::debug('showIzinPage entry');
             
             $user = Auth::user();
-            \Log::info('Current user: ' . ($user ? $user->name : 'Not logged in'));
-            
+
             if (!$user) {
-                \Log::warning('User not authenticated, redirecting to login');
+                \Log::warning('showIzinPage user not authenticated');
                 return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
             }
 
             $userId = $user->id;
 
-            // Ambil semua complaints user dengan response
+            // Get recent leave complaints
             $complaints = Complaint::where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
                 ->take(10)
                 ->get();
 
-            \Log::info('Found complaints: ' . $complaints->count());
+            // Get leave balance using service
+            $leaveService = app(\App\Services\LeaveService::class);
+            $leaveBalance = $leaveService->getLeaveBalance($user);
 
-            // Hitung sisa cuti dengan fallback values
-            $leaveBalance = [
-                'annual' => $user->annual_leave_quota ? $user->getRemainingAnnualLeave() : 12,
-                'sick' => $user->sick_leave_quota ? $user->getRemainingSickLeave() : 12,
-                'special' => $user->special_leave_quota ? $user->getRemainingSpecialLeave() : 3,
-            ];
+            \Log::debug('showIzinPage view rendered', ['complaints_count' => $complaints->count()]);
 
-            \Log::info('Leave balance calculated: ', $leaveBalance);
-
-            return view('activities.izin', compact('complaints', 'leaveBalance'));
+            return view('activities.izin', compact('complaints', 'leaveBalance', 'user'));
         } catch (\Exception $e) {
-            \Log::error('Error in showIzinPage: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
-            return redirect()->route('dashboard')->with('error', 'Terjadi kesalahan saat memuat halaman izin: ' . $e->getMessage());
+            \Log::error('Error in showIzinPage: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->route('dashboard')->with('error', 'Terjadi kesalahan saat memuat halaman izin');
         }
     }
 }
