@@ -64,12 +64,14 @@
                 </label>
                 <div style="padding:12px;background:#f0f9ff;border:1px solid #0ea5e9;border-radius:8px">
                     @php
+                        $attachmentPath = 'public/' . $complaint->attachment;
                         $extension = pathinfo($complaint->attachment, PATHINFO_EXTENSION);
                         $fileName = basename($complaint->attachment);
                         $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']);
+                        $fileExists = Storage::exists($attachmentPath);
                     @endphp
                     
-                    @if($isImage)
+                    @if($isImage && $fileExists)
                         <div style="margin-bottom:8px">
                             <img src="{{ asset('storage/' . $complaint->attachment) }}" 
                                  alt="Lampiran" 
@@ -81,13 +83,19 @@
                     <div style="display:flex;align-items:center;justify-content:space-between">
                         <div>
                             <strong>{{ $fileName }}</strong><br>
-                            <small style="color:#6b7280">{{ strtoupper($extension) }} • {{ number_format(Storage::size('public/' . $complaint->attachment) / 1024, 1) }} KB</small>
+                            @if($fileExists)
+                                <small style="color:#6b7280">{{ strtoupper($extension) }} • {{ number_format(Storage::size($attachmentPath) / 1024, 1) }} KB</small>
+                            @else
+                                <small style="color:#b91c1c">File tidak ditemukan di server</small>
+                            @endif
                         </div>
-                        <a href="{{ asset('storage/' . $complaint->attachment) }}" 
-                           target="_blank" 
-                           style="background:#0ea5e9;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;font-size:12px">
-                            📂 Lihat File
-                        </a>
+                        @if($fileExists)
+                            <a href="{{ asset('storage/' . $complaint->attachment) }}" 
+                               target="_blank" 
+                               style="background:#0ea5e9;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;font-size:12px">
+                                📂 Lihat File
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
