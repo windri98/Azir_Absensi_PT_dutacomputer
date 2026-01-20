@@ -81,9 +81,7 @@ class DashboardController extends Controller
             });
         }
 
-        // #region agent log
-        $this->logDebug('dashboard view rendered', ['monthly_stats' => $monthlyStats], 'H2');
-        // #endregion
+        \Log::debug('dashboard view rendered', ['monthly_stats' => $monthlyStats]);
 
         return view('pages.dashboard', compact(
             'user',
