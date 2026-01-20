@@ -25,18 +25,21 @@ class ComplaintController extends Controller
      */
     public function store(Request $request)
     {
+        $isIzinOrSakit = in_array($request->input('category'), ['izin', 'sakit'], true);
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'category' => 'nullable|string|max:100',
             'priority' => 'nullable|in:low,medium,normal,high,urgent',
-            'attachment' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'attachment' => ($isIzinOrSakit ? 'required' : 'nullable').'|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
             'admin_notes' => 'nullable|string|max:1000',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ], [
             'title.required' => 'Judul keluhan wajib diisi',
             'description.required' => 'Deskripsi keluhan wajib diisi',
+            'attachment.required' => 'Lampiran wajib untuk pengajuan izin atau sakit',
             'attachment.mimes' => 'File harus berupa pdf, doc, docx, jpg, jpeg, atau png',
             'attachment.max' => 'Ukuran file maksimal 5MB',
             'end_date.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai',

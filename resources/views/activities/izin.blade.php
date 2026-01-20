@@ -60,7 +60,7 @@
                             <div class="text-2xl text-blue-600"><i class="fas fa-info-circle"></i></div>
                             <div>
                                 <p class="font-bold text-blue-900 mb-1">Panduan Pengajuan Izin Kerja</p>
-                                <p class="text-sm text-blue-800">Izin kerja digunakan ketika Anda perlu tidak masuk tetapi ingin memberitahu alasannya. Sertakan dokumen pendukung jika diperlukan.</p>
+                                <p class="text-sm text-blue-800">Izin kerja digunakan ketika Anda perlu tidak masuk dan tetap memberi alasan jelas. Lampirkan bukti/izin tertulis jika ada.</p>
                             </div>
                         </div>
                     </div>
@@ -89,18 +89,18 @@
                     <!-- Reason/Description -->
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">
-                            <i class="fas fa-edit text-primary-600 mr-2"></i>Alasan / Keterangan
+                            <i class="fas fa-edit text-primary-600 mr-2"></i>Alasan / Keterangan (wajib jelas)
                         </label>
                         <textarea id="leaveReason" name="description" rows="4" required
-                            placeholder="Jelaskan alasan pengajuan Anda secara singkat dan jelas..."
+                            placeholder="Contoh: Izin sakit demam tinggi, istirahat 2 hari. Sertakan keterangan singkat dan jelas."
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all resize-none"></textarea>
                         <p class="text-xs text-gray-600 mt-2">Minimum 10 karakter untuk alasan yang jelas</p>
                     </div>
 
-                    <!-- Document Upload (for work leave) -->
+                    <!-- Document Upload (required for izin/sakit) -->
                     <div id="documentUploadContainer" class="hidden">
                         <label class="block text-sm font-bold text-gray-700 mb-2">
-                            <i class="fas fa-paperclip text-primary-600 mr-2"></i>Dokumen Pendukung (Opsional)
+                            <i class="fas fa-paperclip text-primary-600 mr-2"></i>Bukti Pendukung (Wajib untuk Izin/Sakit)
                         </label>
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-primary-600 hover:bg-primary-50 transition-all cursor-pointer" onclick="document.getElementById('leaveDocument').click()">
                             <div class="text-center">
@@ -253,15 +253,15 @@
             
             // Update guide text
             const guides = {
-                'izin': 'Izin kerja digunakan ketika Anda perlu tidak masuk tetapi ingin memberitahu alasannya. Sertakan dokumen pendukung jika diperlukan.',
-                'sakit': 'Cuti sakit digunakan untuk istirahat karena sakit. Sertakan bukti medis jika diperlukan (surat dokter).',
+                'izin': 'Izin kerja digunakan ketika Anda perlu tidak masuk dan tetap memberi alasan jelas. Lampirkan bukti/izin tertulis jika ada.',
+                'sakit': 'Cuti sakit digunakan untuk istirahat karena sakit. Lampirkan bukti medis/surat dokter.',
                 'cuti': 'Cuti tahunan adalah hak Anda untuk istirahat. Ajukan dengan pemberitahuan cukup untuk persiapan tim.'
             };
             
             document.querySelector('#typeGuide p:last-child').textContent = guides[type];
             
             // Show/hide document upload container
-            if (type === 'izin') {
+            if (type === 'izin' || type === 'sakit') {
                 document.getElementById('documentUploadContainer').classList.remove('hidden');
                 document.getElementById('dateRangeContainer').classList.add('hidden');
             } else {
