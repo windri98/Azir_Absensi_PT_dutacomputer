@@ -7,6 +7,8 @@ use App\Models\Complaint;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use App\Services\NotificationService;
 
 class LeaveService
 {
@@ -35,6 +37,9 @@ class LeaveService
         }
 
         $attendance = Attendance::create($attendanceData);
+
+        // Send notification to admins
+        $this->notifyAdminsAboutWorkLeave($attendance);
 
         return [
             'success' => true,
@@ -180,5 +185,48 @@ class LeaveService
         }
 
         return $complaint->delete();
+    }
+
+    /**
+     * Notify admins about new work leave request
+     */
+    private function notifyAdminsAboutWorkLeave(Attendance $attendance): void
+    {
+        try {
+            $user = $attendance->user;
+            $notificationService = app(NotificationService::class);
+
+            // Get all admin and manager users
+            $admins = User::role(['admin', 'manager'])
+                ->select('id', 'name', 'email')
+                ->get();
+
+            if ($admins->isEmpty()) {
+                return;
+            }
+
+            $title = "Pengajuan Izin Kerja Baru dari {$user->name}";
+            $message = "{$user->name} mengajukan izin kerja untuk tanggal " . $attendance->date->format('d M Y');
+
+            // Send notification to each admin
+            foreach ($admins as $admin) {
+                $notificationService->sendToUser($admin, 'work_leave', $title, $message, [
+                    'attendance_id' => $attendance->id,
+                    'user_id' => $user->id,
+                    'date' => $attendance->date->toDateString(),
+                    'status' => $attendance->status,
+                    'approval_status' => $attendance->approval_status,
+                ]);
+            }
+
+            Log::info('Admin notifications sent for work leave', [
+                'attendance_id' => $attendance->id,
+                'admin_count' => $admins->count(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send work leave notifications: ' . $e->getMessage(), [
+                'attendance_id' => $attendance->id,
+            ]);
+        }
     }
 }
