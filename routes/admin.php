@@ -59,11 +59,6 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     | Role Management
     |--------------------------------------------------------------------------
     */
-    Route::middleware('role_or_permission:roles.view')->group(function () {
-        Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
-        Route::get('/roles/{role}', [RoleController::class, 'show'])->name('roles.show');
-    });
-
     Route::get('/roles/create', [RoleController::class, 'create'])
         ->middleware('role_or_permission:roles.create')
         ->name('roles.create');
@@ -79,6 +74,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::delete('/roles/{role}', [RoleController::class, 'destroy'])
         ->middleware('role_or_permission:roles.delete')
         ->name('roles.destroy');
+    Route::middleware('role_or_permission:roles.view')->group(function () {
+        Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+        Route::get('/roles/{role}', [RoleController::class, 'show'])->name('roles.show');
+    });
 
     // Role user & permission assignment
     Route::post('/roles/{role}/assign-users', [RoleController::class, 'assignUsers'])->name('roles.assign-users');

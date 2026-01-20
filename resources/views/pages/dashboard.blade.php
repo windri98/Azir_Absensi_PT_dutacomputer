@@ -3,18 +3,57 @@
 @section('title', 'Dashboard - PT DUTA COMPUTER')
 
 @section('content')
-<div class="space-y-8 animate-fade-in-up">
+<div class="space-y-6 animate-fade-in-up">
     <!-- Welcome Section -->
-    <div class="bg-gradient-vibrant rounded-2xl p-8 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+    <div class="bg-gradient-vibrant rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold mb-2 font-display">Selamat Datang, {{ $user->name }}! 👋</h1>
+                <h1 class="text-2xl font-bold mb-1 font-display">Selamat Datang, {{ $user->name }}!</h1>
                 <p class="text-white/80">{{ now()->format('l, d F Y') }}</p>
             </div>
-            <div class="hidden md:block text-6xl opacity-20 animate-float">
+            <div class="hidden md:block text-4xl opacity-10 animate-float">
                 <i class="fas fa-fingerprint"></i>
             </div>
         </div>
+    </div>
+
+    <!-- QUICK ACTIONS - PROMINENT -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+        <a href="{{ route('attendance.clock-in') }}" class="group bg-gradient-to-br from-success-50 to-success-100 rounded-2xl p-6 border border-success-200 shadow-soft hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-xl bg-gradient-success text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-glow-success">
+                    <i class="fas fa-sign-in-alt text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-900 text-lg">Check-in</h3>
+                    <p class="text-sm text-gray-600">Mulai hari kerja</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('attendance.clock-out') }}" class="group bg-gradient-to-br from-accent-50 to-accent-100 rounded-2xl p-6 border border-accent-200 shadow-soft hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-xl bg-gradient-accent text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-glow-accent">
+                    <i class="fas fa-sign-out-alt text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-900 text-lg">Check-out</h3>
+                    <p class="text-sm text-gray-600">Akhiri hari kerja</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('leave.index') }}" class="group bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-6 border border-primary-200 shadow-soft hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-xl bg-gradient-primary text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-glow">
+                    <i class="fas fa-file-signature text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-900 text-lg">Ajukan Izin</h3>
+                    <p class="text-sm text-gray-600">Cuti, sakit, izin</p>
+                </div>
+            </div>
+        </a>
     </div>
 
     <!-- TODAY'S STATUS - PROMINENT HIGHLIGHT -->
@@ -147,45 +186,6 @@
             <div class="text-4xl font-bold text-accent-900 mb-1">{{ $monthlyStats['work_leave'] }}</div>
             <p class="text-accent-700 text-sm font-medium">Pengajuan disetujui</p>
         </div>
-    </div>
-
-    <!-- QUICK ACTIONS - PROMINENT -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in-up" style="animation-delay: 0.5s;">
-        <a href="{{ route('attendance.clock-in') }}" class="group bg-gradient-to-br from-success-50 to-success-100 rounded-2xl p-6 border border-success-200 shadow-soft hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
-            <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-xl bg-gradient-success text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-glow-success">
-                    <i class="fas fa-sign-in-alt text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-gray-900 text-lg">Check-in</h3>
-                    <p class="text-sm text-gray-600">Mulai hari kerja</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('attendance.clock-out') }}" class="group bg-gradient-to-br from-accent-50 to-accent-100 rounded-2xl p-6 border border-accent-200 shadow-soft hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
-            <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-xl bg-gradient-accent text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-glow-accent">
-                    <i class="fas fa-sign-out-alt text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-gray-900 text-lg">Check-out</h3>
-                    <p class="text-sm text-gray-600">Akhiri hari kerja</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('leave.index') }}" class="group bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-6 border border-primary-200 shadow-soft hover:shadow-lg hover:scale-105 transition-all duration-300 active:scale-95">
-            <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-xl bg-gradient-primary text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-glow">
-                    <i class="fas fa-file-signature text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-gray-900 text-lg">Ajukan Izin</h3>
-                    <p class="text-sm text-gray-600">Cuti, sakit, izin</p>
-                </div>
-            </div>
-        </a>
     </div>
 
     <!-- PENDING NOTIFICATIONS -->

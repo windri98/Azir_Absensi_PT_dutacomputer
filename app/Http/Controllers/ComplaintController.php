@@ -76,7 +76,7 @@ class ComplaintController extends Controller
 
             // Check if request came from izin page (mobile view)
             if ($request->has('start_date') || ($request->header('referer') && str_contains($request->header('referer'), 'activities/izin'))) {
-                return redirect()->route('activities.izin')
+                return redirect()->route('leave.index')
                     ->with('success', 'Pengajuan izin berhasil dikirim dan menunggu persetujuan');
             }
 

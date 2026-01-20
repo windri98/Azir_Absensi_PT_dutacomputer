@@ -15,6 +15,20 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        @if (session('success') || session('error'))
+            <div class="lg:col-span-3">
+                @if (session('success'))
+                    <div class="mb-4 rounded-xl border border-success-200 bg-success-50 px-4 py-3 text-sm text-success-800">
+                        <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+                    </div>
+                @endif
+                @if (session('error'))
+                    <div class="mb-4 rounded-xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-800">
+                        <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
+                    </div>
+                @endif
+            </div>
+        @endif
         <!-- MAIN FORM -->
         <div class="lg:col-span-2">
             <!-- Tab Navigation -->
@@ -33,11 +47,12 @@
             </div>
 
             <!-- Form Content -->
-            <form id="leaveForm" class="bg-white rounded-b-2xl shadow-soft border border-gray-100 overflow-hidden">
+            <form id="leaveForm" action="{{ route('complaints.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-b-2xl shadow-soft border border-gray-100 overflow-hidden">
                 @csrf
                 <div class="p-8 space-y-6">
                     <!-- Type Selection (hidden, controlled by tabs) -->
-                    <input type="hidden" id="leaveType" name="type" value="izin">
+                    <input type="hidden" id="leaveType" name="category" value="izin">
+                    <input type="hidden" id="leaveTitle" name="title" value="">
 
                     <!-- Type-Specific Instructions -->
                     <div id="typeGuide" class="p-4 bg-blue-50 rounded-xl border border-blue-200">
@@ -55,7 +70,7 @@
                         <label class="block text-sm font-bold text-gray-700 mb-2">
                             <i class="fas fa-calendar text-primary-600 mr-2"></i>Tanggal Pengajuan
                         </label>
-                        <input type="date" id="leaveDate" name="date" required 
+                        <input type="date" id="leaveDate" name="start_date" required 
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all"
                             min="{{ now()->format('Y-m-d') }}">
                         <p class="text-xs text-gray-600 mt-2"><i class="fas fa-lightbulb mr-1"></i>Anda dapat mengajukan untuk tanggal hari ini atau masa depan</p>
@@ -76,7 +91,7 @@
                         <label class="block text-sm font-bold text-gray-700 mb-2">
                             <i class="fas fa-edit text-primary-600 mr-2"></i>Alasan / Keterangan
                         </label>
-                        <textarea id="leaveReason" name="reason" rows="4" required
+                        <textarea id="leaveReason" name="description" rows="4" required
                             placeholder="Jelaskan alasan pengajuan Anda secara singkat dan jelas..."
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all resize-none"></textarea>
                         <p class="text-xs text-gray-600 mt-2">Minimum 10 karakter untuk alasan yang jelas</p>
@@ -95,7 +110,7 @@
                                 <p class="text-xs text-gray-500 mt-2">PDF, JPG, PNG (Max 5MB)</p>
                             </div>
                         </div>
-                        <input type="file" id="leaveDocument" name="document" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
+                        <input type="file" id="leaveDocument" name="attachment" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
                         <div id="documentPreview" class="mt-3"></div>
                     </div>
 
@@ -280,33 +295,21 @@
 
     // Form submission
     document.getElementById('leaveForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
         const reason = document.getElementById('leaveReason').value.trim();
         if (reason.length < 10) {
+            e.preventDefault();
             alert('Alasan minimal harus 10 karakter');
             return;
         }
 
-        // Show success message (you can customize this)
-        const formData = new FormData(this);
-        console.log({
-            type: document.getElementById('leaveType').value,
-            date: document.getElementById('leaveDate').value,
-            reason: reason
-        });
+        const type = document.getElementById('leaveType').value;
+        const startDate = document.getElementById('leaveDate').value;
+        const endDate = document.getElementById('leaveDateEnd').value;
+        const titleTarget = document.getElementById('leaveTitle');
 
-        // For now, just show a success popup
-        if (typeof showSuccessPopup !== 'undefined') {
-            showSuccessPopup({
-                title: 'Pengajuan Dikirim!',
-                message: 'Pengajuan Anda telah berhasil dikirim. Admin akan mereviewnya dalam waktu singkat.',
-                onClose: () => window.location.href = "{{ route('dashboard') }}"
-            });
-        } else {
-            alert('Pengajuan berhasil dikirim!');
-            window.location.href = "{{ route('dashboard') }}";
-        }
+        const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+        const dateLabel = endDate ? `${startDate} s/d ${endDate}` : startDate;
+        titleTarget.value = `${typeLabel} - ${dateLabel}`;
     });
 </script>
 @endpush
