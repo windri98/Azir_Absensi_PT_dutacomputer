@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Complaint;
+use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -69,6 +71,9 @@ class ComplaintController extends Controller
         try {
             $complaint = Complaint::create($data);
 
+            // Send notification to all admins
+            $this->notifyAdmins($complaint);
+
             // Check if request came from izin page (mobile view)
             if ($request->has('start_date') || ($request->header('referer') && str_contains($request->header('referer'), 'activities/izin'))) {
                 return redirect()->route('activities.izin')
@@ -78,6 +83,10 @@ class ComplaintController extends Controller
             return redirect()->route('complaints.history')
                 ->with('success', 'Keluhan berhasil dikirim');
         } catch (\Exception $e) {
+            \Log::error('Error storing complaint: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'category' => $request->category,
+            ]);
             return back()
                 ->withInput()
                 ->with('error', 'Gagal menyimpan pengajuan: '.$e->getMessage());
@@ -233,6 +242,56 @@ class ComplaintController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error in showIzinPage: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return redirect()->route('dashboard')->with('error', 'Terjadi kesalahan saat memuat halaman izin');
+        }
+    }
+
+    /**
+     * Notify all admins about new complaint/leave request
+     */
+    private function notifyAdmins(Complaint $complaint): void
+    {
+        try {
+            $user = $complaint->user;
+            $notificationService = app(NotificationService::class);
+
+            // Get all admin users
+            $admins = User::role(['admin', 'manager'])
+                ->select('id', 'name', 'email')
+                ->get();
+
+            if ($admins->isEmpty()) {
+                return;
+            }
+
+            // Determine notification type based on category
+            $categoryLabel = match($complaint->category) {
+                'cuti' => 'Cuti',
+                'sakit' => 'Sakit',
+                'izin' => 'Izin',
+                default => 'Keluhan',
+            };
+
+            $title = "Pengajuan {$categoryLabel} Baru dari {$user->name}";
+            $message = "{$user->name} mengajukan {$categoryLabel} dengan judul: {$complaint->title}";
+
+            // Send notification to each admin
+            foreach ($admins as $admin) {
+                $notificationService->sendToUser($admin, 'complaint', $title, $message, [
+                    'complaint_id' => $complaint->id,
+                    'category' => $complaint->category,
+                    'user_id' => $user->id,
+                    'status' => $complaint->status,
+                ]);
+            }
+
+            \Log::info('Admin notifications sent for complaint', [
+                'complaint_id' => $complaint->id,
+                'admin_count' => $admins->count(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send admin notifications: ' . $e->getMessage(), [
+                'complaint_id' => $complaint->id,
+            ]);
         }
     }
 }
