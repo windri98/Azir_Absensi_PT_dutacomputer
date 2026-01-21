@@ -127,8 +127,19 @@
             getCurrentLocation();
         }
 
+        function fetchWithTimeout(url, options = {}, timeout = 8000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            return fetch(url, { ...options, signal: controller.signal })
+                .finally(() => clearTimeout(id));
+        }
+
         function getCurrentLocation() {
-            if (!navigator.geolocation) return;
+            if (!navigator.geolocation) {
+                document.getElementById('locationAddress').textContent = 'Geolocation tidak didukung oleh browser Anda.';
+                showErrorPopup({ title: 'Lokasi', message: 'Geolocation tidak didukung oleh browser Anda.' });
+                return;
+            }
             
             navigator.geolocation.getCurrentPosition(position => {
                 const { latitude, longitude, accuracy } = position.coords;
@@ -144,14 +155,29 @@
                 
                 document.getElementById('locationAccuracy').textContent = `Akurasi: ±${Math.round(accuracy)}m`;
                 document.getElementById('clockInBtn').disabled = false;
+
+                const coordsText = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                document.getElementById('locationAddress').textContent = `Koordinat: ${coordsText}`;
                 
-                // Simple Reverse Geocode
-                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+                // Simple Reverse Geocode (non-blocking, with timeout)
+                fetchWithTimeout(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
                     .then(r => r.json())
                     .then(data => {
-                        document.getElementById('locationAddress').textContent = data.display_name;
+                        if (data && data.display_name) {
+                            document.getElementById('locationAddress').textContent = data.display_name;
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById('locationAddress').textContent = `Koordinat: ${coordsText}`;
                     });
-            });
+            }, error => {
+                const message = error.code === 1
+                    ? 'Izin lokasi ditolak. Aktifkan GPS atau gunakan HTTPS di server.'
+                    : 'Gagal mendapatkan lokasi. Coba refresh lokasi.';
+                document.getElementById('locationAccuracy').textContent = 'Lokasi tidak tersedia';
+                document.getElementById('locationAddress').textContent = message;
+                showErrorPopup({ title: 'Lokasi', message });
+            }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
         }
 
         function performClockIn() {
@@ -159,7 +185,14 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Memproses...';
 
-            fetch("{{ route('attendance.check-in') }}", {
+            if (!currentLocation) {
+                btn.disabled = false;
+                btn.innerHTML = 'Konfirmasi Clock In';
+                showErrorPopup({ title: 'Lokasi', message: 'Lokasi belum tersedia. Silakan refresh lokasi.' });
+                return;
+            }
+
+            fetchWithTimeout("{{ route('attendance.check-in') }}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -169,7 +202,7 @@
                     location: JSON.stringify(currentLocation),
                     note: document.getElementById('noteInput').value
                 })
-            })
+            }, 10000)
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
@@ -178,7 +211,16 @@
                         message: 'Absensi masuk Anda telah tercatat.',
                         onClose: () => window.location.href = "{{ route('attendance.absensi') }}"
                     });
+                } else {
+                    showErrorPopup({ title: 'Gagal', message: data.message || 'Proses check-in gagal.' });
+                    btn.disabled = false;
+                    btn.innerHTML = 'Konfirmasi Clock In';
                 }
+            })
+            .catch(() => {
+                showErrorPopup({ title: 'Gagal', message: 'Koneksi lambat atau server tidak merespons.' });
+                btn.disabled = false;
+                btn.innerHTML = 'Konfirmasi Clock In';
             });
         }
 
