@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-br from-primary-600 to-primary-900 flex items-center justify-center px-4">
     <Card class="w-full max-w-md">
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Azir Absensi</h1>
+        <h1 class="text-3xl font-bold text-gray-900">PT Duta  computer</h1>
         <p class="text-gray-600 mt-2">Sistem Manajemen Absensi Karyawan</p>
       </div>
 

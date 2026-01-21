@@ -178,7 +178,7 @@
             <!-- CTA Section -->
             <div class="bg-gradient-primary rounded-3xl p-12 text-center text-white">
                 <h2 class="text-3xl md:text-4xl font-bold mb-4 font-display">Siap Memulai?</h2>
-                <p class="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">Bergabunglah dengan ribuan perusahaan yang telah mempercayai Azir Absensi untuk mengelola kehadiran karyawan mereka.</p>
+                <p class="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">Bergabunglah dengan ribuan perusahaan yang telah mempercayai PT Duta  computer untuk mengelola kehadiran karyawan mereka.</p>
                 @auth
                     <a href="{{ route('user.dashboard') }}" class="inline-block bg-white text-primary-600 px-8 py-4 rounded-xl font-semibold hover:bg-primary-50 transition-all duration-300 transform hover:scale-105">
                         <i class="fas fa-arrow-right mr-2"></i>Buka Dashboard
