@@ -131,12 +131,16 @@ check_env() {
     print_success ".env file found"
     
     # Check critical env variables
-    local critical_vars=("APP_ENV" "APP_DEBUG" "APP_URL" "DB_PASSWORD")
+    local critical_vars=("APP_ENV" "APP_DEBUG" "APP_URL" "APP_KEY" "DB_PASSWORD")
     
     for var in "${critical_vars[@]}"; do
         if grep -q "^$var=" "$env_file"; then
-            local value=$(grep "^$var=" "$env_file" | cut -d '=' -f 2)
-            print_success "$var is configured"
+            local value=$(grep "^$var=" "$env_file" | cut -d '=' -f 2-)
+            if [ -z "$value" ]; then
+                print_warning "$var is set but empty"
+            else
+                print_success "$var is configured"
+            fi
         else
             print_warning "$var is not configured"
         fi
