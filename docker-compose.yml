@@ -32,7 +32,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_SEED=${DB_SEED}
       - LOG_CHANNEL=${LOG_CHANNEL}
-      - CACHE_DRIVER=redis
+      - CACHE_STORE=redis
       - QUEUE_CONNECTION=database
       - SESSION_DRIVER=database
       - REDIS_HOST=redis
@@ -125,7 +125,7 @@ services:
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
-      - CACHE_DRIVER=redis
+      - CACHE_STORE=redis
       - QUEUE_CONNECTION=database
       - REDIS_HOST=redis
       - REDIS_PASSWORD=${REDIS_PASSWORD}
