@@ -188,10 +188,11 @@
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
 
     <style>
-        /* Admin specific sidebar adjustments */
+        /* Admin layout */
         .admin-layout {
             display: flex;
             min-height: 100vh;
+            background: var(--bg-body);
         }
 
         .admin-sidebar {
@@ -211,23 +212,29 @@
         .admin-main {
             flex: 1;
             margin-left: var(--sidebar-width);
-            background: var(--bg-body);
             min-height: 100vh;
-            padding: 2rem;
+            padding: 2rem 2rem 3rem;
             transition: var(--transition);
+        }
+
+        .admin-content {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .admin-topbar {
             background: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 2rem;
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 0.75rem 1.25rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: -2rem -2rem 2rem -2rem;
+            margin-bottom: 1.5rem;
             position: sticky;
-            top: 0;
+            top: 1rem;
             z-index: 40;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
         }
 
         @media (max-width: 1024px) {
@@ -239,11 +246,11 @@
             }
             .admin-main {
                 margin-left: 0;
-                padding: 1rem;
+                padding: 1rem 1rem 2rem;
             }
             .admin-topbar {
-                margin: -1rem -1rem 1.5rem -1rem;
-                padding: 1rem;
+                top: 0.5rem;
+                padding: 0.75rem 1rem;
             }
         }
 
@@ -251,10 +258,10 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.875rem 1.25rem;
+            padding: 0.75rem 1rem;
             color: var(--text-muted);
-            font-weight: 500;
-            border-radius: var(--radius-md);
+            font-weight: 600;
+            border-radius: 0.75rem;
             margin: 0.25rem 1rem;
             transition: var(--transition);
         }
@@ -270,16 +277,16 @@
         }
 
         .admin-nav-icon {
-            width: 20px;
+            width: 18px;
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         /* Overlay for mobile */
         .admin-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.5);
+            background: rgba(15, 23, 42, 0.45);
             backdrop-filter: blur(4px);
             z-index: 45;
             display: none;
@@ -360,44 +367,49 @@
 
         <!-- Main Content -->
         <main class="admin-main">
-            <header class="admin-topbar">
-                <div class="flex items-center gap-4">
-                    <button class="btn btn-secondary !p-2 lg:hidden" onclick="toggleAdminSidebar()">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h2 class="text-lg font-bold text-main">@yield('title')</h2>
-                </div>
-                
-                <div class="flex items-center gap-4">
-                    <div class="hidden sm:flex flex-col items-end mr-2">
-                        <span class="text-sm font-bold text-main">{{ auth()->user()->name }}</span>
-                        <span class="text-[10px] text-muted">{{ auth()->user()->roles->first()->display_name ?? 'Admin' }}</span>
-                    </div>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-secondary !text-danger hover:!bg-danger-light">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span class="hidden sm:inline ml-1">Keluar</span>
+            <div class="admin-content">
+                <header class="admin-topbar">
+                    <div class="flex items-center gap-3">
+                        <button class="btn btn-secondary !p-2 lg:hidden" onclick="toggleAdminSidebar()">
+                            <i class="fas fa-bars"></i>
                         </button>
-                    </form>
-                </div>
-            </header>
+                        <div>
+                            <p class="text-xs text-muted">Admin Panel</p>
+                            <h2 class="text-base font-bold text-main">@yield('title')</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="hidden sm:flex flex-col items-end">
+                            <span class="text-sm font-bold text-main">{{ auth()->user()->name }}</span>
+                            <span class="text-[10px] text-muted">{{ auth()->user()->roles->first()->display_name ?? 'Admin' }}</span>
+                        </div>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-secondary !text-danger hover:!bg-danger-light">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span class="hidden sm:inline ml-1">Keluar</span>
+                            </button>
+                        </form>
+                    </div>
+                </header>
 
-            @if(session('success'))
-                <div class="flash-message success mb-6 shadow-sm">
-                    <i class="fas fa-check-circle"></i>
-                    <span>{{ session('success') }}</span>
-                </div>
-            @endif
+                @if(session('success'))
+                    <div class="flash-message success mb-4 shadow-sm">
+                        <i class="fas fa-check-circle"></i>
+                        <span>{{ session('success') }}</span>
+                    </div>
+                @endif
 
-            @if(session('error'))
-                <div class="flash-message error mb-6 shadow-sm">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span>{{ session('error') }}</span>
-                </div>
-            @endif
+                @if(session('error'))
+                    <div class="flash-message error mb-4 shadow-sm">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>{{ session('error') }}</span>
+                    </div>
+                @endif
 
-            @yield('content')
+                @yield('content')
+            </div>
         </main>
     </div>
 

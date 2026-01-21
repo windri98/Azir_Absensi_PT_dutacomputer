@@ -16,7 +16,7 @@ Route::middleware('auth')->group(function () {
         ->name('reports.history');
 
     // Admin/Manager reports
-    Route::middleware('role_or_permission:reports.view')->group(function () {
+    Route::middleware('role_or_permission:reports.view_all')->group(function () {
         Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/customer-report', [ReportController::class, 'customerReport'])->name('reports.customer');
         Route::get('/report-summary', [ReportController::class, 'summary'])->name('reports.summary');

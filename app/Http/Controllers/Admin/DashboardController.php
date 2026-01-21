@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Services\AdminDashboardService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -112,7 +114,7 @@ class DashboardController extends Controller
 
             $leaveService = app(\App\Services\LeaveService::class);
             $method = $action === 'approve' ? 'approveWorkLeave' : 'rejectWorkLeave';
-            $result = $leaveService->$method($attendance, auth()->id());
+            $result = $leaveService->$method($attendance, Auth::id());
 
             // Clear admin dashboard cache
             $this->adminDashboardService->clearCaches();
@@ -125,10 +127,10 @@ class DashboardController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Error in workLeaveAction: ' . $e->getMessage(), [
+            Log::error('Error in workLeaveAction: ' . $e->getMessage(), [
                 'attendance_id' => $attendance->id ?? 'unknown',
                 'action' => $action,
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
             
             return response()->json([

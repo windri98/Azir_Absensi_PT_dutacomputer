@@ -58,7 +58,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/check-in', [AttendanceController::class, 'checkIn']);
             Route::post('/check-out', [AttendanceController::class, 'checkOut']);
             Route::get('/{id}', [AttendanceController::class, 'show']);
-            Route::put('/{id}', [AttendanceController::class, 'update']);
+            Route::put('/{id}', [AttendanceController::class, 'update'])
+                ->middleware('role_or_permission:attendance.edit_all');
         });
 
         // Report routes

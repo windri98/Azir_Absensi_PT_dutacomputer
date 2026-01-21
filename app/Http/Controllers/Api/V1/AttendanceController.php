@@ -73,9 +73,13 @@ class AttendanceController extends Controller
 
         $result = $this->attendanceService->processCheckIn($data);
 
+        if (! $result['success']) {
+            return response()->json($result, 400);
+        }
+
         return response()->json(
             array_merge($result, ['data' => $this->formatAttendanceResponse($result['data'])]),
-            $result['success'] ? 200 : 400
+            200
         );
     }
 
@@ -95,9 +99,13 @@ class AttendanceController extends Controller
 
         $result = $this->attendanceService->processCheckOut($data);
 
+        if (! $result['success']) {
+            return response()->json($result, 400);
+        }
+
         return response()->json(
             array_merge($result, ['data' => $this->formatAttendanceResponse($result['data'])]),
-            $result['success'] ? 200 : 400
+            200
         );
     }
 
@@ -106,6 +114,13 @@ class AttendanceController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if (! $request->user()->hasPermission('attendance.edit_all')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
         $request->validate([
             'status' => 'required|in:present,late,absent,work_leave',
             'check_in' => 'nullable|date_format:H:i:s',

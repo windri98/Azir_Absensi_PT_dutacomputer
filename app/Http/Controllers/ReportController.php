@@ -16,7 +16,7 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         // Check permission instead of role
-        if (! Auth::user()->hasPermission('reports.view')) {
+        if (! Auth::user()->hasPermission('reports.view_all')) {
             abort(403, 'Unauthorized');
         }
 
@@ -82,7 +82,7 @@ class ReportController extends Controller
      */
     public function customerReport(Request $request)
     {
-        if (! Auth::user()->hasPermission('reports.view')) {
+        if (! Auth::user()->hasPermission('reports.view_all')) {
             abort(403, 'Unauthorized');
         }
 
@@ -174,7 +174,7 @@ class ReportController extends Controller
      */
     public function summary(Request $request)
     {
-        if (! Auth::user()->hasPermission('reports.view')) {
+        if (! Auth::user()->hasPermission('reports.view_all')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized',
@@ -212,7 +212,7 @@ class ReportController extends Controller
      */
     public function users(Request $request)
     {
-        if (! Auth::user()->hasPermission('reports.view')) {
+        if (! Auth::user()->hasPermission('reports.view_all')) {
             abort(403, 'Unauthorized');
         }
 
@@ -247,7 +247,7 @@ class ReportController extends Controller
      */
     public function userDetail($userId, Request $request)
     {
-        if (! Auth::user()->hasPermission('reports.view')) {
+        if (! Auth::user()->hasPermission('reports.view_all')) {
             abort(403, 'Unauthorized');
         }
 

@@ -224,10 +224,13 @@
             <nav class="sidebar-nav-container">
                 <div class="sidebar-nav-group">
                     <p class="sidebar-nav-label">Menu Utama</p>
+                    @if(auth()->check() && (auth()->user()->hasPermission('dashboard.view') || auth()->user()->hasPermission('dashboard.admin')))
                     <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard', 'user.dashboard') ? 'active' : '' }}">
                         <span class="sidebar-link-icon"><i class="fas fa-th-large"></i></span>
                         <span>Dashboard</span>
                     </a>
+                    @endif
+                    @if(auth()->check() && (auth()->user()->hasPermission('attendance.own') || auth()->user()->hasPermission('attendance.view_all')))
                     <a href="{{ route('attendance.absensi') }}" class="sidebar-link {{ request()->routeIs('attendance.absensi', 'attendance.clock-in', 'attendance.clock-out') ? 'active' : '' }}">
                         <span class="sidebar-link-icon"><i class="fas fa-clock"></i></span>
                         <span>Absensi</span>
@@ -236,18 +239,28 @@
                         <span class="sidebar-link-icon"><i class="fas fa-history"></i></span>
                         <span>Riwayat</span>
                     </a>
+                    @endif
                 </div>
 
                 <div class="sidebar-nav-group">
                     <p class="sidebar-nav-label">Layanan</p>
+                    @if(auth()->check() && (auth()->user()->hasPermission('complaints.create') || auth()->user()->hasPermission('complaints.view_own') || auth()->user()->hasPermission('complaints.view_all')))
                     <a href="{{ route('leave.index') }}" class="sidebar-link {{ request()->routeIs('leave.*', 'complaints.*') ? 'active' : '' }}">
                         <span class="sidebar-link-icon"><i class="fas fa-file-signature"></i></span>
                         <span>Izin & Cuti</span>
                     </a>
-                    <a href="{{ route('reports.index') }}" class="sidebar-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                        <span class="sidebar-link-icon"><i class="fas fa-chart-pie"></i></span>
-                        <span>Laporan</span>
-                    </a>
+                    @endif
+                    @if(auth()->check() && auth()->user()->hasPermission('reports.view_all'))
+                        <a href="{{ route('reports.index') }}" class="sidebar-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                            <span class="sidebar-link-icon"><i class="fas fa-chart-pie"></i></span>
+                            <span>Laporan</span>
+                        </a>
+                    @elseif(auth()->check() && auth()->user()->hasPermission('reports.view_own'))
+                        <a href="{{ route('reports.history') }}" class="sidebar-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                            <span class="sidebar-link-icon"><i class="fas fa-chart-pie"></i></span>
+                            <span>Laporan</span>
+                        </a>
+                    @endif
                 </div>
 
                 @if(auth()->check() && auth()->user()->hasPermission('dashboard.admin'))
@@ -297,35 +310,50 @@
             </div>
 
             <nav class="mobile-sidebar-nav">
-                <a href="{{ route('dashboard') }}" class="sidebar-nav-item {{ request()->routeIs('dashboard', 'user.dashboard') ? 'active' : '' }}">
-                    <i class="sidebar-nav-icon fas fa-home"></i>
-                    <span>Dashboard</span>
-                </a>
+                @if(auth()->check() && (auth()->user()->hasPermission('dashboard.view') || auth()->user()->hasPermission('dashboard.admin')))
+                    <a href="{{ route('dashboard') }}" class="sidebar-nav-item {{ request()->routeIs('dashboard', 'user.dashboard') ? 'active' : '' }}">
+                        <i class="sidebar-nav-icon fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                @endif
 
-                <a href="{{ route('attendance.absensi') }}" class="sidebar-nav-item {{ request()->routeIs('attendance.absensi') ? 'active' : '' }}">
-                    <i class="sidebar-nav-icon fas fa-clock"></i>
-                    <span>Absensi</span>
-                </a>
+                @if(auth()->check() && (auth()->user()->hasPermission('attendance.own') || auth()->user()->hasPermission('attendance.view_all')))
+                    <a href="{{ route('attendance.absensi') }}" class="sidebar-nav-item {{ request()->routeIs('attendance.absensi') ? 'active' : '' }}">
+                        <i class="sidebar-nav-icon fas fa-clock"></i>
+                        <span>Absensi</span>
+                    </a>
 
-                <a href="{{ route('attendance.riwayat') }}" class="sidebar-nav-item {{ request()->routeIs('attendance.riwayat') ? 'active' : '' }}">
-                    <i class="sidebar-nav-icon fas fa-history"></i>
-                    <span>Riwayat</span>
-                </a>
+                    <a href="{{ route('attendance.riwayat') }}" class="sidebar-nav-item {{ request()->routeIs('attendance.riwayat') ? 'active' : '' }}">
+                        <i class="sidebar-nav-icon fas fa-history"></i>
+                        <span>Riwayat</span>
+                    </a>
+                @endif
 
-                <a href="{{ route('leave.index') }}" class="sidebar-nav-item {{ request()->routeIs('leave.*', 'complaints.*') ? 'active' : '' }}">
-                    <i class="sidebar-nav-icon fas fa-file-alt"></i>
-                    <span>Izin & Cuti</span>
-                </a>
+                @if(auth()->check() && (auth()->user()->hasPermission('complaints.create') || auth()->user()->hasPermission('complaints.view_own') || auth()->user()->hasPermission('complaints.view_all')))
+                    <a href="{{ route('leave.index') }}" class="sidebar-nav-item {{ request()->routeIs('leave.*', 'complaints.*') ? 'active' : '' }}">
+                        <i class="sidebar-nav-icon fas fa-file-alt"></i>
+                        <span>Izin & Cuti</span>
+                    </a>
+                @endif
 
-                <a href="{{ route('reports.index') }}" class="sidebar-nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                    <i class="sidebar-nav-icon fas fa-chart-bar"></i>
-                    <span>Laporan</span>
-                </a>
+                @if(auth()->check() && auth()->user()->hasPermission('reports.view_all'))
+                    <a href="{{ route('reports.index') }}" class="sidebar-nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                        <i class="sidebar-nav-icon fas fa-chart-bar"></i>
+                        <span>Laporan</span>
+                    </a>
+                @elseif(auth()->check() && auth()->user()->hasPermission('reports.view_own'))
+                    <a href="{{ route('reports.history') }}" class="sidebar-nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                        <i class="sidebar-nav-icon fas fa-chart-bar"></i>
+                        <span>Laporan</span>
+                    </a>
+                @endif
 
-                <a href="{{ route('profile.show') }}" class="sidebar-nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
-                    <i class="sidebar-nav-icon fas fa-user"></i>
-                    <span>Profil</span>
-                </a>
+                @if(auth()->check() && (auth()->user()->hasPermission('profile.edit_own') || auth()->user()->hasPermission('profile.view_others')))
+                    <a href="{{ route('profile.show') }}" class="sidebar-nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                        <i class="sidebar-nav-icon fas fa-user"></i>
+                        <span>Profil</span>
+                    </a>
+                @endif
 
                 @if(auth()->check() && auth()->user()->hasPermission('dashboard.admin'))
                 <div class="mt-4 pt-4 border-t" style="border-color: var(--border-color);">
@@ -408,26 +436,34 @@
     <!-- Mobile Bottom Navigation -->
     <nav class="bottom-nav lg:hidden">
         <div class="bottom-nav-content w-full flex">
-            <a href="{{ route('dashboard') }}" class="bottom-nav-item {{ request()->routeIs('dashboard', 'user.dashboard') ? 'active' : '' }}">
-                <span class="bottom-nav-icon fas fa-th-large"></span>
-                <span class="bottom-nav-label">Dashboard</span>
-            </a>
-            <a href="{{ route('attendance.absensi') }}" class="bottom-nav-item {{ request()->routeIs('attendance.absensi', 'attendance.clock-in', 'attendance.clock-out') ? 'active' : '' }}">
-                <span class="bottom-nav-icon fas fa-clock"></span>
-                <span class="bottom-nav-label">Presensi</span>
-            </a>
-            <a href="{{ route('attendance.riwayat') }}" class="bottom-nav-item {{ request()->routeIs('attendance.riwayat') ? 'active' : '' }}">
-                <span class="bottom-nav-icon fas fa-history"></span>
-                <span class="bottom-nav-label">Riwayat</span>
-            </a>
-            <a href="{{ route('leave.index') }}" class="bottom-nav-item {{ request()->routeIs('leave.*') ? 'active' : '' }}">
-                <span class="bottom-nav-icon fas fa-file-signature"></span>
-                <span class="bottom-nav-label">Izin</span>
-            </a>
-            <a href="{{ route('profile.show') }}" class="bottom-nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
-                <span class="bottom-nav-icon fas fa-user-circle"></span>
-                <span class="bottom-nav-label">Profil</span>
-            </a>
+            @if(auth()->check() && (auth()->user()->hasPermission('dashboard.view') || auth()->user()->hasPermission('dashboard.admin')))
+                <a href="{{ route('dashboard') }}" class="bottom-nav-item {{ request()->routeIs('dashboard', 'user.dashboard') ? 'active' : '' }}">
+                    <span class="bottom-nav-icon fas fa-th-large"></span>
+                    <span class="bottom-nav-label">Dashboard</span>
+                </a>
+            @endif
+            @if(auth()->check() && (auth()->user()->hasPermission('attendance.own') || auth()->user()->hasPermission('attendance.view_all')))
+                <a href="{{ route('attendance.absensi') }}" class="bottom-nav-item {{ request()->routeIs('attendance.absensi', 'attendance.clock-in', 'attendance.clock-out') ? 'active' : '' }}">
+                    <span class="bottom-nav-icon fas fa-clock"></span>
+                    <span class="bottom-nav-label">Presensi</span>
+                </a>
+                <a href="{{ route('attendance.riwayat') }}" class="bottom-nav-item {{ request()->routeIs('attendance.riwayat') ? 'active' : '' }}">
+                    <span class="bottom-nav-icon fas fa-history"></span>
+                    <span class="bottom-nav-label">Riwayat</span>
+                </a>
+            @endif
+            @if(auth()->check() && (auth()->user()->hasPermission('complaints.create') || auth()->user()->hasPermission('complaints.view_own') || auth()->user()->hasPermission('complaints.view_all')))
+                <a href="{{ route('leave.index') }}" class="bottom-nav-item {{ request()->routeIs('leave.*') ? 'active' : '' }}">
+                    <span class="bottom-nav-icon fas fa-file-signature"></span>
+                    <span class="bottom-nav-label">Izin</span>
+                </a>
+            @endif
+            @if(auth()->check() && (auth()->user()->hasPermission('profile.edit_own') || auth()->user()->hasPermission('profile.view_others')))
+                <a href="{{ route('profile.show') }}" class="bottom-nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                    <span class="bottom-nav-icon fas fa-user-circle"></span>
+                    <span class="bottom-nav-label">Profil</span>
+                </a>
+            @endif
         </div>
     </nav>
 
