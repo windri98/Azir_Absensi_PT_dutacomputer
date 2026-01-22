@@ -177,7 +177,7 @@ class Attendance extends Model
             }
 
             $minutes = $checkOut->diffInMinutes($checkIn);
-            $this->work_hours = round($minutes / 60, 2);
+            $this->work_hours = max(0, round($minutes / 60, 2));
         }
     }
 
