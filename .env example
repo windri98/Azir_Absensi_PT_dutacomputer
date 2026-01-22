@@ -3,7 +3,7 @@ APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
 APP_TIMEZONE=Asia/Jakarta
-APP_URL=https://your-domain.example
+APP_URL=https://absensi.azr-cdn.org
 
 APP_LOCALE=id
 APP_FALLBACK_LOCALE=en

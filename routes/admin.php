@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ActivityController as AdminActivityController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\PermissionController as AdminPermissionController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\RoleController;
@@ -201,6 +203,46 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/export-attendance', [UserController::class, 'exportAttendance'])
         ->middleware('role_or_permission:reports.export')
         ->name('export-attendance');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Partner Management
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role_or_permission:partners.view')->group(function () {
+        Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
+    });
+    Route::get('/partners/create', [PartnerController::class, 'create'])
+        ->middleware('role_or_permission:partners.create')
+        ->name('partners.create');
+    Route::post('/partners', [PartnerController::class, 'store'])
+        ->middleware('role_or_permission:partners.create')
+        ->name('partners.store');
+    Route::get('/partners/{partner}/edit', [PartnerController::class, 'edit'])
+        ->middleware('role_or_permission:partners.edit')
+        ->name('partners.edit');
+    Route::put('/partners/{partner}', [PartnerController::class, 'update'])
+        ->middleware('role_or_permission:partners.edit')
+        ->name('partners.update');
+    Route::delete('/partners/{partner}', [PartnerController::class, 'destroy'])
+        ->middleware('role_or_permission:partners.delete')
+        ->name('partners.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Activity Approval
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role_or_permission:activities.view_all')->group(function () {
+        Route::get('/activities', [AdminActivityController::class, 'index'])->name('activities.index');
+        Route::get('/activities/{activity}', [AdminActivityController::class, 'show'])->name('activities.show');
+    });
+    Route::post('/activities/{activity}/approve', [AdminActivityController::class, 'approve'])
+        ->middleware('role_or_permission:activities.approve')
+        ->name('activities.approve');
+    Route::post('/activities/{activity}/reject', [AdminActivityController::class, 'reject'])
+        ->middleware('role_or_permission:activities.approve')
+        ->name('activities.reject');
 });
 
 /*

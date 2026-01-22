@@ -29,6 +29,16 @@ export const authService = {
     }
   },
 
+  async updatePushToken(token) {
+    if (!token) return;
+    try {
+      await api.post('/users/push-token', { token });
+    } catch (error) {
+      console.error('Update push token error:', error);
+      throw error.response?.data || error;
+    }
+  },
+
   async getCurrentUser() {
     try {
       const response = await api.get('/auth/me');

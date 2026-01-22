@@ -54,6 +54,13 @@
         }
       ],
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Aplikasi memerlukan akses galeri untuk unggah bukti aktivitas",
+          "cameraPermission": "Aplikasi memerlukan akses kamera untuk mengambil bukti aktivitas"
+        }
+      ],
+      [
         "expo-local-authentication",
         {
           "faceIDPermission": "Aplikasi menggunakan Face ID untuk autentikasi"

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { authService } from '../services/auth';
+import { notificationService } from '../services/notification';
 
 export const useAuthStore = create((set) => ({
   user: null,
@@ -24,6 +25,17 @@ export const useAuthStore = create((set) => ({
     try {
       const { token, user } = await authService.login(email, password);
       set({ token, user, isLoading: false });
+      try {
+        const permissionGranted = await notificationService.requestPermission();
+        if (permissionGranted) {
+          const pushToken = await notificationService.getDevicePushToken();
+          if (pushToken) {
+            await authService.updatePushToken(pushToken);
+          }
+        }
+      } catch (error) {
+        console.warn('Push token registration failed:', error);
+      }
       return { token, user };
     } catch (error) {
       const errorMessage = error.message || 'Login failed';

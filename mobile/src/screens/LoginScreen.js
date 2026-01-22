@@ -25,7 +25,7 @@ export const LoginScreen = ({ navigation }) => {
 
     try {
       await login(email, password);
-      navigation.replace('Home');
+      navigation.replace('Main');
     } catch (err) {
       Alert.alert('Login Failed', error || 'Invalid credentials');
     }

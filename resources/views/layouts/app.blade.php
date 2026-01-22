@@ -240,6 +240,12 @@
                         <span>Riwayat</span>
                     </a>
                     @endif
+                    @if(auth()->check() && auth()->user()->hasPermission('activities.view_own'))
+                    <a href="{{ route('activities.history') }}" class="sidebar-link {{ request()->routeIs('activities.*') ? 'active' : '' }}">
+                        <span class="sidebar-link-icon"><i class="fas fa-clipboard-list"></i></span>
+                        <span>Aktivitas</span>
+                    </a>
+                    @endif
                 </div>
 
                 <div class="sidebar-nav-group">

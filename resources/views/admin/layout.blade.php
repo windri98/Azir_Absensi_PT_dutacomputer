@@ -337,7 +337,21 @@
                 </a>
                 @endif
 
+                @if(auth()->user()->hasPermission('partners.view'))
+                <a href="{{ route('admin.partners.index') }}" class="admin-nav-item {{ request()->routeIs('admin.partners.*') ? 'active' : '' }}">
+                    <i class="admin-nav-icon fas fa-building"></i>
+                    <span>Data Mitra</span>
+                </a>
+                @endif
+
                 <div class="px-6 mt-6 mb-2 text-[10px] font-bold text-light uppercase tracking-widest">Layanan</div>
+
+                @if(auth()->user()->hasPermission('activities.view_all'))
+                <a href="{{ route('admin.activities.index') }}" class="admin-nav-item {{ request()->routeIs('admin.activities.*') ? 'active' : '' }}">
+                    <i class="admin-nav-icon fas fa-clipboard-check"></i>
+                    <span>Verifikasi Aktivitas</span>
+                </a>
+                @endif
 
                 @if(auth()->user()->hasPermission('complaints.view_all'))
                 <a href="{{ route('admin.complaints.index') }}" class="admin-nav-item {{ request()->routeIs('admin.complaints.*') ? 'active' : '' }}">

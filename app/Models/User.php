@@ -32,6 +32,7 @@ class User extends Authenticatable
         'birth_date',
         'gender',
         'photo',
+        'expo_push_token',
         'shift_id',
         'annual_leave_quota',
         'sick_leave_quota',
@@ -83,6 +84,22 @@ class User extends Authenticatable
     public function complaints(): HasMany
     {
         return $this->hasMany(Complaint::class);
+    }
+
+    /**
+     * Relasi one-to-many dengan Activity
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(Activity::class);
+    }
+
+    /**
+     * Relasi aktivitas yang disetujui user ini
+     */
+    public function approvedActivities(): HasMany
+    {
+        return $this->hasMany(Activity::class, 'approved_by');
     }
 
     /**

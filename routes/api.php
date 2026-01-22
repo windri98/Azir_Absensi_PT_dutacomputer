@@ -3,7 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ActivityController;
 use App\Http\Controllers\Api\V1\AttendanceController;
+use App\Http\Controllers\Api\V1\PartnerController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\HealthController;
@@ -43,6 +45,7 @@ Route::prefix('v1')->group(function () {
             Route::put('/profile', [UserController::class, 'updateProfile']);
             Route::post('/change-password', [UserController::class, 'changePassword']);
             Route::post('/upload-photo', [UserController::class, 'uploadPhoto']);
+            Route::post('/push-token', [UserController::class, 'storePushToken']);
             Route::get('/', [UserController::class, 'index']);
             Route::get('/{id}', [UserController::class, 'show']);
             Route::post('/', [UserController::class, 'store']);
@@ -60,6 +63,20 @@ Route::prefix('v1')->group(function () {
             Route::get('/{id}', [AttendanceController::class, 'show']);
             Route::put('/{id}', [AttendanceController::class, 'update'])
                 ->middleware('role_or_permission:attendance.edit_all');
+        });
+
+        // Partner routes
+        Route::get('/partners', [PartnerController::class, 'index'])
+            ->middleware('role_or_permission:partners.view');
+
+        // Activity routes
+        Route::prefix('activities')->group(function () {
+            Route::get('/', [ActivityController::class, 'index'])
+                ->middleware('role_or_permission:activities.view_own');
+            Route::post('/', [ActivityController::class, 'store'])
+                ->middleware('role_or_permission:activities.create');
+            Route::get('/{id}', [ActivityController::class, 'show'])
+                ->middleware('role_or_permission:activities.view_own');
         });
 
         // Report routes

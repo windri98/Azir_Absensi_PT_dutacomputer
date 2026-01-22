@@ -96,6 +96,24 @@ class UserController extends Controller
     }
 
     /**
+     * Store Expo push token
+     */
+    public function storePushToken(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string|max:255',
+        ]);
+
+        $user = Auth::user();
+        $user->update(['expo_push_token' => $request->token]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Push token updated',
+        ]);
+    }
+
+    /**
      * Get all users (admin only)
      */
     public function index(Request $request)

@@ -102,6 +102,14 @@ export const HomeScreen = ({ navigation }) => {
 
         <TouchableOpacity
           style={styles.actionButton}
+          onPress={() => navigation.navigate('Activities')}
+        >
+          <Text style={styles.actionIcon}>🛠️</Text>
+          <Text style={styles.actionLabel}>Aktivitas</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionButton}
           onPress={() => navigation.navigate('Reports')}
         >
           <Text style={styles.actionIcon}>📊</Text>

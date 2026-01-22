@@ -119,6 +119,58 @@ class PermissionSeeder extends Seeder
                 'category' => 'attendance'
             ],
 
+            // Activity permissions
+            [
+                'name' => 'activities.create',
+                'display_name' => 'Create Activities',
+                'description' => 'Dapat membuat aktivitas teknisi',
+                'category' => 'activities'
+            ],
+            [
+                'name' => 'activities.view_own',
+                'display_name' => 'View Own Activities',
+                'description' => 'Dapat melihat aktivitas sendiri',
+                'category' => 'activities'
+            ],
+            [
+                'name' => 'activities.view_all',
+                'display_name' => 'View All Activities',
+                'description' => 'Dapat melihat aktivitas semua teknisi',
+                'category' => 'activities'
+            ],
+            [
+                'name' => 'activities.approve',
+                'display_name' => 'Approve Activities',
+                'description' => 'Dapat menyetujui/menolak aktivitas teknisi',
+                'category' => 'activities'
+            ],
+
+            // Partner permissions
+            [
+                'name' => 'partners.view',
+                'display_name' => 'View Partners',
+                'description' => 'Dapat melihat data mitra',
+                'category' => 'partners'
+            ],
+            [
+                'name' => 'partners.create',
+                'display_name' => 'Create Partners',
+                'description' => 'Dapat menambah data mitra',
+                'category' => 'partners'
+            ],
+            [
+                'name' => 'partners.edit',
+                'display_name' => 'Edit Partners',
+                'description' => 'Dapat mengubah data mitra',
+                'category' => 'partners'
+            ],
+            [
+                'name' => 'partners.delete',
+                'display_name' => 'Delete Partners',
+                'description' => 'Dapat menghapus data mitra',
+                'category' => 'partners'
+            ],
+
             // Shift Management permissions
             [
                 'name' => 'shifts.view',
@@ -276,6 +328,8 @@ class PermissionSeeder extends Seeder
                 'users.view', 'users.create', 'users.edit', 'users.delete', 'users.manage_roles',
                 'roles.view',
                 'attendance.own', 'attendance.view_all', 'attendance.edit', 'attendance.approve_leave',
+                'activities.view_all', 'activities.approve',
+                'partners.view', 'partners.create', 'partners.edit', 'partners.delete',
                 'shifts.view', 'shifts.create', 'shifts.edit', 'shifts.delete', 'shifts.assign_users',
                 'reports.view_own', 'reports.view_all', 'reports.export',
                 'complaints.create', 'complaints.view_own', 'complaints.view_all', 'complaints.manage',
@@ -292,6 +346,8 @@ class PermissionSeeder extends Seeder
                 'users.view', 'users.edit', 'users.manage_roles',
                 'roles.view',
                 'attendance.own', 'attendance.view_all', 'attendance.approve_leave',
+                'activities.view_all',
+                'partners.view',
                 'shifts.view', 'shifts.edit', 'shifts.assign_users',
                 'reports.view_own', 'reports.view_all', 'reports.export',
                 'complaints.create', 'complaints.view_own', 'complaints.view_all', 'complaints.manage',
@@ -308,6 +364,8 @@ class PermissionSeeder extends Seeder
                 'users.view',
                 'roles.view',
                 'attendance.own', 'attendance.view_all', 'attendance.approve_leave',
+                'activities.view_all',
+                'partners.view',
                 'shifts.view',
                 'reports.view_own', 'reports.view_all',
                 'complaints.create', 'complaints.view_own', 'complaints.view_all', 'complaints.manage',
@@ -322,6 +380,8 @@ class PermissionSeeder extends Seeder
             $employeePermissions = Permission::whereIn('name', [
                 'dashboard.view',
                 'attendance.own',
+                'activities.create', 'activities.view_own',
+                'partners.view',
                 'shifts.view',
                 'reports.view_own',
                 'complaints.create', 'complaints.view_own',
@@ -336,6 +396,8 @@ class PermissionSeeder extends Seeder
             $internPermissions = Permission::whereIn('name', [
                 'dashboard.view',
                 'attendance.own',
+                'activities.create', 'activities.view_own',
+                'partners.view',
                 'shifts.view',
                 'reports.view_own',
                 'profile.edit_own'
@@ -349,6 +411,8 @@ class PermissionSeeder extends Seeder
             $contractorPermissions = Permission::whereIn('name', [
                 'dashboard.view',
                 'attendance.own',
+                'activities.create', 'activities.view_own',
+                'partners.view',
                 'shifts.view',
                 'reports.view_own',
                 'profile.edit_own'

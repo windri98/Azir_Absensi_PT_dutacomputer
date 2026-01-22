@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardRouterController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ActivityController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -73,6 +74,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/notification-settings', function () {
         return view('settings.notification-settings');
     })->name('settings.notifications');
+
+    // Activities
+    Route::get('/activities', [ActivityController::class, 'history'])
+        ->middleware('role_or_permission:activities.view_own')
+        ->name('activities.history');
+    Route::get('/activities/create', [ActivityController::class, 'create'])
+        ->middleware('role_or_permission:activities.create')
+        ->name('activities.create');
+    Route::post('/activities', [ActivityController::class, 'store'])
+        ->middleware('role_or_permission:activities.create')
+        ->name('activities.store');
+    Route::get('/activities/{activity}', [ActivityController::class, 'show'])
+        ->middleware('role_or_permission:activities.view_own')
+        ->name('activities.show');
 
     // API - Reverse Geocode
     Route::get('/reverse-geocode', [LocationController::class, 'reverseGeocode'])->name('reverse-geocode');

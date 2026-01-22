@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'activity' => [
+        'radius_meters' => env('ACTIVITY_RADIUS_METERS', 200),
+    ],
+
 ];

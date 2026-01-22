@@ -288,6 +288,11 @@ Add to `resources/views/layouts/app.blade.php` footer:
 3. **Leave Request**: Klik "Ajukan Izin" → Pilih type → Fill form → Submit
 4. **History**: Scroll down di dashboard atau klik "Lihat Riwayat"
 
+### Aktivitas Teknisi (NEW)
+1. **Input Aktivitas**: Menu Aktivitas → Isi form → Upload bukti → Tanda tangan PIC
+2. **Status**: Signed (tanda tangan) → Admin/HRD review → Approved/Rejected
+3. **Admin**: Verifikasi Aktivitas → cek detail → Approve/Reject
+
 ### For Admin
 1. **Overview**: Lihat KPI cards + pending items
 2. **Quick Management**: Klik buttons untuk navigate ke detail pages

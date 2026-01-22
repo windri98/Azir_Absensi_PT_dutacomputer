@@ -10,6 +10,8 @@ Aplikasi web untuk manajemen absensi karyawan PT DUTA COMPUTER dengan fitur role
 - 📝 **Complaints System** - Employee complaint & response management
 - 📊 **Reports & Analytics** - Comprehensive attendance reports
 - 📄 **Leave Management** - Sick leave, work leave with document upload
+- 🛠️ **Aktivitas Teknisi** - Aktivitas kerja di mitra + bukti foto + tanda tangan PIC
+- 🏢 **Manajemen Mitra** - CRUD data perusahaan rekanan
 - 👤 **Profile Management** - Photo upload, personal information
 
 ## 🚀 Quick Start
@@ -52,9 +54,13 @@ php artisan serve
 /attendance/clock-in    - Clock in
 /attendance/clock-out   - Clock out
 /attendance/riwayat     - Attendance history
+/activities             - Riwayat aktivitas teknisi
+/activities/create      - Input aktivitas baru
 /complaints/form        - Submit complaint
 /reports/history        - Personal reports
 /admin/dashboard        - Admin panel (Admin only)
+/admin/partners         - Data mitra (Admin)
+/admin/activities       - Verifikasi aktivitas (Admin)
 ```
 
 ## 📁 Struktur Folder & Struktur Kodingan
@@ -116,7 +122,7 @@ Alur umum: `routes` → `controllers` → `services` → `models` → `views`
 - Routes: `routes/api.php`
 - Controllers: `app/Http/Controllers/Api/V1/*`
 - Auth: Sanctum (`auth:sanctum`)
-- Output: JSON (auth, user, attendance, report)
+- Output: JSON (auth, user, attendance, report, activities, partners)
 
 ### Struktur UI Web (Frontend)
 - Blade: `resources/views/*`
@@ -139,6 +145,7 @@ Alur umum: `routes` → `controllers` → `services` → `models` → `views`
 ## 📚 Dokumentasi Lanjutan
 
 - **DEPLOYMENT.md** - Panduan deployment ke production
+- **docs/ACTIVITY_FEATURE.md** - Panduan fitur aktivitas teknisi
 - **CONTRIBUTING.md** - Panduan kontribusi
 - **SECURITY.md** - Security policies
 
