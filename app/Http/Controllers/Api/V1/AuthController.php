@@ -88,7 +88,7 @@ class AuthController extends Controller
             'remaining_annual_leave' => $user->getRemainingAnnualLeave(),
             'remaining_sick_leave' => $user->getRemainingSickLeave(),
             'remaining_special_leave' => $user->getRemainingSpecialLeave(),
-            'roles' => $user->roles()->select('id', 'name', 'display_name')->get(),
+            'roles' => $user->roles()->select('roles.id', 'roles.name', 'roles.display_name')->get(),
             'permissions' => $user->getAllPermissions()->map(function ($permission) {
                 return [
                     'id' => $permission->id,

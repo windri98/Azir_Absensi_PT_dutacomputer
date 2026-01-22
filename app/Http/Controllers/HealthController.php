@@ -39,15 +39,20 @@ class HealthController extends Controller
             $health['checks']['database'] = false;
         }
 
-        // Check Redis connection
-        try {
-            Redis::ping();
-            $health['services']['redis'] = 'ok';
-            $health['checks']['redis'] = true;
-        } catch (\Exception $e) {
-            $health['status'] = 'degraded';
-            $health['services']['redis'] = 'error';
-            $health['checks']['redis'] = false;
+        // Check Redis connection only when configured as cache driver
+        if (config('cache.default') === 'redis') {
+            try {
+                Redis::ping();
+                $health['services']['redis'] = 'ok';
+                $health['checks']['redis'] = true;
+            } catch (\Exception $e) {
+                $health['status'] = 'degraded';
+                $health['services']['redis'] = 'error';
+                $health['checks']['redis'] = false;
+            }
+        } else {
+            $health['services']['redis'] = 'skipped';
+            $health['checks']['redis'] = null;
         }
 
         // Check disk space
