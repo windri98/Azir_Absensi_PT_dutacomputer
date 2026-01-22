@@ -192,10 +192,11 @@
                 return;
             }
 
-            fetchWithTimeout("{{ route('attendance.check-in') }}", {
+            fetchWithTimeout("{{ route('attendance.check-in', [], false) }}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify({
@@ -203,13 +204,24 @@
                     note: document.getElementById('noteInput').value
                 })
             }, 10000)
-            .then(r => r.json())
+            .then(async r => {
+                const contentType = r.headers.get('content-type') || '';
+                const payload = contentType.includes('application/json')
+                    ? await r.json()
+                    : { message: `Request gagal (${r.status}).` };
+
+                if (!r.ok) {
+                    throw new Error(payload.message || `Request gagal (${r.status}).`);
+                }
+
+                return payload;
+            })
             .then(data => {
                 if (data.success) {
                     showSuccessPopup({
                         title: 'Berhasil!',
                         message: 'Absensi masuk Anda telah tercatat.',
-                        onClose: () => window.location.href = "{{ route('attendance.absensi') }}"
+                        onClose: () => window.location.href = "{{ route('attendance.absensi', [], false) }}"
                     });
                 } else {
                     showErrorPopup({ title: 'Gagal', message: data.message || 'Proses check-in gagal.' });
@@ -217,8 +229,9 @@
                     btn.innerHTML = 'Konfirmasi Clock In';
                 }
             })
-            .catch(() => {
-                showErrorPopup({ title: 'Gagal', message: 'Koneksi lambat atau server tidak merespons.' });
+            .catch((error) => {
+                const message = error?.message || 'Koneksi lambat atau server tidak merespons.';
+                showErrorPopup({ title: 'Gagal', message });
                 btn.disabled = false;
                 btn.innerHTML = 'Konfirmasi Clock In';
             });

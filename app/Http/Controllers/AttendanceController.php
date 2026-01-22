@@ -60,23 +60,7 @@ class AttendanceController extends Controller
             'note' => $request->note,
         ];
 
-        try {
-            $result = $this->attendanceService->processCheckIn($data);
-        } catch (\Throwable $e) {
-            Log::error('Check-in failed', [
-                'user_id' => Auth::id(),
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'location' => $request->location,
-                'note' => $request->note,
-                'error' => $e->getMessage(),
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal check-in. Silakan coba lagi atau hubungi admin.',
-            ], 500);
-        }
+        $result = $this->attendanceService->processCheckIn($data);
 
         return response()->json($result, $result['success'] ? 200 : 400);
     }

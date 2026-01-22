@@ -45,10 +45,11 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Memproses...';
 
-            fetch("{{ route('attendance.check-out') }}", {
+            fetch("{{ route('attendance.check-out', [], false) }}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify({
@@ -56,15 +57,36 @@
                     notes: document.getElementById('noteInput').value
                 })
             })
-            .then(r => r.json())
+            .then(async r => {
+                const contentType = r.headers.get('content-type') || '';
+                const payload = contentType.includes('application/json')
+                    ? await r.json()
+                    : { message: `Request gagal (${r.status}).` };
+
+                if (!r.ok) {
+                    throw new Error(payload.message || `Request gagal (${r.status}).`);
+                }
+
+                return payload;
+            })
             .then(data => {
                 if (data.success) {
                     showSuccessPopup({
                         title: 'Berhasil!',
                         message: 'Terima kasih atas dedikasi Anda hari ini.',
-                        onClose: () => window.location.href = "{{ route('attendance.absensi') }}"
+                        onClose: () => window.location.href = "{{ route('attendance.absensi', [], false) }}"
                     });
+                } else {
+                    showErrorPopup({ title: 'Gagal', message: data.message || 'Proses check-out gagal.' });
+                    btn.disabled = false;
+                    btn.innerHTML = 'Konfirmasi Pulang';
                 }
+            })
+            .catch((error) => {
+                const message = error?.message || 'Koneksi lambat atau server tidak merespons.';
+                showErrorPopup({ title: 'Gagal', message });
+                btn.disabled = false;
+                btn.innerHTML = 'Konfirmasi Pulang';
             });
         }
 
