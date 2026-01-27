@@ -14,6 +14,37 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Check if relationships are already loaded (from eager loading in controller)
+        $roles = $this->relationLoaded('roles')
+            ? $this->roles->map(fn($role) => [
+                'id' => $role->id,
+                'name' => $role->name,
+                'display_name' => $role->display_name,
+            ])
+            : $this->roles()->select('id', 'name', 'display_name')->get();
+
+        // Get permissions from already-loaded roles if available
+        $permissions = [];
+        if ($this->relationLoaded('roles')) {
+            $permissions = $this->roles
+                ->flatMap(fn($role) => $role->permissions ?? [])
+                ->unique('id')
+                ->map(fn($permission) => [
+                    'id' => $permission->id,
+                    'name' => $permission->name,
+                    'display_name' => $permission->display_name,
+                ])
+                ->values();
+        } else {
+            $permissions = $this->getAllPermissions()->map(function ($permission) {
+                return [
+                    'id' => $permission->id,
+                    'name' => $permission->name,
+                    'display_name' => $permission->display_name,
+                ];
+            });
+        }
+
         return [
             'id' => $this->id,
             'employee_id' => $this->employee_id,
@@ -30,14 +61,8 @@ class UserResource extends JsonResource
             'remaining_annual_leave' => $this->getRemainingAnnualLeave(),
             'remaining_sick_leave' => $this->getRemainingSickLeave(),
             'remaining_special_leave' => $this->getRemainingSpecialLeave(),
-            'roles' => $this->roles()->select('id', 'name', 'display_name')->get(),
-            'permissions' => $this->getAllPermissions()->map(function ($permission) {
-                return [
-                    'id' => $permission->id,
-                    'name' => $permission->name,
-                    'display_name' => $permission->display_name,
-                ];
-            }),
+            'roles' => $roles,
+            'permissions' => $permissions,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

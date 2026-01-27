@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useAuthStore } from './src/store/authStore';
+import ErrorBoundary from './src/components/ErrorBoundary';
+import { initDatabase } from './src/services/database';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { AttendanceScreen } from './src/screens/AttendanceScreen';
@@ -16,6 +19,32 @@ import { ActivityDetailScreen } from './src/screens/ActivityDetailScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+
+// Deep linking configuration
+const linking = {
+  prefixes: ['pt-duta-computer://', 'https://dutacomputer.app/', 'https://www.dutacomputer.app/'],
+  config: {
+    screens: {
+      Main: {
+        screens: {
+          Home: 'home',
+          Attendance: 'attendance',
+          Activities: {
+            screens: {
+              ActivityHistory: 'activities',
+              ActivityCreate: 'activities/create',
+              ActivityDetail: 'activities/:id',
+            },
+          },
+          History: 'history',
+          Reports: 'reports',
+          Profile: 'profile',
+        },
+      },
+      Login: 'login',
+    },
+  },
+};
 
 const ActivityStack = () => (
   <Stack.Navigator>
@@ -53,7 +82,19 @@ export default function App() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    initialize().finally(() => setReady(true));
+    const setupApp = async () => {
+      try {
+        // Initialize database
+        await initDatabase();
+      } catch (error) {
+        console.warn('Database initialization error (non-critical):', error);
+      }
+      
+      // Initialize auth
+      await initialize();
+    };
+
+    setupApp().finally(() => setReady(true));
   }, []);
 
   if (!ready) {
@@ -65,14 +106,25 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {token ? (
-          <Stack.Screen name="Main" component={MainTabs} />
-        ) : (
-          <Stack.Screen name="Login" component={LoginScreen} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <NavigationContainer
+          linking={linking}
+          fallback={
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#0284c7" />
+            </View>
+          }
+        >
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            {token ? (
+              <Stack.Screen name="Main" component={MainTabs} />
+            ) : (
+              <Stack.Screen name="Login" component={LoginScreen} />
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }

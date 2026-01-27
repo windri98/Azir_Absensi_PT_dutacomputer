@@ -9,6 +9,7 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../store/authStore';
 
 export const LoginScreen = ({ navigation }) => {
@@ -32,16 +33,17 @@ export const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>PT DUTA COMPUTER</Text>
-          <Text style={styles.subtitle}>Sistem Manajemen Absensi Karyawan</Text>
-        </View>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>PT DUTA COMPUTER</Text>
+            <Text style={styles.subtitle}>Sistem Manajemen Absensi Karyawan</Text>
+          </View>
 
-        {/* Form */}
-        <View style={styles.form}>
+          {/* Form */}
+          <View style={styles.form}>
           {/* Email Input */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email</Text>
@@ -101,9 +103,10 @@ export const LoginScreen = ({ navigation }) => {
             <Text style={styles.demoText}>Email: employee1@example.com</Text>
             <Text style={styles.demoText}>Password: password123</Text>
           </View>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -111,6 +114,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingVertical: 20,
   },
   content: {
     flex: 1,

@@ -1,5 +1,6 @@
 import api from './api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 export const authService = {
   async login(email, password) {
@@ -7,8 +8,10 @@ export const authService = {
       const response = await api.post('/auth/login', { email, password });
       const { token, user } = response.data.data;
 
-      // Store token and user
-      await AsyncStorage.setItem('auth_token', token);
+      // Store token securely using SecureStore
+      await SecureStore.setItemAsync('auth_token', token);
+      
+      // Store user data in AsyncStorage (not sensitive)
       await AsyncStorage.setItem('user', JSON.stringify(user));
 
       return { token, user };
@@ -24,7 +27,11 @@ export const authService = {
       console.error('Logout error:', error);
     } finally {
       // Clear stored data
-      await AsyncStorage.removeItem('auth_token');
+      try {
+        await SecureStore.deleteItemAsync('auth_token');
+      } catch (error) {
+        console.warn('Error deleting token from SecureStore:', error);
+      }
       await AsyncStorage.removeItem('user');
     }
   },
@@ -56,7 +63,12 @@ export const authService = {
   },
 
   async getStoredToken() {
-    return await AsyncStorage.getItem('auth_token');
+    try {
+      return await SecureStore.getItemAsync('auth_token');
+    } catch (error) {
+      console.warn('Error retrieving token from SecureStore:', error);
+      return null;
+    }
   },
 
   async isAuthenticated() {

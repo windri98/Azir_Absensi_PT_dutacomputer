@@ -1,15 +1,15 @@
 <template>
-  <div class="space-y-6">
-    <h1 class="text-3xl font-bold text-gray-900">Absensi</h1>
+  <div class="space-y-4 sm:space-y-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Absensi</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
       <!-- Check-in Card -->
       <Card title="Check-in" subtitle="Mulai hari kerja Anda">
-        <div class="text-center py-8">
-          <div class="text-6xl font-bold text-primary-600 mb-4">
+        <div class="text-center py-6 sm:py-8">
+          <div class="text-4xl sm:text-5xl md:text-6xl font-bold text-primary-600 mb-3 sm:mb-4">
             {{ currentTime }}
           </div>
-          <p class="text-gray-600 mb-6">{{ currentDate }}</p>
+          <p class="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">{{ currentDate }}</p>
           <Button
             variant="success"
             size="lg"
@@ -19,7 +19,7 @@
           >
             Check-in Sekarang
           </Button>
-          <p v-if="todayAttendance?.check_in" class="text-sm text-gray-600 mt-4">
+          <p v-if="todayAttendance?.check_in" class="text-xs sm:text-sm text-gray-600 mt-4">
             Sudah check-in pada {{ todayAttendance.check_in }}
           </p>
         </div>
@@ -27,11 +27,11 @@
 
       <!-- Check-out Card -->
       <Card title="Check-out" subtitle="Akhiri hari kerja Anda">
-        <div class="text-center py-8">
-          <div class="text-6xl font-bold text-red-600 mb-4">
+        <div class="text-center py-6 sm:py-8">
+          <div class="text-4xl sm:text-5xl md:text-6xl font-bold text-red-600 mb-3 sm:mb-4">
             {{ currentTime }}
           </div>
-          <p class="text-gray-600 mb-6">{{ currentDate }}</p>
+          <p class="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">{{ currentDate }}</p>
           <Button
             variant="danger"
             size="lg"
@@ -42,10 +42,10 @@
           >
             Check-out Sekarang
           </Button>
-          <p v-if="todayAttendance?.check_out" class="text-sm text-gray-600 mt-4">
+          <p v-if="todayAttendance?.check_out" class="text-xs sm:text-sm text-gray-600 mt-4">
             Sudah check-out pada {{ todayAttendance.check_out }}
           </p>
-          <p v-else-if="!todayAttendance?.check_in" class="text-sm text-gray-600 mt-4">
+          <p v-else-if="!todayAttendance?.check_in" class="text-xs sm:text-sm text-gray-600 mt-4">
             Lakukan check-in terlebih dahulu
           </p>
         </div>

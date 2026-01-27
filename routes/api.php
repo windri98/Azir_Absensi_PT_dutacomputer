@@ -30,8 +30,9 @@ Route::middleware('throttle:health')->group(function () {
 });
 
 Route::prefix('v1')->group(function () {
-    // Public routes
-    Route::post('/auth/login', [AuthController::class, 'login']);
+    // Public routes - with rate limiting
+    Route::post('/auth/login', [AuthController::class, 'login'])
+        ->middleware('throttle:5,1'); // 5 attempts per minute
 
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {

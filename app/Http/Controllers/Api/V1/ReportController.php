@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\User;
 use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -56,10 +58,23 @@ class ReportController extends Controller
      */
     public function allUsersReport(Request $request)
     {
+        $this->authorize('viewAny', Attendance::class);
+
         $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'limit' => 'nullable|integer|min:1|max:100',
         ]);
+
+        // Validate date range is not too large (max 365 days)
+        $startDate = Carbon::parse($request->start_date);
+        $endDate = Carbon::parse($request->end_date);
+        if ($endDate->diffInDays($startDate) > 365) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Date range cannot exceed 365 days',
+            ], 422);
+        }
 
         $report = $this->exportService->generateAttendanceReport(
             $request->start_date,
@@ -81,6 +96,20 @@ class ReportController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
         ]);
+
+        // Verify user exists and can be viewed
+        $user = User::findOrFail($userId);
+        $this->authorize('view', $user);
+
+        // Validate date range is not too large (max 365 days)
+        $startDate = Carbon::parse($request->start_date);
+        $endDate = Carbon::parse($request->end_date);
+        if ($endDate->diffInDays($startDate) > 365) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Date range cannot exceed 365 days',
+            ], 422);
+        }
 
         $attendances = Attendance::where('user_id', $userId)
             ->whereBetween('date', [$request->start_date, $request->end_date])

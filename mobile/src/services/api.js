@@ -1,7 +1,9 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+// Use EXPO_PUBLIC_ prefix for Expo environment variables
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -14,9 +16,13 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   async (config) => {
-    const token = await AsyncStorage.getItem('auth_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const token = await SecureStore.getItemAsync('auth_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.warn('Error retrieving token:', error);
     }
     return config;
   },
@@ -30,11 +36,24 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      await AsyncStorage.removeItem('auth_token');
+      // Token expired or invalid - trigger logout
+      try {
+        await SecureStore.deleteItemAsync('auth_token');
+      } catch (e) {
+        console.warn('Error deleting token:', e);
+      }
       await AsyncStorage.removeItem('user');
-      // Trigger logout event
-      // This should be handled by your auth store
+      
+      // Import and trigger logout in auth store
+      try {
+        const { useAuthStore } = require('../store/authStore');
+        const authStore = useAuthStore.getState();
+        if (authStore && authStore.logout) {
+          authStore.logout();
+        }
+      } catch (e) {
+        console.warn('Error triggering logout:', e);
+      }
     }
     return Promise.reject(error);
   }

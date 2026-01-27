@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -83,16 +84,24 @@ class UserController extends Controller
 
         $user = Auth::user();
 
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('photos', 'public');
-            $user->update(['photo' => $path]);
-        }
+        try {
+            if ($request->hasFile('photo')) {
+                $path = $request->file('photo')->store('photos', 'public');
+                $user->update(['photo' => $path]);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Photo uploaded successfully',
-            'data' => new UserResource($user),
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Photo uploaded successfully',
+                'data' => new UserResource($user),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to upload photo',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -118,10 +127,20 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::query();
+        $this->authorize('viewAny', User::class);
+
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+            'role' => 'nullable|string|max:100',
+            'department' => 'nullable|string|max:255',
+            'limit' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        // Eager load relationships to avoid N+1 queries
+        $query = User::with(['roles.permissions']);
 
         // Search
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -131,18 +150,18 @@ class UserController extends Controller
         }
 
         // Filter by role
-        if ($request->has('role')) {
+        if ($request->filled('role')) {
             $query->whereHas('roles', function ($q) use ($request) {
                 $q->where('name', $request->role);
             });
         }
 
         // Filter by department
-        if ($request->has('department')) {
+        if ($request->filled('department')) {
             $query->where('department', $request->department);
         }
 
-        $limit = $request->get('limit', 20);
+        $limit = min($request->get('limit', 20), 100);
         $users = $query->paginate($limit);
 
         return response()->json([
@@ -163,6 +182,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::findOrFail($id);
+        $this->authorize('view', $user);
 
         return response()->json([
             'success' => true,
@@ -175,6 +195,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', User::class);
+
         $request->validate([
             'employee_id' => 'required|string|unique:users',
             'name' => 'required|string|max:255',
@@ -189,19 +211,30 @@ class UserController extends Controller
             'roles.*' => 'exists:roles,id',
         ]);
 
-        $user = User::create([
-            'employee_id' => $request->employee_id,
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'birth_date' => $request->birth_date,
-            'gender' => $request->gender,
-            'department' => $request->department,
-        ]);
+        try {
+            $user = DB::transaction(function () use ($request) {
+                $user = User::create([
+                    'employee_id' => $request->employee_id,
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'phone' => $request->phone,
+                    'address' => $request->address,
+                    'birth_date' => $request->birth_date,
+                    'gender' => $request->gender,
+                    'department' => $request->department,
+                ]);
 
-        $user->roles()->attach($request->roles);
+                $user->roles()->attach($request->roles);
+                return $user;
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create user',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
 
         return response()->json([
             'success' => true,
@@ -216,6 +249,7 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        $this->authorize('update', $user);
 
         $request->validate([
             'name' => 'sometimes|string|max:255',
@@ -248,6 +282,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+        $this->authorize('delete', $user);
         $user->delete();
 
         return response()->json([

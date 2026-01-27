@@ -2,6 +2,23 @@ import { databaseService } from './database';
 import { attendanceService } from './attendance';
 import api from './api';
 
+// Retry with exponential backoff
+const retryWithBackoff = async (fn, maxRetries = 3) => {
+  let lastError;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      // Exponential backoff: 1s, 2s, 4s
+      const delay = Math.pow(2, i) * 1000;
+      console.warn(`Retry attempt ${i + 1}/${maxRetries} after ${delay}ms`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  throw lastError;
+};
+
 export const syncService = {
   async syncPendingData() {
     try {
@@ -11,23 +28,23 @@ export const syncService = {
         try {
           const data = JSON.parse(item.data);
 
-          switch (item.action) {
-            case 'create':
-              await this.syncCreate(item.model, data);
-              break;
-            case 'update':
-              await this.syncUpdate(item.model, item.model_id, data);
-              break;
-            case 'delete':
-              await this.syncDelete(item.model, item.model_id);
-              break;
-          }
+          // Use retry logic for sync operations
+          await retryWithBackoff(async () => {
+            switch (item.action) {
+              case 'create':
+                return await this.syncCreate(item.model, data);
+              case 'update':
+                return await this.syncUpdate(item.model, item.model_id, data);
+              case 'delete':
+                return await this.syncDelete(item.model, item.model_id);
+            }
+          }, 3);
 
           // Mark as synced
           await databaseService.markSyncItemAsSynced(item.id);
         } catch (error) {
           console.error(`Sync error for item ${item.id}:`, error);
-          // Continue with next item
+          // Continue with next item even if sync fails
         }
       }
 

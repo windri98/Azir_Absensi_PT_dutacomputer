@@ -8,6 +8,7 @@ use App\Models\Partner;
 use App\Services\GeoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
@@ -102,33 +103,62 @@ class ActivityController extends Controller
 
         $data = $validator->validated();
 
-        $activityData = [
-            'user_id' => Auth::id(),
-            'partner_id' => $data['partner_id'],
-            'title' => $data['title'],
-            'description' => $data['description'] ?? null,
-            'start_time' => $data['start_time'],
-            'end_time' => $data['end_time'] ?? null,
-            'status' => 'signed',
-            'signature_name' => $data['signature_name'],
-            'signed_at' => now(),
-            'latitude' => $data['latitude'],
-            'longitude' => $data['longitude'],
-            'location_address' => $data['location_address'] ?? null,
-        ];
+        try {
+            $activityData = DB::transaction(function () use ($request, $data) {
+                $activityData = [
+                    'user_id' => Auth::id(),
+                    'partner_id' => $data['partner_id'],
+                    'title' => $data['title'],
+                    'description' => $data['description'] ?? null,
+                    'start_time' => $data['start_time'],
+                    'end_time' => $data['end_time'] ?? null,
+                    'status' => 'signed',
+                    'signature_name' => $data['signature_name'],
+                    'signed_at' => now(),
+                    'latitude' => $data['latitude'],
+                    'longitude' => $data['longitude'],
+                    'location_address' => $data['location_address'] ?? null,
+                ];
 
-        $activityData['evidence_path'] = $request->file('evidence')
-            ->store('activities/evidence', 'public');
+                // Store evidence file
+                try {
+                    $activityData['evidence_path'] = $request->file('evidence')
+                        ->store('activities/evidence', 'public');
+                } catch (\Exception $e) {
+                    throw new \RuntimeException('Gagal mengupload foto bukti: ' . $e->getMessage());
+                }
 
-        $activityData['signature_path'] = $this->storeSignatureImage($data['signature_data']);
+                // Store signature
+                try {
+                    $activityData['signature_path'] = $this->storeSignatureImage($data['signature_data']);
+                } catch (\Exception $e) {
+                    // Clean up uploaded evidence file if signature fails
+                    if (isset($activityData['evidence_path'])) {
+                        Storage::disk('public')->delete($activityData['evidence_path']);
+                    }
+                    throw new \RuntimeException('Gagal menyimpan tanda tangan: ' . $e->getMessage());
+                }
 
-        $activity = Activity::create($activityData);
+                return Activity::create($activityData);
+            });
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Aktivitas berhasil dikirim',
-            'data' => $activity->load('partner'),
-        ], 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Aktivitas berhasil dikirim',
+                'data' => $activityData->load('partner'),
+            ], 201);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyimpan aktivitas',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     private function storeSignatureImage(string $signatureData): string

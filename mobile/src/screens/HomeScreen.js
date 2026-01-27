@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,11 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../store/authStore';
 import { useAttendanceStore } from '../store/attendanceStore';
 
-export const HomeScreen = ({ navigation }) => {
+const HomeScreenComponent = ({ navigation }) => {
   const { user } = useAuthStore();
   const { todayAttendance, fetchTodayAttendance, isLoading } = useAttendanceStore();
   const [refreshing, setRefreshing] = useState(false);
@@ -38,10 +39,11 @@ export const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <ScrollView
+        style={styles.scrollView}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
       {/* Header */}
       <View style={styles.header}>
         <View>
@@ -143,14 +145,20 @@ export const HomeScreen = ({ navigation }) => {
           </View>
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
+
+export const HomeScreen = React.memo(HomeScreenComponent);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  scrollView: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',

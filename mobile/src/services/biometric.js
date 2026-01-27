@@ -31,7 +31,7 @@ export const biometricService = {
 
       const result = await LocalAuthentication.authenticateAsync({
         disableDeviceFallback: false,
-        reason: 'Authenticate to access PT Duta  computer',
+        reason: 'Authenticate to access PT Duta Computer',
       });
 
       return result.success;
